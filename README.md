@@ -2,6 +2,8 @@
 
 [English](#english) | [中文](#中文)
 
+中文详解：[项目结构](docs/architecture.md) · [代码走读](docs/code-walkthrough.md) · [数值验证](docs/numerical-verification.md) · [Benchmark 方法](docs/benchmark-methodology.md) · [Baseline 实验](docs/experiments/phase1-baseline.md)
+
 ## English
 
 GEMM Optimization Lab is a research-oriented systems project for studying high-performance computing and compiler optimization for AI compilers. The current milestone is a single-threaded FP32 GEMM baseline written in standard C++17 without third-party matrix libraries.

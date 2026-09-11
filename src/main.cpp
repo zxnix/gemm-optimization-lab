@@ -26,6 +26,7 @@ double median(std::vector<double> values) {
 }
 
 double gflops(std::size_t m, std::size_t n, std::size_t k, double milliseconds) {
+    // HPC 约定把每个乘法和加法分别计一次，因此 GEMM 约为 2MNK FLOPs。
     const double operations = 2.0 * static_cast<double>(m) * static_cast<double>(n) *
                               static_cast<double>(k);
     return operations / (milliseconds * 1.0e6);
@@ -62,11 +63,13 @@ bool benchmark_size(std::size_t size, int repeats) {
                      static_cast<double>(size)
               << '\n';
 
-    gemm::gemm_naive(a, b, c);  // One untimed warm-up.
+    // warm-up 不计时，降低首次访存和 CPU 状态变化造成的特殊性。
+    gemm::gemm_naive(a, b, c);
 
     std::vector<double> milliseconds;
     milliseconds.reserve(static_cast<std::size_t>(repeats));
     for (int run = 0; run < repeats; ++run) {
+        // 计时边界只包围 kernel；分配、初始化、输出和验证均在边界外。
         const auto start = Clock::now();
         gemm::gemm_naive(a, b, c);
         const auto stop = Clock::now();
@@ -87,6 +90,7 @@ bool benchmark_size(std::size_t size, int repeats) {
               << "  median: " << median_ms << " ms, "
               << gflops(size, size, size, median_ms) << " GFLOP/s\n";
 
+    // FP64 reference 也是 O(MNK)，必须在计时外执行。
     const gemm::VerificationResult verification = gemm::verify_gemm(a, b, c);
     std::cout << "  verify: " << (verification.passed ? "PASS" : "FAIL")
               << ", max_abs_error=" << std::scientific << verification.max_absolute_error

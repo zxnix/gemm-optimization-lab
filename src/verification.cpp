@@ -21,11 +21,13 @@ VerificationResult verify_gemm(const Matrix& a,
         for (std::size_t j = 0; j < b.cols(); ++j) {
             double reference = 0.0;
             for (std::size_t k = 0; k < a.cols(); ++k) {
+                // 先提升操作数再乘法，避免先发生 FP32 舍入或上溢。
                 reference += static_cast<double>(a(i, k)) * static_cast<double>(b(k, j));
             }
 
             const double actual = static_cast<double>(computed(i, j));
             const double absolute_error = std::abs(actual - reference);
+            // 分母下限只稳定诊断值；最终 PASS 使用下面的绝对/相对联合容限。
             const double relative_error =
                 absolute_error / std::max(std::abs(reference), 1.0e-12);
 

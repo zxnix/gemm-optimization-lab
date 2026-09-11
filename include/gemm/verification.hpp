@@ -6,6 +6,7 @@
 
 namespace gemm {
 
+/** @brief 汇总 FP32 结果与 FP64 reference 的逐元素误差。 */
 struct VerificationResult {
     bool passed = false;
     std::size_t failure_count = 0;
@@ -17,6 +18,7 @@ struct VerificationResult {
     double reference_at_worst = 0.0;
 };
 
+/** @brief 用 FP64 乘法和累加生成 reference，并按绝对/相对联合容限验证。 */
 VerificationResult verify_gemm(const Matrix& a,
                                const Matrix& b,
                                const Matrix& computed,
