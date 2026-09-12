@@ -19,7 +19,8 @@
       "inherits": "base",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "GEMM_ENABLE_SANITIZERS": "OFF"
+        "GEMM_ENABLE_SANITIZERS": "OFF",
+        "GEMM_OPT_LEVEL": "O3"
       }
     },
     {
@@ -29,7 +30,8 @@
       "inherits": "base",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "GEMM_ENABLE_SANITIZERS": "ON"
+        "GEMM_ENABLE_SANITIZERS": "ON",
+        "GEMM_OPT_LEVEL": "O0"
       }
     }
   ],
