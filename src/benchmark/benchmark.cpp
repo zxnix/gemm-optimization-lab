@@ -188,11 +188,12 @@ void write_csv(const std::string& path,
     if (!output) throw std::runtime_error("cannot open CSV output: " + path);
     output << "timestamp_utc,compiler,compiler_version,build_type,kernel,block_size,optimization_level,m,n,k,run,time_ms,gflops,verified,max_abs_error,max_rel_error\n";
     const std::string timestamp = utc_timestamp();
+    const std::size_t reported_block_size = options.kernel == "blocked" ? options.block_size : 0;
     output << std::setprecision(12);
     for (const CaseResult& item : cases) {
         for (const RunResult& run : item.runs) {
             output << timestamp << ',' << GEMM_COMPILER_ID << ',' << GEMM_COMPILER_VERSION << ','
-                   << GEMM_BUILD_TYPE << ',' << options.kernel << ',' << options.block_size << ','
+                   << GEMM_BUILD_TYPE << ',' << options.kernel << ',' << reported_block_size << ','
                    << GEMM_OPT_LEVEL << ',' << item.shape.m << ',' << item.shape.n << ',' << item.shape.k
                    << ',' << run.run << ',' << run.milliseconds << ',' << run.gflops << ','
                    << (item.verification.passed ? "true" : "false") << ','
@@ -209,8 +210,9 @@ int main(int argc, char** argv) {
         const Options options = parse_options(argc, argv);
         const std::string loop_order = options.kernel == "naive" ? "i-j-k" :
                                        options.kernel == "ikj" ? "i-k-j" : "blocked-i-k-j";
+        const std::size_t reported_block_size = options.kernel == "blocked" ? options.block_size : 0;
         std::cout << "GEMM Optimization Lab - FP32 GEMM benchmark\n"
-                  << "kernel=" << options.kernel << ", block-size=" << options.block_size
+                  << "kernel=" << options.kernel << ", block-size=" << reported_block_size
                   << ", layout=row-major, loop-order=" << loop_order
                   << ", threads=1, warm-up=1, repeats=" << options.repeats
                   << ", optimization=" << GEMM_OPT_LEVEL << '\n';
