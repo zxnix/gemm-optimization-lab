@@ -72,6 +72,8 @@ If Ninja is unavailable, omit `-G Ninja` to use CMake's default generator.
 ```bash
 ./build/gemm_benchmark
 ./build/gemm_benchmark --repeats 5
+./build/gemm_benchmark --sizes 128,256,512 --csv results.csv
+./build/gemm_benchmark --m 128 --n 3072 --k 768
 ```
 
 Performance is reported using:
@@ -138,6 +140,8 @@ ctest --test-dir build --output-on-failure
 ```bash
 ./build/gemm_benchmark
 ./build/gemm_benchmark --repeats 5
+./build/gemm_benchmark --sizes 128,256,512 --csv results.csv
+./build/gemm_benchmark --m 128 --n 3072 --k 768
 ```
 
 ```text

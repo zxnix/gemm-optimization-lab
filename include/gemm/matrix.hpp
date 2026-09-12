@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <random>
 #include <stdexcept>
 #include <vector>
@@ -14,10 +15,14 @@ class Matrix {
 public:
     /** @throws std::invalid_argument 任一维度为零时抛出。 */
     Matrix(std::size_t rows, std::size_t cols)
-        : rows_(rows), cols_(cols), data_(rows * cols, 0.0F) {
+        : rows_(rows), cols_(cols) {
         if (rows == 0 || cols == 0) {
             throw std::invalid_argument("matrix dimensions must be positive");
         }
+        if (rows > std::numeric_limits<std::size_t>::max() / cols) {
+            throw std::length_error("matrix element count overflow");
+        }
+        data_.resize(rows * cols, 0.0F);
     }
 
     [[nodiscard]] std::size_t rows() const noexcept { return rows_; }
