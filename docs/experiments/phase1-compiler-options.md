@@ -48,6 +48,10 @@ GEMM_SIZES=64,128 GEMM_REPEATS=2 ./scripts/run_compiler_options.sh /tmp/gemm-res
 
 WSL2 中的调度、宿主机负载和功耗状态会造成波动，因此本结果是开发基线，不直接作为论文级硬件结论。比较时优先看 median，并同时检查七次运行的离散程度。性能变化必须结合实际编译命令和生成代码解释，不能仅凭 `-O3` 名称推断。
 
+## 本机结果
+
+正式结果、速度比和生成代码分析见 [`results/phase1/compiler-options/summary.md`](../../results/phase1/compiler-options/summary.md)。所有组合均通过 FP64 reference 验证。
+
 ## 与下一阶段的连接
 
 该实验建立“源程序 → 编译选项 → 机器代码 → 性能”的证据链。下一步将固定优化级别，改变循环顺序，再进入 cache blocking；Phase 2 则会对同一 kernel 的 LLVM IR 和机器指令进行系统分析。

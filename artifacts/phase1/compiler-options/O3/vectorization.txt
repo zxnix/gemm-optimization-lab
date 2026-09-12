@@ -1,0 +1,16 @@
+src/gemm_naive.cpp:17:31: missed: couldn't vectorize loop
+src/gemm_naive.cpp:17:31: missed: not vectorized: unsupported control flow in loop.
+src/gemm_naive.cpp:18:35: missed: couldn't vectorize loop
+src/gemm_naive.cpp:18:35: missed: not vectorized: unsupported control flow in loop.
+src/gemm_naive.cpp:21:39: optimized: loop vectorized using 16 byte vectors and unroll factor 4
+src/gemm_naive.cpp:7:6: note: vectorized 1 loops in function.
+src/gemm_naive.cpp:9:74: missed: statement clobbers memory: _28 = __cxa_allocate_exception (16);
+src/gemm_naive.cpp:9:74: missed: not vectorized: statement can throw an exception: std::invalid_argument::invalid_argument (_28, "incompatible GEMM matrix dimensions");
+src/gemm_naive.cpp:9:74: missed: statement clobbers memory: __cxa_throw (_28, &_ZTISt16invalid_argument, __dt_comp );
+src/gemm_naive.cpp:9:74: missed: statement clobbers memory: __cxa_free_exception (_28);
+include/gemm/matrix.hpp:34:39: note: ***** Analysis failed with vector mode V2DI
+include/gemm/matrix.hpp:34:39: note: ***** The result for vector mode V16QI would be the same
+include/gemm/matrix.hpp:34:39: note: ***** Re-trying analysis with vector mode V8QI
+include/gemm/matrix.hpp:34:39: note: ***** Analysis failed with vector mode V8QI
+include/gemm/matrix.hpp:34:39: note: ***** Re-trying analysis with vector mode V4QI
+include/gemm/matrix.hpp:34:39: note: ***** Analysis failed with vector mode V4QI

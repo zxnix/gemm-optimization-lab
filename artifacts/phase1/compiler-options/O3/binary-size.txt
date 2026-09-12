@@ -1,0 +1,2 @@
+   text	   data	    bss	    dec	    hex	filename
+  35723	   2140	    568	  38431	   961f	build-phase12/O3/gemm_benchmark
