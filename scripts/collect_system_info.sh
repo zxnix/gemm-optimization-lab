@@ -26,5 +26,5 @@ mkdir -p "$(dirname "$output_path")"
     if [[ -f build/compile_commands.json ]]; then
         echo "compile_commands=build/compile_commands.json"
     fi
-    cmake -L -N build 2>/dev/null | sed -n 's/^CMAKE_CXX_FLAGS_RELEASE:STRING=/release_flags=/p'
+    cmake -LA -N build 2>/dev/null | sed -n 's/^CMAKE_CXX_FLAGS_RELEASE:STRING=/release_flags=/p'
 } > "$output_path"
