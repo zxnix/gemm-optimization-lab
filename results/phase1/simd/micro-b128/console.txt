@@ -1,0 +1,73 @@
+GEMM Optimization Lab - FP32 GEMM benchmark
+kernel=micro, block-size=128, layout=row-major, loop-order=packed-register-blocked, target-isa=generic, microkernel=4x8, threads=1, warm-up=1, repeats=7, optimization=O3
+
+M=256, N=256, K=256
+  packing (separate from kernel time):
+    run 1: 0.011 ms
+    run 2: 0.011 ms
+    run 3: 0.011 ms
+    run 4: 0.018 ms
+    run 5: 0.011 ms
+    run 6: 0.011 ms
+    run 7: 0.011 ms
+    mean:   0.012 ms
+    median: 0.011 ms
+  run 1: 1.628 ms, 20.607 GFLOP/s
+  run 2: 1.594 ms, 21.051 GFLOP/s
+  run 3: 1.596 ms, 21.024 GFLOP/s
+  run 4: 1.612 ms, 20.816 GFLOP/s
+  run 5: 1.642 ms, 20.431 GFLOP/s
+  run 6: 1.695 ms, 19.794 GFLOP/s
+  run 7: 1.610 ms, 20.835 GFLOP/s
+  mean:   1.625 ms, 20.643 GFLOP/s
+  median: 1.612 ms, 20.816 GFLOP/s
+  one-shot median (packing + kernel): 1.630 ms, 20.580 effective GFLOP/s
+  verify: PASS, max_abs_error=1.251e-05, max_rel_error=3.549e-01, failures=0
+
+M=512, N=512, K=512
+  packing (separate from kernel time):
+    run 1: 0.066 ms
+    run 2: 0.069 ms
+    run 3: 0.080 ms
+    run 4: 0.077 ms
+    run 5: 0.069 ms
+    run 6: 0.069 ms
+    run 7: 0.068 ms
+    mean:   0.071 ms
+    median: 0.069 ms
+  run 1: 12.989 ms, 20.666 GFLOP/s
+  run 2: 13.351 ms, 20.106 GFLOP/s
+  run 3: 13.182 ms, 20.365 GFLOP/s
+  run 4: 13.024 ms, 20.611 GFLOP/s
+  run 5: 13.485 ms, 19.906 GFLOP/s
+  run 6: 13.542 ms, 19.823 GFLOP/s
+  run 7: 13.407 ms, 20.022 GFLOP/s
+  mean:   13.283 ms, 20.209 GFLOP/s
+  median: 13.351 ms, 20.106 GFLOP/s
+  one-shot median (packing + kernel): 13.420 ms, 20.003 effective GFLOP/s
+  verify: PASS, max_abs_error=2.868e-05, max_rel_error=9.403e-02, failures=0
+
+M=1024, N=1024, K=1024
+  packing (separate from kernel time):
+    run 1: 0.352 ms
+    run 2: 0.301 ms
+    run 3: 0.289 ms
+    run 4: 0.308 ms
+    run 5: 0.289 ms
+    run 6: 0.290 ms
+    run 7: 0.300 ms
+    mean:   0.304 ms
+    median: 0.300 ms
+  run 1: 111.994 ms, 19.175 GFLOP/s
+  run 2: 113.092 ms, 18.989 GFLOP/s
+  run 3: 112.431 ms, 19.100 GFLOP/s
+  run 4: 112.623 ms, 19.068 GFLOP/s
+  run 5: 111.069 ms, 19.335 GFLOP/s
+  run 6: 119.572 ms, 17.960 GFLOP/s
+  run 7: 112.311 ms, 19.121 GFLOP/s
+  mean:   113.299 ms, 18.954 GFLOP/s
+  median: 112.431 ms, 19.100 GFLOP/s
+  one-shot median (packing + kernel): 112.720 ms, 19.051 effective GFLOP/s
+  verify: PASS, max_abs_error=7.589e-05, max_rel_error=9.563e-01, failures=0
+
+CSV written to results/phase1/simd/micro-b128/raw-results.csv

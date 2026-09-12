@@ -100,6 +100,14 @@ GEMM_SIZES=128,256 GEMM_REPEATS=2 GEMM_BLOCK_SIZES=64 \
 AVX2 实现必须在 Assembly 中出现 YMM 与 packed FMA 指令。portable control 的真实
 代码生成也需要记录。源码中的 intrinsic 只是意图，Assembly 才是 CPU 将执行的证据。
 
+## 结果
+
+正式结果见 [`results/phase1/simd/summary.md`](../../results/phase1/simd/summary.md)。
+最佳 AVX2/FMA 4×8 kernel 在 256³、512³、1024³ 上分别达到 56.511、57.630 和
+53.416 GFLOP/s，相对本轮 `i-k-j` median 分别加速 3.758×、3.979× 和 3.532×。
+portable 4×8 没有超过 matched packed baseline，说明微内核源码形状本身并不保证
+理想寄存器分配。
+
 ## 解释边界
 
 当前 4×8 只是第一个教学型微内核，不代表最优形状。未测试 aligned allocation、

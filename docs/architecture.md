@@ -7,7 +7,10 @@ Matrix（逻辑 row-major 数据）
   ├── gemm_naive
   ├── gemm_ikj
   ├── gemm_blocked
-  ├── pack_b ──→ PackedB（tile-major 物理布局）──→ gemm_packed_b
+  ├── pack_b ──→ PackedB（tile-major 物理布局）
+  │                    ├── gemm_packed_b
+  │                    ├── gemm_microkernel_4x8
+  │                    └── gemm_avx2_4x8
   └── verify_gemm（FP64 reference）
                     ↑
              benchmark 与 tests
@@ -19,6 +22,7 @@ Matrix（逻辑 row-major 数据）
 - `src/kernels/gemm_ikj.cpp`：连续访问 B/C 的 `i-k-j` 实现。
 - `src/kernels/gemm_blocked.cpp`：三维 cache blocking 对照。
 - `src/kernels/gemm_packed.cpp`：B layout transformation 与 packed kernel。
+- `src/kernels/gemm_microkernel.cpp`：portable 4×8 与 AVX2/FMA 4×8 微内核。
 - `src/verification/verification.cpp`：FP64 reference 与误差报告。
 - `src/benchmark/benchmark.cpp`：warm-up、计时、统计和 GFLOP/s。
 - `test_gemm.cpp`：手工结果、随机非方阵和非法维度测试。

@@ -2,7 +2,7 @@
 
 [中文](#中文) | [English](#english)
 
-中文详解：[项目结构](docs/architecture.md) · [代码走读](docs/code-walkthrough.md) · [数值验证](docs/numerical-verification.md) · [Benchmark 方法](docs/benchmark-methodology.md) · [Baseline 实验](docs/experiments/phase1-baseline.md) · [编译器优化级别实验](docs/experiments/phase1-compiler-options.md) · [Cache Blocking 实验](docs/experiments/phase1-blocking.md) · [Matrix Packing 实验](docs/experiments/phase1-packing.md)
+中文详解：[项目结构](docs/architecture.md) · [代码走读](docs/code-walkthrough.md) · [数值验证](docs/numerical-verification.md) · [Benchmark 方法](docs/benchmark-methodology.md) · [Baseline 实验](docs/experiments/phase1-baseline.md) · [编译器优化级别实验](docs/experiments/phase1-compiler-options.md) · [Cache Blocking 实验](docs/experiments/phase1-blocking.md) · [Matrix Packing 实验](docs/experiments/phase1-packing.md) · [SIMD 实验](docs/experiments/phase1-simd.md)
 
 ## 中文
 
@@ -14,9 +14,9 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 
 ## Current Milestone
 
-**Phase 1.5 — Matrix Packing（已完成）**
+**Phase 1.6 — Register Microkernel 与 AVX2/FMA（已完成）**
 
-项目当前包含使用标准 C++17 实现的单线程 FP32 GEMM baseline、GCC 优化级别实验、循环顺序实验、cache blocking 和 B matrix packing，不依赖任何第三方矩阵库。
+项目当前包含单线程 FP32 GEMM baseline、GCC 优化级别实验、循环顺序、cache blocking、B matrix packing、portable 4×8 microkernel 和显式 AVX2/FMA 4×8 microkernel，不依赖任何第三方矩阵库。
 
 ### Scope
 
@@ -32,8 +32,9 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 - 比较 row-major 下不同循环顺序的内存访问行为
 - 比较 cache blocking 的不同 tile size
 - 分离测量 B matrix packing、packed compute 与 one-shot 成本
+- 比较 portable register microkernel 与显式 AVX2/FMA
 
-所有 kernel 在源码层面仍使用普通 C++ 循环；编译器可以自动向量化，但当前实验不启用 `-march=native`、`-ffast-math`、OpenMP 或手写 SIMD，也不使用 BLAS、MKL、Eigen 等外部矩阵库。
+除专用 AVX2 kernel 外，其余实现使用普通 C++ 循环。AVX2/FMA 仅应用于带运行时能力检查的目标函数；项目仍不启用全局 `-march=native`、`-ffast-math` 或 OpenMP，也不使用 BLAS、MKL、Eigen 等外部矩阵库。
 
 ## Roadmap
 
@@ -42,7 +43,7 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 - [x] Phase 1.3：循环顺序与内存访问分析
 - [x] Phase 1.4：Cache blocking 分析
 - [x] Phase 1.5：Matrix packing
-- [ ] Phase 1.6：SIMD/AVX 向量化
+- [x] Phase 1.6：SIMD/AVX 向量化
 - [ ] Phase 1.7：多线程与硬件性能计数器
 - [ ] Phase 2：LLVM IR 与机器指令分析
 - [ ] Phase 3：Tensor IR 与调度
@@ -137,6 +138,8 @@ ctest --preset debug-sanitizers
 ./build/release/gemm_benchmark --kernel ikj --sizes 128,256,512
 ./build/release/gemm_benchmark --kernel blocked --block-size 64 --sizes 128,256,512
 ./build/release/gemm_benchmark --kernel packed --block-size 64 --sizes 128,256,512
+./build/release/gemm_benchmark --kernel micro --block-size 64 --sizes 128,256,512
+./build/release/gemm_benchmark --kernel avx2 --block-size 64 --sizes 128,256,512
 ```
 
 运行可复现实验：
@@ -144,6 +147,7 @@ ctest --preset debug-sanitizers
 ```bash
 ./scripts/run_compiler_options.sh
 ./scripts/run_packing.sh
+./scripts/run_simd.sh
 ```
 
 生成 `i-k-j`、blocked 与 packed kernel 的 O3 Assembly 和向量化报告：
@@ -167,7 +171,7 @@ GFLOP/s = FLOPs / time_seconds / 1e9
 
 ## Results
 
-Phase 1.1–1.5 的结果位于 [`results/phase1`](results/phase1)。在当前 Phase 1.5 WSL2 测量中，packed compute 在 12 组 matched comparisons 中有 11 组快于相同 block size 的 blocked kernel，最高观测为 1.783×；但每种 shape 中最好的 packed 版本仍未超过 `i-k-j`。完整数据见 [Phase 1.2](results/phase1/compiler-options/summary.md)、[Phase 1.3](results/phase1/loop-order/summary.md)、[Phase 1.4](results/phase1/blocking/summary.md) 和 [Phase 1.5](results/phase1/packing/summary.md) 结果总结。
+Phase 1.1–1.6 的结果位于 [`results/phase1`](results/phase1)。Phase 1.6 的最佳 AVX2/FMA 4×8 kernel 在 256³、512³、1024³ 上达到 56.511、57.630 和 53.416 GFLOP/s，相对本轮 `i-k-j` median 分别加速 3.758×、3.979× 和 3.532×。完整数据见 [Phase 1.2](results/phase1/compiler-options/summary.md)、[Phase 1.3](results/phase1/loop-order/summary.md)、[Phase 1.4](results/phase1/blocking/summary.md)、[Phase 1.5](results/phase1/packing/summary.md) 和 [Phase 1.6](results/phase1/simd/summary.md)。
 
 ## Continuous Integration
 
@@ -189,9 +193,9 @@ Modern AI workloads rely heavily on matrix computation. This project studies how
 
 ## Current Milestone
 
-**Phase 1.5 — Matrix Packing (completed)**
+**Phase 1.6 — Register Microkernel and AVX2/FMA (completed)**
 
-The project currently provides a single-threaded FP32 GEMM baseline in standard C++17, controlled GCC optimization-level and loop-order experiments, cache blocking, and B matrix packing. No third-party matrix library is used.
+The project currently provides a single-threaded FP32 GEMM baseline, controlled GCC optimization-level and loop-order experiments, cache blocking, B matrix packing, a portable 4×8 microkernel, and an explicit AVX2/FMA 4×8 microkernel. No third-party matrix library is used.
 
 ### Scope
 
@@ -207,8 +211,9 @@ The project currently provides a single-threaded FP32 GEMM baseline in standard 
 - Comparison of row-major memory-access behavior across loop orders
 - Comparison of cache-blocking tile sizes
 - Separate measurement of B packing, packed compute, and one-shot cost
+- Comparison of a portable register microkernel with explicit AVX2/FMA
 
-All kernels still use ordinary C++ loops at source level. The compiler may auto-vectorize them, but the current experiments do not use `-march=native`, `-ffast-math`, OpenMP, handwritten SIMD, BLAS, MKL, Eigen, or other external matrix libraries.
+All implementations except the dedicated AVX2 kernel use ordinary C++ loops. AVX2/FMA is limited to a target-specific function guarded by a runtime capability check. The project still does not enable global `-march=native`, `-ffast-math`, or OpenMP, and does not use BLAS, MKL, Eigen, or other external matrix libraries.
 
 ## Roadmap
 
@@ -217,7 +222,7 @@ All kernels still use ordinary C++ loops at source level. The compiler may auto-
 - [x] Phase 1.3: Loop-order and memory-access analysis
 - [x] Phase 1.4: Cache-blocking analysis
 - [x] Phase 1.5: Matrix packing
-- [ ] Phase 1.6: SIMD/AVX vectorization
+- [x] Phase 1.6: SIMD/AVX vectorization
 - [ ] Phase 1.7: Multithreading and hardware performance counters
 - [ ] Phase 2: LLVM IR and machine-instruction analysis
 - [ ] Phase 3: Tensor IR and scheduling
@@ -312,6 +317,8 @@ ctest --preset debug-sanitizers
 ./build/release/gemm_benchmark --kernel ikj --sizes 128,256,512
 ./build/release/gemm_benchmark --kernel blocked --block-size 64 --sizes 128,256,512
 ./build/release/gemm_benchmark --kernel packed --block-size 64 --sizes 128,256,512
+./build/release/gemm_benchmark --kernel micro --block-size 64 --sizes 128,256,512
+./build/release/gemm_benchmark --kernel avx2 --block-size 64 --sizes 128,256,512
 ```
 
 Run the reproducible experiments:
@@ -319,6 +326,7 @@ Run the reproducible experiments:
 ```bash
 ./scripts/run_compiler_options.sh
 ./scripts/run_packing.sh
+./scripts/run_simd.sh
 ```
 
 Generate O3 assembly and vectorization reports for the `i-k-j`, blocked, and packed kernels:
@@ -342,7 +350,7 @@ All benchmark results should be reproducible under a fixed hardware and software
 
 ## Results
 
-Results for Phases 1.1–1.5 are available in [`results/phase1`](results/phase1). In the current Phase 1.5 WSL2 run, packed compute was faster than the matching blocked kernel in 11 of 12 comparisons, with a maximum observed speedup of 1.783×; however, the best packed variant for each shape did not exceed `i-k-j`. See the result summaries for [Phase 1.2](results/phase1/compiler-options/summary.md), [Phase 1.3](results/phase1/loop-order/summary.md), [Phase 1.4](results/phase1/blocking/summary.md), and [Phase 1.5](results/phase1/packing/summary.md).
+Results for Phases 1.1–1.6 are available in [`results/phase1`](results/phase1). The best Phase 1.6 AVX2/FMA 4×8 kernel reaches 56.511, 57.630, and 53.416 GFLOP/s for 256³, 512³, and 1024³, corresponding to 3.758×, 3.979×, and 3.532× over the `i-k-j` medians from the same run. See the result summaries for [Phase 1.2](results/phase1/compiler-options/summary.md), [Phase 1.3](results/phase1/loop-order/summary.md), [Phase 1.4](results/phase1/blocking/summary.md), [Phase 1.5](results/phase1/packing/summary.md), and [Phase 1.6](results/phase1/simd/summary.md).
 
 ## Continuous Integration
 

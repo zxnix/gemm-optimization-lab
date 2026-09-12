@@ -30,6 +30,17 @@
 workspace，单独测量 packing，再测量已打包 B 的 compute-only，同时报告
 one-shot = packing + compute。
 
+## Register Microkernel 与 AVX2/FMA
+
+portable `gemm_microkernel_4x8` 用 32 个 FP32 accumulator 表达 4×8 输出块，并让
+一个 packed B 行片段服务四个 A 行。`gemm_avx2_4x8` 把同一数据流显式 lowering
+为四个 YMM accumulator：每个 k step 加载一个 8-lane B 向量，广播四个 A 标量，
+再执行四条 packed FMA。
+
+完整 4×8 块走 AVX2，边界块走 portable 路径。AVX2 公共入口先检查 CPU capability；
+专用函数通过 target attribute 编译，因此不会让 generic 程序路径隐式要求 AVX2。
+FMA 只有一次舍入，所以 AVX2 与非 FMA 结果允许存在正常的末位差异。
+
 ## Verification 与 Benchmark
 
 验证器先把 FP32 输入提升为 FP64，再乘法和累加。benchmark 的矩阵分配、初始化、warm-up、统计、输出和验证都不进入正式 kernel 计时。
