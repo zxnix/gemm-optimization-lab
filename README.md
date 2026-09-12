@@ -92,7 +92,10 @@ sudo dnf install clang llvm
 ├── include/gemm/            # Matrix、GEMM 和验证接口
 ├── results/phase1/          # 原始 benchmark 数据与结果总结
 ├── scripts/                 # 可重复执行的实验脚本
-├── src/                     # GEMM kernel 与 benchmark 程序
+├── src/
+│   ├── kernels/             # GEMM kernels
+│   ├── verification/        # 数值正确性验证
+│   └── benchmark/           # benchmark 程序
 ├── tests/                   # 正确性与错误处理测试
 ├── AGENTS.md                # 项目协作与科研规范
 ├── CMakeLists.txt
@@ -250,7 +253,10 @@ sudo dnf install clang llvm
 ├── include/gemm/            # Matrix, GEMM, and verification interfaces
 ├── results/phase1/          # Raw benchmark data and result summaries
 ├── scripts/                 # Reproducible experiment automation
-├── src/                     # GEMM kernels and benchmark program
+├── src/
+│   ├── kernels/             # GEMM kernels
+│   ├── verification/        # Numerical verification
+│   └── benchmark/           # Benchmark program
 ├── tests/                   # Correctness and error-handling tests
 ├── AGENTS.md                # Project collaboration and research rules
 ├── CMakeLists.txt

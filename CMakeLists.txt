@@ -21,15 +21,15 @@ if(GEMM_ENABLE_SANITIZERS)
 endif()
 
 add_library(gemm_baseline
-    src/gemm_naive.cpp
-    src/verification.cpp
+    src/kernels/gemm_naive.cpp
+    src/verification/verification.cpp
 )
 target_include_directories(gemm_baseline PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_compile_options(gemm_baseline PRIVATE
     $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic>
 )
 
-add_executable(gemm_benchmark src/main.cpp)
+add_executable(gemm_benchmark src/benchmark/benchmark.cpp)
 target_link_libraries(gemm_benchmark PRIVATE gemm_baseline)
 target_compile_definitions(gemm_benchmark PRIVATE
     GEMM_BUILD_TYPE="${CMAKE_BUILD_TYPE}"

@@ -36,10 +36,10 @@ for level in O0 O1 O2 O3; do
     cp "$build_dir/compile_commands.json" "$artifact_dir/compile_commands.json"
     size "$build_dir/gemm_benchmark" > "$artifact_dir/binary-size.txt"
     c++ -std=c++17 -Iinclude "-$level" -DNDEBUG -S -masm=intel \
-        src/gemm_naive.cpp -o "$artifact_dir/gemm_naive.s"
+        src/kernels/gemm_naive.cpp -o "$artifact_dir/gemm_naive.s"
     c++ -std=c++17 -Iinclude "-$level" -DNDEBUG -c \
         -fopt-info-vec-all="$artifact_dir/vectorization.txt" \
-        src/gemm_naive.cpp -o "$build_dir/gemm_naive-analysis.o"
+        src/kernels/gemm_naive.cpp -o "$build_dir/gemm_naive-analysis.o"
 done
 
 echo "Results:   $result_root"
