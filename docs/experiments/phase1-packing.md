@@ -92,6 +92,14 @@ GEMM_SIZES=64,128 GEMM_REPEATS=2 GEMM_BLOCK_SIZES=32,64 \
 ./build/release/gemm_benchmark --kernel packed --block-size 64
 ~~~
 
+## 结果
+
+正式结果见 [`results/phase1/packing/summary.md`](../../results/phase1/packing/summary.md)。
+在当前 WSL2 测量中，packed compute 在 12 组 matched comparisons 中有 11 组快于
+相同 block size 的 blocked kernel，最高观测速率为 1.783×；但每种 shape 中最好的
+packed 版本仍比 unblocked `i-k-j` 慢 1.3%–8.3%。packing 的 median 为
+0.011–0.370 ms，因此本次方阵的 one-shot 结果与 compute-only 很接近。
+
 ## 解释边界
 
 WSL2 测量用于工程趋势，不作为论文级硬件结论。没有硬件性能计数器时，不能仅凭

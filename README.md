@@ -2,7 +2,7 @@
 
 [中文](#中文) | [English](#english)
 
-中文详解：[项目结构](docs/architecture.md) · [代码走读](docs/code-walkthrough.md) · [数值验证](docs/numerical-verification.md) · [Benchmark 方法](docs/benchmark-methodology.md) · [Baseline 实验](docs/experiments/phase1-baseline.md) · [编译器优化级别实验](docs/experiments/phase1-compiler-options.md) · [Cache Blocking 实验](docs/experiments/phase1-blocking.md)
+中文详解：[项目结构](docs/architecture.md) · [代码走读](docs/code-walkthrough.md) · [数值验证](docs/numerical-verification.md) · [Benchmark 方法](docs/benchmark-methodology.md) · [Baseline 实验](docs/experiments/phase1-baseline.md) · [编译器优化级别实验](docs/experiments/phase1-compiler-options.md) · [Cache Blocking 实验](docs/experiments/phase1-blocking.md) · [Matrix Packing 实验](docs/experiments/phase1-packing.md)
 
 ## 中文
 
@@ -14,9 +14,9 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 
 ## Current Milestone
 
-**Phase 1.4 — Cache Blocking 分析（已完成）**
+**Phase 1.5 — Matrix Packing（已完成）**
 
-项目当前包含一个使用标准 C++17 实现的单线程 FP32 GEMM baseline、GCC 优化级别实验、循环顺序实验和 cache blocking tile size 实验，不依赖任何第三方矩阵库。
+项目当前包含使用标准 C++17 实现的单线程 FP32 GEMM baseline、GCC 优化级别实验、循环顺序实验、cache blocking 和 B matrix packing，不依赖任何第三方矩阵库。
 
 ### Scope
 
@@ -31,8 +31,9 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 - 比较 GCC 优化级别及其生成的汇编代码
 - 比较 row-major 下不同循环顺序的内存访问行为
 - 比较 cache blocking 的不同 tile size
+- 分离测量 B matrix packing、packed compute 与 one-shot 成本
 
-源码层面的算法仍保持 naive。当前实验不启用 `-march=native`、`-ffast-math`、OpenMP、手写 SIMD，也不使用 BLAS、MKL、Eigen 等外部矩阵库。
+所有 kernel 在源码层面仍使用普通 C++ 循环；编译器可以自动向量化，但当前实验不启用 `-march=native`、`-ffast-math`、OpenMP 或手写 SIMD，也不使用 BLAS、MKL、Eigen 等外部矩阵库。
 
 ## Roadmap
 
@@ -40,7 +41,7 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 - [x] Phase 1.2：编译器优化级别分析
 - [x] Phase 1.3：循环顺序与内存访问分析
 - [x] Phase 1.4：Cache blocking 分析
-- [ ] Phase 1.5：Matrix packing
+- [x] Phase 1.5：Matrix packing
 - [ ] Phase 1.6：SIMD/AVX 向量化
 - [ ] Phase 1.7：多线程与硬件性能计数器
 - [ ] Phase 2：LLVM IR 与机器指令分析
@@ -135,12 +136,14 @@ ctest --preset debug-sanitizers
 ./build/release/gemm_benchmark --m 128 --n 3072 --k 768
 ./build/release/gemm_benchmark --kernel ikj --sizes 128,256,512
 ./build/release/gemm_benchmark --kernel blocked --block-size 64 --sizes 128,256,512
+./build/release/gemm_benchmark --kernel packed --block-size 64 --sizes 128,256,512
 ```
 
 运行编译器优化级别控制实验：
 
 ```bash
 ./scripts/run_compiler_options.sh
+./scripts/run_packing.sh
 ```
 
 生成 `i-k-j` 与 blocked kernel 的 O3 Assembly 和向量化报告：
@@ -156,7 +159,7 @@ FLOPs   = 2 × M × N × K
 GFLOP/s = FLOPs / time_seconds / 1e9
 ```
 
-计时区域只包含当前选择的 GEMM kernel。内存分配、随机初始化、终端输出和 FP64 正确性验证均不计入内核运行时间。
+计时区域只包含当前选择的 GEMM kernel。内存分配、随机初始化、终端输出和 FP64 正确性验证均不计入内核运行时间。packed kernel 将 packing 与 compute-only 分开测量，并额外报告 one-shot 的 `packing + compute` 成本。
 
 ## Reproducibility
 
@@ -164,7 +167,7 @@ GFLOP/s = FLOPs / time_seconds / 1e9
 
 ## Results
 
-Phase 1.1 baseline、Phase 1.2 编译选项、Phase 1.3 循环顺序和 Phase 1.4 cache blocking 结果位于 [`results/phase1`](results/phase1)。在当前 Fedora 44 WSL2 环境中，GCC `-O3` 相比 `-O0` 在 256³、512³ 和 1024³ GEMM 上分别约快 21.20×、18.17× 和 5.15×；`i-k-j` 相比 `i-j-k` 的 median 约快 7.85×、8.51× 和 24.80%。本次测试的 blocked kernel 没有超过 `i-k-j` baseline。完整数据见 [Phase 1.2 结果总结](results/phase1/compiler-options/summary.md)、[Phase 1.3 结果总结](results/phase1/loop-order/summary.md) 和 [Phase 1.4 结果总结](results/phase1/blocking/summary.md)。
+Phase 1.1–1.5 的结果位于 [`results/phase1`](results/phase1)。在当前 Phase 1.5 WSL2 测量中，packed compute 在 12 组 matched comparisons 中有 11 组快于相同 block size 的 blocked kernel，最高观测为 1.783×；但每种 shape 中最好的 packed 版本仍未超过 `i-k-j`。完整数据见 [Phase 1.2](results/phase1/compiler-options/summary.md)、[Phase 1.3](results/phase1/loop-order/summary.md)、[Phase 1.4](results/phase1/blocking/summary.md) 和 [Phase 1.5](results/phase1/packing/summary.md) 结果总结。
 
 ## Continuous Integration
 
@@ -186,9 +189,9 @@ Modern AI workloads rely heavily on matrix computation. This project studies how
 
 ## Current Milestone
 
-**Phase 1.4 — Cache Blocking Analysis (completed)**
+**Phase 1.5 — Matrix Packing (completed)**
 
-The project currently provides a single-threaded FP32 GEMM baseline in standard C++17, a controlled GCC optimization-level experiment, loop-order analysis, and a cache-blocking tile-size experiment. No third-party matrix library is used.
+The project currently provides a single-threaded FP32 GEMM baseline in standard C++17, controlled GCC optimization-level and loop-order experiments, cache blocking, and B matrix packing. No third-party matrix library is used.
 
 ### Scope
 
@@ -203,8 +206,9 @@ The project currently provides a single-threaded FP32 GEMM baseline in standard 
 - Controlled comparison of GCC optimization levels and generated assembly
 - Comparison of row-major memory-access behavior across loop orders
 - Comparison of cache-blocking tile sizes
+- Separate measurement of B packing, packed compute, and one-shot cost
 
-The source-level algorithm remains naive. The current experiments do not use `-march=native`, `-ffast-math`, OpenMP, handwritten SIMD, BLAS, MKL, Eigen, or other external matrix libraries.
+All kernels still use ordinary C++ loops at source level. The compiler may auto-vectorize them, but the current experiments do not use `-march=native`, `-ffast-math`, OpenMP, handwritten SIMD, BLAS, MKL, Eigen, or other external matrix libraries.
 
 ## Roadmap
 
@@ -212,7 +216,7 @@ The source-level algorithm remains naive. The current experiments do not use `-m
 - [x] Phase 1.2: Compiler optimization-level analysis
 - [x] Phase 1.3: Loop-order and memory-access analysis
 - [x] Phase 1.4: Cache-blocking analysis
-- [ ] Phase 1.5: Matrix packing
+- [x] Phase 1.5: Matrix packing
 - [ ] Phase 1.6: SIMD/AVX vectorization
 - [ ] Phase 1.7: Multithreading and hardware performance counters
 - [ ] Phase 2: LLVM IR and machine-instruction analysis
@@ -307,12 +311,14 @@ ctest --preset debug-sanitizers
 ./build/release/gemm_benchmark --m 128 --n 3072 --k 768
 ./build/release/gemm_benchmark --kernel ikj --sizes 128,256,512
 ./build/release/gemm_benchmark --kernel blocked --block-size 64 --sizes 128,256,512
+./build/release/gemm_benchmark --kernel packed --block-size 64 --sizes 128,256,512
 ```
 
 Run the controlled compiler optimization-level experiment:
 
 ```bash
 ./scripts/run_compiler_options.sh
+./scripts/run_packing.sh
 ```
 
 Generate O3 assembly and vectorization reports for the `i-k-j` and blocked kernels:
@@ -328,7 +334,7 @@ FLOPs   = 2 × M × N × K
 GFLOP/s = FLOPs / time_seconds / 1e9
 ```
 
-Only the selected GEMM kernel is timed. Memory allocation, random initialization, terminal output, and FP64 correctness verification are outside the timed region.
+Only the selected GEMM kernel is timed. Memory allocation, random initialization, terminal output, and FP64 correctness verification are outside the timed region. The packed kernel measures packing and compute-only separately and also reports the one-shot `packing + compute` cost.
 
 ## Reproducibility
 
@@ -336,7 +342,7 @@ All benchmark results should be reproducible under a fixed hardware and software
 
 ## Results
 
-The Phase 1.1 baseline, Phase 1.2 compiler-option, Phase 1.3 loop-order, and Phase 1.4 cache-blocking results are available in [`results/phase1`](results/phase1). On the current Fedora 44 WSL2 environment, GCC `-O3` is approximately 21.20×, 18.17×, and 5.15× faster than `-O0` for 256³, 512³, and 1024³ GEMM respectively; `i-k-j` is approximately 7.85×, 8.51×, and 24.80× faster than `i-j-k`. The tested blocked kernels did not exceed the `i-k-j` baseline. See the [Phase 1.2 result summary](results/phase1/compiler-options/summary.md), [Phase 1.3 result summary](results/phase1/loop-order/summary.md), and [Phase 1.4 result summary](results/phase1/blocking/summary.md).
+Results for Phases 1.1–1.5 are available in [`results/phase1`](results/phase1). In the current Phase 1.5 WSL2 run, packed compute was faster than the matching blocked kernel in 11 of 12 comparisons, with a maximum observed speedup of 1.783×; however, the best packed variant for each shape did not exceed `i-k-j`. See the result summaries for [Phase 1.2](results/phase1/compiler-options/summary.md), [Phase 1.3](results/phase1/loop-order/summary.md), [Phase 1.4](results/phase1/blocking/summary.md), and [Phase 1.5](results/phase1/packing/summary.md).
 
 ## Continuous Integration
 

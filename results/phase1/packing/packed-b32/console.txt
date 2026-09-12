@@ -1,0 +1,73 @@
+GEMM Optimization Lab - FP32 GEMM benchmark
+kernel=packed, block-size=32, layout=row-major, loop-order=packed-blocked-i-k-j, threads=1, warm-up=1, repeats=7, optimization=O3
+
+M=256, N=256, K=256
+  packing (separate from kernel time):
+    run 1: 0.018 ms
+    run 2: 0.018 ms
+    run 3: 0.018 ms
+    run 4: 0.018 ms
+    run 5: 0.018 ms
+    run 6: 0.093 ms
+    run 7: 0.027 ms
+    mean:   0.030 ms
+    median: 0.018 ms
+  run 1: 2.016 ms, 16.644 GFLOP/s
+  run 2: 1.990 ms, 16.863 GFLOP/s
+  run 3: 1.991 ms, 16.856 GFLOP/s
+  run 4: 1.987 ms, 16.884 GFLOP/s
+  run 5: 2.074 ms, 16.179 GFLOP/s
+  run 6: 1.932 ms, 17.371 GFLOP/s
+  run 7: 2.030 ms, 16.531 GFLOP/s
+  mean:   2.003 ms, 16.754 GFLOP/s
+  median: 1.991 ms, 16.856 GFLOP/s
+  one-shot median (packing + kernel): 2.025 ms, 16.569 effective GFLOP/s
+  verify: PASS, max_abs_error=1.251e-05, max_rel_error=3.549e-01, failures=0
+
+M=512, N=512, K=512
+  packing (separate from kernel time):
+    run 1: 0.083 ms
+    run 2: 0.133 ms
+    run 3: 0.082 ms
+    run 4: 0.082 ms
+    run 5: 0.081 ms
+    run 6: 0.081 ms
+    run 7: 0.082 ms
+    mean:   0.089 ms
+    median: 0.082 ms
+  run 1: 17.237 ms, 15.573 GFLOP/s
+  run 2: 16.017 ms, 16.759 GFLOP/s
+  run 3: 16.006 ms, 16.771 GFLOP/s
+  run 4: 16.075 ms, 16.699 GFLOP/s
+  run 5: 16.481 ms, 16.287 GFLOP/s
+  run 6: 16.542 ms, 16.227 GFLOP/s
+  run 7: 16.261 ms, 16.508 GFLOP/s
+  mean:   16.374 ms, 16.394 GFLOP/s
+  median: 16.261 ms, 16.508 GFLOP/s
+  one-shot median (packing + kernel): 16.342 ms, 16.426 effective GFLOP/s
+  verify: PASS, max_abs_error=2.868e-05, max_rel_error=9.403e-02, failures=0
+
+M=1024, N=1024, K=1024
+  packing (separate from kernel time):
+    run 1: 0.383 ms
+    run 2: 0.365 ms
+    run 3: 0.389 ms
+    run 4: 0.364 ms
+    run 5: 0.343 ms
+    run 6: 0.349 ms
+    run 7: 0.352 ms
+    mean:   0.363 ms
+    median: 0.364 ms
+  run 1: 133.399 ms, 16.098 GFLOP/s
+  run 2: 129.761 ms, 16.550 GFLOP/s
+  run 3: 128.931 ms, 16.656 GFLOP/s
+  run 4: 132.086 ms, 16.258 GFLOP/s
+  run 5: 134.031 ms, 16.022 GFLOP/s
+  run 6: 133.578 ms, 16.077 GFLOP/s
+  run 7: 133.577 ms, 16.077 GFLOP/s
+  mean:   132.195 ms, 16.245 GFLOP/s
+  median: 133.399 ms, 16.098 GFLOP/s
+  one-shot median (packing + kernel): 133.781 ms, 16.052 effective GFLOP/s
+  verify: PASS, max_abs_error=7.589e-05, max_rel_error=9.563e-01, failures=0
+
+CSV written to results/phase1/packing/packed-b32/raw-results.csv
