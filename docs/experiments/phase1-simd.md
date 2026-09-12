@@ -100,6 +100,13 @@ GEMM_SIZES=128,256 GEMM_REPEATS=2 GEMM_BLOCK_SIZES=64 \
 AVX2 实现必须在 Assembly 中出现 YMM 与 packed FMA 指令。portable control 的真实
 代码生成也需要记录。源码中的 intrinsic 只是意图，Assembly 才是 CPU 将执行的证据。
 
+正式报告确认 portable 累加循环被 GCC 自动向量化为 16-byte XMM，并出现
+`mulps/addps`；Assembly 同时显示 accumulator 在 stack slot 中反复加载和写回。
+显式 AVX2 路径出现 `vmovups ymm`、`vbroadcastss` 和四条
+`vfmadd231ps ymm`。项目没有使用全局 `-mavx2/-mfma`，这些指令来自局部
+`target("avx2,fma")` function attribute。证据位于
+`artifacts/phase1/codegen-o3/microkernel/`。
+
 ## 结果
 
 正式结果见 [`results/phase1/simd/summary.md`](../../results/phase1/simd/summary.md)。

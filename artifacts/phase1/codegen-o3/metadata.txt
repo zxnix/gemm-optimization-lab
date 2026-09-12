@@ -1,5 +1,5 @@
-timestamp_utc=2026-09-12T13:06:37Z
-git_commit=ef3252991039f3f69fd34094c04e8dfd87642ec5
+timestamp_utc=2026-09-12T13:46:17Z
+git_commit=3e627c15f13a03404b5af146352aa40123f42558
 compiler=c++ (GCC) 16.1.1 20260515 (Red Hat 16.1.1-2)
 flags=-std=c++17 -Iinclude -O3 -DNDEBUG
 target_flags=no -march=native, -mavx2, or -mfma

@@ -1,0 +1,80 @@
+src/kernels/gemm_microkernel.cpp:68:35: missed: couldn't vectorize loop
+src/kernels/gemm_microkernel.cpp:70:76: missed: statement clobbers memory: __builtin_memcpy (_215, _213, _217);
+src/kernels/gemm_microkernel.cpp:50:33: missed: couldn't vectorize loop
+src/kernels/gemm_microkernel.cpp:50:33: missed: not vectorized: unsupported control flow in loop.
+src/kernels/gemm_microkernel.cpp:55:35: missed: couldn't vectorize loop
+src/kernels/gemm_microkernel.cpp:55:35: missed: not vectorized: multiple nested loops.
+src/kernels/gemm_microkernel.cpp:58:43: missed: couldn't vectorize loop
+src/kernels/gemm_microkernel.cpp:61:61: missed: not vectorized: complicated access pattern.
+src/kernels/gemm_microkernel.cpp:60:53: optimized: loop vectorized using 16 byte vectors and unroll factor 4
+src/kernels/gemm_microkernel.cpp:60:53: optimized: epilogue loop vectorized using 8 byte vectors and unroll factor 2
+src/kernels/gemm_microkernel.cpp:35:6: note: vectorized 1 loops in function.
+src/kernels/gemm_microkernel.cpp:70:76: missed: statement clobbers memory: __builtin_memcpy (_215, _213, _217);
+src/kernels/gemm_microkernel.cpp:50:48: note: ***** Analysis failed with vector mode V2DI
+src/kernels/gemm_microkernel.cpp:50:48: note: ***** The result for vector mode V16QI would be the same
+src/kernels/gemm_microkernel.cpp:50:48: note: ***** Re-trying analysis with vector mode V8QI
+src/kernels/gemm_microkernel.cpp:50:48: note: ***** Analysis failed with vector mode V8QI
+src/kernels/gemm_microkernel.cpp:50:48: note: ***** Re-trying analysis with vector mode V4QI
+src/kernels/gemm_microkernel.cpp:50:48: note: ***** Analysis failed with vector mode V4QI
+src/kernels/gemm_microkernel.cpp:156:33: missed: couldn't vectorize loop
+src/kernels/gemm_microkernel.cpp:156:33: missed: not vectorized: unsupported control flow in loop.
+src/kernels/gemm_microkernel.cpp:158:37: missed: couldn't vectorize loop
+src/kernels/gemm_microkernel.cpp:158:37: missed: not vectorized: unsupported control flow in loop.
+src/kernels/gemm_microkernel.cpp:161:40: missed: couldn't vectorize loop
+src/kernels/gemm_microkernel.cpp:161:40: missed: not vectorized: unsupported control flow in loop.
+src/kernels/gemm_microkernel.cpp:164:43: missed: couldn't vectorize loop
+src/kernels/gemm_microkernel.cpp:164:43: missed: not vectorized: unsupported control flow in loop.
+src/kernels/gemm_microkernel.cpp:118:33: missed: couldn't vectorize loop
+src/kernels/gemm_microkernel.cpp:118:33: missed: not vectorized: unsupported control flow in loop.
+src/kernels/gemm_microkernel.cpp:123:35: missed: couldn't vectorize loop
+/usr/lib/gcc/x86_64-redhat-linux/16/include/avxintrin.h:849:23: missed: not vectorized: no vectype for stmt: _52 = MEM[(__m256_u * {ref-all})_51];
+ scalar_type: __m256_u
+src/kernels/gemm_microkernel.cpp:154:6: note: vectorized 0 loops in function.
+src/kernels/gemm_microkernel.cpp:173:51: missed: statement clobbers memory: gemm::{anonymous}::compute_portable_microtile (a_19(D), packed_b_18(D), c_27(D), i_150, _26, jj_149, j_151, _21);
+src/kernels/gemm_microkernel.cpp:167:49: note: ***** Analysis failed with vector mode V4DI
+src/kernels/gemm_microkernel.cpp:167:49: note: ***** The result for vector mode V32QI would be the same
+src/kernels/gemm_microkernel.cpp:167:49: note: ***** Re-trying analysis with vector mode V16QI
+src/kernels/gemm_microkernel.cpp:167:49: note: ***** Analysis failed with vector mode V16QI
+src/kernels/gemm_microkernel.cpp:167:49: note: ***** Re-trying analysis with vector mode V8QI
+src/kernels/gemm_microkernel.cpp:167:49: note: ***** Analysis failed with vector mode V8QI
+src/kernels/gemm_microkernel.cpp:167:49: note: ***** Re-trying analysis with vector mode V4QI
+src/kernels/gemm_microkernel.cpp:167:49: note: ***** Analysis failed with vector mode V4QI
+src/kernels/gemm_microkernel.cpp:188:23: missed: statement clobbers memory: __builtin_cpu_init ();
+src/kernels/gemm_microkernel.cpp:189:74: note: ***** Analysis failed with vector mode V4SI
+src/kernels/gemm_microkernel.cpp:189:74: note: ***** Skipping vector mode V16QI, which would repeat the analysis for V4SI
+src/kernels/gemm_microkernel.cpp:80:33: missed: couldn't vectorize loop
+src/kernels/gemm_microkernel.cpp:80:33: missed: not vectorized: unsupported control flow in loop.
+src/kernels/gemm_microkernel.cpp:82:37: missed: couldn't vectorize loop
+src/kernels/gemm_microkernel.cpp:82:37: missed: not vectorized: unsupported control flow in loop.
+src/kernels/gemm_microkernel.cpp:85:40: missed: couldn't vectorize loop
+src/kernels/gemm_microkernel.cpp:85:40: missed: not vectorized: Bad inner loop.
+src/kernels/gemm_microkernel.cpp:88:43: missed: couldn't vectorize loop
+src/kernels/gemm_microkernel.cpp:91:47: missed: statement clobbers memory: gemm::{anonymous}::compute_portable_microtile (a_2(D), packed_b_3(D), c_4(D), i_58, _24, jj_57, j_59, _27);
+src/kernels/gemm_microkernel.cpp:195:6: note: vectorized 0 loops in function.
+src/kernels/gemm_microkernel.cpp:91:47: missed: statement clobbers memory: gemm::{anonymous}::compute_portable_microtile (a_2(D), packed_b_3(D), c_4(D), i_58, _24, jj_57, j_59, _27);
+src/kernels/gemm_microkernel.cpp:31:79: missed: statement clobbers memory: _37 = __cxa_allocate_exception (16);
+src/kernels/gemm_microkernel.cpp:31:79: missed: not vectorized: statement can throw an exception: std::invalid_argument::invalid_argument (_37, "incompatible microkernel GEMM dimensions");
+src/kernels/gemm_microkernel.cpp:31:79: missed: statement clobbers memory: __cxa_free_exception (_37);
+src/kernels/gemm_microkernel.cpp:31:79: missed: statement clobbers memory: __cxa_throw (_37, &_ZTISt16invalid_argument, __dt_comp );
+src/kernels/gemm_microkernel.cpp:195:6: note: ***** Analysis failed with vector mode V2DI
+src/kernels/gemm_microkernel.cpp:195:6: note: ***** The result for vector mode V16QI would be the same
+src/kernels/gemm_microkernel.cpp:195:6: note: ***** Re-trying analysis with vector mode V8QI
+src/kernels/gemm_microkernel.cpp:82:59: note: ***** Analysis failed with vector mode V8QI
+src/kernels/gemm_microkernel.cpp:82:59: note: ***** Re-trying analysis with vector mode V4QI
+src/kernels/gemm_microkernel.cpp:82:59: note: ***** Analysis failed with vector mode V4QI
+src/kernels/gemm_microkernel.cpp:188:23: missed: statement clobbers memory: __builtin_cpu_init ();
+src/kernels/gemm_microkernel.cpp:205:73: missed: statement clobbers memory: _8 = __cxa_allocate_exception (16);
+src/kernels/gemm_microkernel.cpp:205:73: missed: not vectorized: statement can throw an exception: std::runtime_error::runtime_error (_8, "AVX2/FMA is not supported by this CPU");
+src/kernels/gemm_microkernel.cpp:205:73: missed: statement clobbers memory: __cxa_throw (_8, &_ZTISt13runtime_error, __dt_comp );
+src/kernels/gemm_microkernel.cpp:205:73: missed: statement clobbers memory: __cxa_free_exception (_8);
+src/kernels/gemm_microkernel.cpp:208:19: missed: statement clobbers memory: gemm::{anonymous}::gemm_avx2_impl (a_2(D), packed_b_3(D), c_4(D));
+src/kernels/gemm_microkernel.cpp:31:79: missed: statement clobbers memory: _28 = __cxa_allocate_exception (16);
+src/kernels/gemm_microkernel.cpp:31:79: missed: not vectorized: statement can throw an exception: std::invalid_argument::invalid_argument (_28, "incompatible microkernel GEMM dimensions");
+src/kernels/gemm_microkernel.cpp:31:79: missed: statement clobbers memory: __cxa_free_exception (_28);
+src/kernels/gemm_microkernel.cpp:31:79: missed: statement clobbers memory: __cxa_throw (_28, &_ZTISt16invalid_argument, __dt_comp );
+src/kernels/gemm_microkernel.cpp:202:6: note: ***** Analysis failed with vector mode V2DI
+src/kernels/gemm_microkernel.cpp:202:6: note: ***** The result for vector mode V16QI would be the same
+src/kernels/gemm_microkernel.cpp:202:6: note: ***** Re-trying analysis with vector mode V8QI
+src/kernels/gemm_microkernel.cpp:202:6: note: ***** Analysis failed with vector mode V8QI
+src/kernels/gemm_microkernel.cpp:202:6: note: ***** Re-trying analysis with vector mode V4QI
+src/kernels/gemm_microkernel.cpp:202:6: note: ***** Analysis failed with vector mode V4QI

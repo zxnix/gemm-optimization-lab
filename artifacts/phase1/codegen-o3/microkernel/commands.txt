@@ -1,0 +1,3 @@
+source=src/kernels/gemm_microkernel.cpp
+assembly_command=c++ -std=c++17 -Iinclude -O3 -DNDEBUG -S -masm=intel src/kernels/gemm_microkernel.cpp
+vectorization_command=c++ -std=c++17 -Iinclude -O3 -DNDEBUG -c -fopt-info-vec-all=artifacts/phase1/codegen-o3/microkernel/vectorization.txt src/kernels/gemm_microkernel.cpp

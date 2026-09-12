@@ -16,7 +16,7 @@ src/kernels/gemm_packed.cpp:18:90: missed: statement clobbers memory: __cxa_free
 src/kernels/gemm_packed.cpp:18:90: missed: statement clobbers memory: __cxa_throw (_34, &_ZTISt16invalid_argument, __dt_comp );
 src/kernels/gemm_packed.cpp:37:7: note: ***** Analysis succeeded with vector mode V2DI
 src/kernels/gemm_packed.cpp:37:7: note: SLPing BB part
-src/kernels/gemm_packed.cpp:37:7: note: Costing subgraph: 
+src/kernels/gemm_packed.cpp:37:7: note: Costing subgraph:
 src/kernels/gemm_packed.cpp:37:7: note: node 0x42f115b8 (max_nunits=2, refcnt=1) vector(2) long unsigned int
 src/kernels/gemm_packed.cpp:37:7: note: op template: *this_5(D).rows_ = rows_6(D);
 src/kernels/gemm_packed.cpp:37:7: note: 	stmt 0 *this_5(D).rows_ = rows_6(D);
@@ -24,7 +24,94 @@ src/kernels/gemm_packed.cpp:37:7: note: 	stmt 1 *this_5(D).cols_ = cols_8(D);
 src/kernels/gemm_packed.cpp:37:7: note: 	children 0x42f11658
 src/kernels/gemm_packed.cpp:37:7: note: node (external) 0x42f11658 (max_nunits=1, refcnt=1) vector(2) long unsigned int
 src/kernels/gemm_packed.cpp:37:7: note: 	{ rows_6(D), cols_8(D) }
-src/kernels/gemm_packed.cpp:37:7: note: Cost model analysis: 
+src/kernels/gemm_packed.cpp:37:7: note: Cost model analysis:
+src/kernels/gemm_packed.cpp:37:7: note: Cost model analysis for part in loop 0:
+  Vector cost: 40
+  Scalar cost: 24
+src/kernels/gemm_packed.cpp:37:7: missed: not vectorized: vectorization is not profitable.
+src/kernels/gemm_packed.cpp:37:7: note: ***** The result for vector mode V16QI would be the same
+src/kernels/gemm_packed.cpp:37:7: note: ***** Re-trying analysis with vector mode V8QI
+src/kernels/gemm_packed.cpp:17:19: note: ***** Analysis failed with vector mode V8QI
+src/kernels/gemm_packed.cpp:17:19: note: ***** Re-trying analysis with vector mode V4QI
+src/kernels/gemm_packed.cpp:17:19: note: ***** Analysis failed with vector mode V4QI
+src/kernels/gemm_packed.cpp:55:33: missed: couldn't vectorize loop
+src/kernels/gemm_packed.cpp:55:33: missed: not vectorized: loop nest containing two or more consecutive inner loops cannot be vectorized
+src/kernels/gemm_packed.cpp:58:37: missed: couldn't vectorize loop
+src/kernels/gemm_packed.cpp:58:37: missed: not vectorized: loop nest containing two or more consecutive inner loops cannot be vectorized
+src/kernels/gemm_packed.cpp:63:39: missed: couldn't vectorize loop
+/usr/include/c++/16/bits/stl_vector.h:1386:42: missed: not vectorized: no vectype for stmt: _144 = MEM[(struct vector *)packed_b_24(D) + 32B].D.65882._M_impl.D.65229._M_start;
+ scalar_type: float *
+src/kernels/gemm_packed.cpp:63:39: missed: couldn't vectorize loop
+src/kernels/gemm_packed.cpp:43:6: missed: not vectorized: unhandled relevant PHI: prephitmp_94 = PHI <prephitmp_94(55), prephitmp_102(90)>
+src/kernels/gemm_packed.cpp:63:39: missed: couldn't vectorize loop
+/usr/include/c++/16/bits/stl_algobase.h:549:25: missed: statement clobbers memory: __builtin_memmove (packed_row_117, source_row_108, _67);
+src/kernels/gemm_packed.cpp:63:39: missed: couldn't vectorize loop
+src/kernels/gemm_packed.cpp:43:6: missed: not vectorized: unhandled relevant PHI: prephitmp_112 = PHI <prephitmp_112(27), prephitmp_102(47)>
+src/kernels/gemm_packed.cpp:43:6: note: vectorized 0 loops in function.
+/usr/include/c++/16/bits/stl_algobase.h:923:11: missed: statement clobbers memory: __builtin_memset (_27, 0, _160);
+/usr/include/c++/16/bits/stl_algobase.h:549:25: missed: statement clobbers memory: __builtin_memmove (packed_row_117, source_row_108, _67);
+src/kernels/gemm_packed.cpp:45:77: missed: statement clobbers memory: _49 = __cxa_allocate_exception (16);
+src/kernels/gemm_packed.cpp:45:77: missed: not vectorized: statement can throw an exception: std::invalid_argument::invalid_argument (_49, "B and packed B dimensions do not match");
+src/kernels/gemm_packed.cpp:45:77: missed: statement clobbers memory: __cxa_throw (_49, &_ZTISt16invalid_argument, __dt_comp );
+src/kernels/gemm_packed.cpp:45:77: missed: statement clobbers memory: __cxa_free_exception (_49);
+src/kernels/gemm_packed.cpp:55:48: note: ***** Analysis failed with vector mode V2DI
+src/kernels/gemm_packed.cpp:55:48: note: ***** The result for vector mode V16QI would be the same
+src/kernels/gemm_packed.cpp:55:48: note: ***** Re-trying analysis with vector mode V8QI
+src/kernels/gemm_packed.cpp:55:48: note: ***** Analysis failed with vector mode V8QI
+src/kernels/gemm_packed.cpp:55:48: note: ***** Re-trying analysis with vector mode V4QI
+src/kernels/gemm_packed.cpp:55:48: note: ***** Analysis failed with vector mode V4QI
+src/kernels/gemm_packed.cpp:88:33: missed: couldn't vectorize loop
+src/kernels/gemm_packed.cpp:88:33: missed: not vectorized: unsupported control flow in loop.
+src/kernels/gemm_packed.cpp:90:37: missed: couldn't vectorize loop
+src/kernels/gemm_packed.cpp:90:37: missed: not vectorized: unsupported control flow in loop.
+src/kernels/gemm_packed.cpp:93:41: missed: couldn't vectorize loop
+src/kernels/gemm_packed.cpp:93:41: missed: not vectorized: unsupported control flow in loop.
+src/kernels/gemm_packed.cpp:98:44: missed: couldn't vectorize loop
+src/kernels/gemm_packed.cpp:98:44: missed: not vectorized: multiple nested loops.
+src/kernels/gemm_packed.cpp:99:48: missed: couldn't vectorize loop
+src/kernels/gemm_packed.cpp:104:67: missed: not vectorized: complicated access pattern.
+src/kernels/gemm_packed.cpp:103:52: optimized: loop vectorized using 16 byte vectors and unroll factor 4
+src/kernels/gemm_packed.cpp:103:52: optimized:  loop versioned for vectorization because of possible aliasing
+src/kernels/gemm_packed.cpp:103:52: optimized: epilogue loop vectorized using 8 byte vectors and unroll factor 2
+src/kernels/gemm_packed.cpp:72:6: note: vectorized 1 loops in function.
+/usr/include/c++/16/bits/stl_algobase.h:923:11: missed: statement clobbers memory: __builtin_memset (_37, 0, _28);
+src/kernels/gemm_packed.cpp:75:81: missed: statement clobbers memory: _55 = __cxa_allocate_exception (16);
+src/kernels/gemm_packed.cpp:75:81: missed: not vectorized: statement can throw an exception: std::invalid_argument::invalid_argument (_55, "incompatible packed GEMM matrix dimensions");
+src/kernels/gemm_packed.cpp:75:81: missed: statement clobbers memory: __cxa_throw (_55, &_ZTISt16invalid_argument, __dt_comp );
+src/kernels/gemm_packed.cpp:75:81: missed: statement clobbers memory: __cxa_free_exception (_55);
+src/kernels/gemm_packed.cpp:72:6: note: ***** Analysis failed with vector mode V2DI
+src/kernels/gemm_packed.cpp:72:6: note: ***** The result for vector mode V16QI would be the same
+src/kernels/gemm_packed.cpp:72:6: note: ***** Re-trying analysis with vector mode V8QI
+src/kernels/gemm_packed.cpp:72:6: note: ***** Analysis failed with vector mode V8QI
+src/kernels/gemm_packed.cpp:72:6: note: ***** Re-trying analysis with vector mode V4QI
+src/kernels/gemm_packed.cpp:72:6: note: ***** Analysis failed with vector mode V4QI
+src/kernels/gemm_packed.cpp:36:1: note: vectorized 0 loops in function.
+/usr/include/c++/16/bits/new_allocator.h:162:68: missed: statement clobbers memory: _65 = operator new (_64);
+/usr/include/c++/16/bits/stl_construct.h:133:7: missed: statement clobbers memory: __builtin_memset (_65, 0, _40);
+/usr/include/c++/16/bits/stl_vector.h:2206:24: missed: statement clobbers memory: std::__throw_length_error ("cannot create std::vector larger than max_size()");
+src/kernels/gemm_packed.cpp:29:66: missed: statement clobbers memory: _54 = __cxa_allocate_exception (16);
+src/kernels/gemm_packed.cpp:29:66: missed: not vectorized: statement can throw an exception: std::length_error::length_error (_54, "packed B element count overflow");
+src/kernels/gemm_packed.cpp:29:66: missed: statement clobbers memory: __cxa_free_exception (_54);
+src/kernels/gemm_packed.cpp:29:66: missed: statement clobbers memory: __cxa_throw (_54, &_ZTISt12length_error, __dt_comp );
+src/kernels/gemm_packed.cpp:25:62: missed: statement clobbers memory: _47 = __cxa_allocate_exception (16);
+src/kernels/gemm_packed.cpp:25:62: missed: not vectorized: statement can throw an exception: std::length_error::length_error (_47, "packed B tile size overflow");
+src/kernels/gemm_packed.cpp:25:62: missed: statement clobbers memory: __cxa_free_exception (_47);
+src/kernels/gemm_packed.cpp:25:62: missed: statement clobbers memory: __cxa_throw (_47, &_ZTISt12length_error, __dt_comp );
+src/kernels/gemm_packed.cpp:18:90: missed: statement clobbers memory: _34 = __cxa_allocate_exception (16);
+src/kernels/gemm_packed.cpp:18:90: missed: not vectorized: statement can throw an exception: std::invalid_argument::invalid_argument (_34, "packed B dimensions and block size must be positive");
+src/kernels/gemm_packed.cpp:18:90: missed: statement clobbers memory: __cxa_free_exception (_34);
+src/kernels/gemm_packed.cpp:18:90: missed: statement clobbers memory: __cxa_throw (_34, &_ZTISt16invalid_argument, __dt_comp );
+src/kernels/gemm_packed.cpp:37:7: note: ***** Analysis succeeded with vector mode V2DI
+src/kernels/gemm_packed.cpp:37:7: note: SLPing BB part
+src/kernels/gemm_packed.cpp:37:7: note: Costing subgraph:
+src/kernels/gemm_packed.cpp:37:7: note: node 0x3c825778 (max_nunits=2, refcnt=1) vector(2) long unsigned int
+src/kernels/gemm_packed.cpp:37:7: note: op template: *this_5(D).rows_ = rows_6(D);
+src/kernels/gemm_packed.cpp:37:7: note: 	stmt 0 *this_5(D).rows_ = rows_6(D);
+src/kernels/gemm_packed.cpp:37:7: note: 	stmt 1 *this_5(D).cols_ = cols_8(D);
+src/kernels/gemm_packed.cpp:37:7: note: 	children 0x3c825818
+src/kernels/gemm_packed.cpp:37:7: note: node (external) 0x3c825818 (max_nunits=1, refcnt=1) vector(2) long unsigned int
+src/kernels/gemm_packed.cpp:37:7: note: 	{ rows_6(D), cols_8(D) }
+src/kernels/gemm_packed.cpp:37:7: note: Cost model analysis:
 src/kernels/gemm_packed.cpp:37:7: note: Cost model analysis for part in loop 0:
   Vector cost: 40
   Scalar cost: 24

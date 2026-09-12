@@ -49,6 +49,17 @@ accumulator array；源码中的固定数组并不保证所有部分和长期驻
 broadcast/FMA 明确表达了寄存器数据流，避免依赖编译器从动态边界循环中推导这一
 结构。三个尺寸上的最佳结果约为 53–58 GFLOP/s。
 
+## 生成代码证据
+
+GCC 报告显示 portable 累加循环使用 16-byte XMM vectors，unroll factor 为 4。
+对应 Assembly 使用 `mulps/addps`，但 accumulator 通过 `rsp` 相对地址在 stack
+slot 中反复读写。这解释了“发生自动向量化”为什么仍不等于形成理想微内核。
+
+显式 AVX2 路径出现 `vmovups ymm`、`vbroadcastss ymm` 和四条
+`vfmadd231ps ymm`，随后用 `vmovups` 写回四个 C 行向量。证据位于
+`artifacts/phase1/codegen-o3/microkernel/`。编译命令没有全局 `-mavx2` 或
+`-mfma`；AVX2/FMA 来自源码中的 function target attribute。
+
 ## 数值行为
 
 AVX2/FMA 路径的 max absolute error 为 1.212e-05、2.932e-05 和 7.589e-05，

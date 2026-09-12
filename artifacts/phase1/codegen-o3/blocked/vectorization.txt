@@ -60,3 +60,34 @@ include/gemm/matrix.hpp:34:39: note: ***** Re-trying analysis with vector mode V
 include/gemm/matrix.hpp:34:39: note: ***** Analysis failed with vector mode V8QI
 include/gemm/matrix.hpp:34:39: note: ***** Re-trying analysis with vector mode V4QI
 include/gemm/matrix.hpp:34:39: note: ***** Analysis failed with vector mode V4QI
+src/kernels/gemm_blocked.cpp:30:33: missed: couldn't vectorize loop
+src/kernels/gemm_blocked.cpp:30:33: missed: not vectorized: unsupported control flow in loop.
+src/kernels/gemm_blocked.cpp:32:37: missed: couldn't vectorize loop
+src/kernels/gemm_blocked.cpp:32:37: missed: not vectorized: unsupported control flow in loop.
+src/kernels/gemm_blocked.cpp:34:41: missed: couldn't vectorize loop
+src/kernels/gemm_blocked.cpp:34:41: missed: not vectorized: unsupported control flow in loop.
+src/kernels/gemm_blocked.cpp:37:44: missed: couldn't vectorize loop
+src/kernels/gemm_blocked.cpp:37:44: missed: not vectorized: multiple nested loops.
+src/kernels/gemm_blocked.cpp:38:48: missed: couldn't vectorize loop
+src/kernels/gemm_blocked.cpp:41:51: missed: failed: evolution of base is not affine.
+src/kernels/gemm_blocked.cpp:40:52: optimized: loop vectorized using 16 byte vectors and unroll factor 4
+src/kernels/gemm_blocked.cpp:40:52: optimized:  loop versioned for vectorization because of possible aliasing
+src/kernels/gemm_blocked.cpp:40:52: optimized: epilogue loop vectorized using 8 byte vectors and unroll factor 2
+src/kernels/gemm_blocked.cpp:24:31: missed: couldn't vectorize loop
+src/kernels/gemm_blocked.cpp:26:21: missed: statement clobbers memory: __builtin_memset (_107, 0, _21);
+src/kernels/gemm_blocked.cpp:8:6: note: vectorized 1 loops in function.
+src/kernels/gemm_blocked.cpp:26:21: missed: statement clobbers memory: __builtin_memset (_107, 0, _21);
+src/kernels/gemm_blocked.cpp:16:66: missed: statement clobbers memory: _49 = __cxa_allocate_exception (16);
+src/kernels/gemm_blocked.cpp:16:66: missed: not vectorized: statement can throw an exception: std::invalid_argument::invalid_argument (_49, "block size must be positive");
+src/kernels/gemm_blocked.cpp:16:66: missed: statement clobbers memory: __cxa_throw (_49, &_ZTISt16invalid_argument, __dt_comp );
+src/kernels/gemm_blocked.cpp:16:66: missed: statement clobbers memory: __cxa_free_exception (_49);
+src/kernels/gemm_blocked.cpp:13:74: missed: statement clobbers memory: _54 = __cxa_allocate_exception (16);
+src/kernels/gemm_blocked.cpp:13:74: missed: not vectorized: statement can throw an exception: std::invalid_argument::invalid_argument (_54, "incompatible GEMM matrix dimensions");
+src/kernels/gemm_blocked.cpp:13:74: missed: statement clobbers memory: __cxa_throw (_54, &_ZTISt16invalid_argument, __dt_comp );
+src/kernels/gemm_blocked.cpp:13:74: missed: statement clobbers memory: __cxa_free_exception (_54);
+include/gemm/matrix.hpp:34:39: note: ***** Analysis failed with vector mode V2DI
+include/gemm/matrix.hpp:34:39: note: ***** The result for vector mode V16QI would be the same
+include/gemm/matrix.hpp:34:39: note: ***** Re-trying analysis with vector mode V8QI
+include/gemm/matrix.hpp:34:39: note: ***** Analysis failed with vector mode V8QI
+include/gemm/matrix.hpp:34:39: note: ***** Re-trying analysis with vector mode V4QI
+include/gemm/matrix.hpp:34:39: note: ***** Analysis failed with vector mode V4QI

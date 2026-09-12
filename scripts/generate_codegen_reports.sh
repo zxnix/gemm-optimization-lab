@@ -34,6 +34,8 @@ for entry in \
     c++ "${common_flags[@]}" -c \
         -fopt-info-vec-all="$kernel_dir/vectorization.txt" \
         "$source" -o "$analysis_dir/$kernel.o"
+    # GCC 的诊断文本偶尔带行尾空格；规范化后再保存，保证 git diff --check 可通过。
+    sed -i 's/[[:space:]]\+$//' "$kernel_dir/vectorization.txt"
     {
         echo "source=$source"
         echo "assembly_command=c++ -std=c++17 -Iinclude -O3 -DNDEBUG -S -masm=intel $source"

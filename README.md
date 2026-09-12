@@ -150,7 +150,7 @@ ctest --preset debug-sanitizers
 ./scripts/run_simd.sh
 ```
 
-生成 `i-k-j`、blocked 与 packed kernel 的 O3 Assembly 和向量化报告：
+生成 `i-k-j`、blocked、packed 与 microkernel 的 O3 Assembly 和向量化报告：
 
 ```bash
 ./scripts/generate_codegen_reports.sh
@@ -329,7 +329,7 @@ Run the reproducible experiments:
 ./scripts/run_simd.sh
 ```
 
-Generate O3 assembly and vectorization reports for the `i-k-j`, blocked, and packed kernels:
+Generate O3 assembly and vectorization reports for the `i-k-j`, blocked, packed, and microkernel implementations:
 
 ```bash
 ./scripts/generate_codegen_reports.sh
