@@ -6,9 +6,19 @@
 
 ## English
 
-GEMM Optimization Lab is a research-oriented systems project for studying high-performance computing and compiler optimization for AI compilers. The current milestone is a single-threaded FP32 GEMM baseline written in standard C++17 without third-party matrix libraries.
+GEMM Optimization Lab is a research-oriented systems project for studying high-performance computing and compiler optimization techniques toward AI compiler systems.
 
-### Current scope
+## Motivation
+
+Modern AI workloads rely heavily on matrix computation. This project studies how compiler transformations and hardware-aware optimization affect GEMM performance, building a practical foundation for understanding the path from C++ and tensor programs to compiler IR, machine instructions, and CPU/GPU execution.
+
+## Current Milestone
+
+**Phase 1.2 — Compiler Optimization Analysis (completed)**
+
+The project currently provides a single-threaded FP32 GEMM baseline in standard C++17 and a controlled GCC `-O0/-O1/-O2/-O3` experiment. No third-party matrix library is used.
+
+### Scope
 
 - Dense matrix multiplication: `C = A × B`
 - General `M×K` by `K×N` matrix shapes
@@ -18,46 +28,80 @@ GEMM Optimization Lab is a research-oriented systems project for studying high-p
 - One untimed warm-up followed by seven measured runs by default
 - Per-run time, mean, median, and GFLOP/s reporting
 - Unit tests for known, random rectangular, and invalid-dimension cases
+- Controlled comparison of GCC optimization levels and generated assembly
 
-The benchmark uses a Release build while keeping the source-level algorithm naive. This milestone does not enable `-march=native`, `-ffast-math`, OpenMP, handwritten SIMD, BLAS, MKL, Eigen, or other external matrix libraries.
+The source-level algorithm remains naive. The current experiments do not use `-march=native`, `-ffast-math`, OpenMP, handwritten SIMD, BLAS, MKL, Eigen, or other external matrix libraries.
 
-### Fedora 44 environment
+## Roadmap
 
-Install and check the required tools:
+- [x] Phase 1.1: Naive GEMM baseline and reproducible benchmark
+- [x] Phase 1.2: Compiler optimization-level analysis
+- [ ] Phase 1.3: Loop-order and memory-access analysis
+- [ ] Phase 1.4: Cache blocking and matrix packing
+- [ ] Phase 1.5: SIMD/AVX vectorization
+- [ ] Phase 1.6: Multithreading and hardware performance counters
+- [ ] Phase 2: LLVM IR and machine-instruction analysis
+- [ ] Phase 3: Tensor IR and scheduling
+- [ ] Phase 4: CUDA/GPU backend optimization
+- [ ] Phase 5: Hardware-aware automatic tuning
+
+## Development Environment
+
+### Operating System
+
+- Fedora Linux 44 on WSL2 for development experiments
+- Native Linux planned for controlled, publication-quality measurements
+
+### Toolchain
+
+- C++17
+- CMake and Ninja
+- Git and GitHub Actions
+
+### Compiler Toolchain
+
+- GCC for baseline and optimization-level experiments
+- Clang/LLVM for the compiler-analysis phase
+
+### Target Hardware
+
+Current target:
+
+- x86-64 CPU
+
+Future targets:
+
+- CUDA-capable GPU
+- NPU or other AI accelerator backend
+
+Install the development tools on Fedora:
 
 ```bash
 sudo dnf install gcc-c++ cmake ninja-build git
-g++ --version
-cmake --version
-ninja --version
-```
-
-GCC is used for the initial experiments. Clang and LLVM can be installed for the later compiler-analysis phase:
-
-```bash
 sudo dnf install clang llvm
 ```
 
-### Project structure
+## Project Structure
 
 ```text
 .
+├── .github/workflows/       # Continuous integration
+├── artifacts/phase1/        # Generated assembly and compiler reports
+├── docs/
+│   └── experiments/         # Experiment designs and methodology
+├── include/gemm/            # Matrix, GEMM, and verification interfaces
+├── results/phase1/          # Raw benchmark data and result summaries
+├── scripts/                 # Reproducible experiment automation
+├── src/                     # GEMM kernels and benchmark program
+├── tests/                   # Correctness and error-handling tests
+├── AGENTS.md                # Project collaboration and research rules
 ├── CMakeLists.txt
-├── include/gemm/
-│   ├── gemm.hpp
-│   ├── matrix.hpp
-│   └── verification.hpp
-├── src/
-│   ├── gemm_naive.cpp
-│   ├── main.cpp
-│   └── verification.cpp
-└── tests/
-    └── test_gemm.cpp
+└── README.md
 ```
 
 `Matrix` stores elements in a contiguous `std::vector<float>` using row-major layout. The kernel supports general matrix shapes, while the default benchmark uses square matrices of sizes 256, 512, and 1024.
 
-### Build and test
+## Build and Test
 
 ```bash
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
@@ -67,13 +111,19 @@ ctest --test-dir build --output-on-failure
 
 If Ninja is unavailable, omit `-G Ninja` to use CMake's default generator.
 
-### Run the benchmark
+## Run the Benchmark
 
 ```bash
 ./build/gemm_benchmark
 ./build/gemm_benchmark --repeats 5
 ./build/gemm_benchmark --sizes 128,256,512 --csv results.csv
 ./build/gemm_benchmark --m 128 --n 3072 --k 768
+```
+
+Run the controlled compiler optimization-level experiment:
+
+```bash
+./scripts/run_compiler_options.sh
 ```
 
 Performance is reported using:
@@ -85,19 +135,37 @@ GFLOP/s = FLOPs / time_seconds / 1e9
 
 Only `gemm_naive` is timed. Memory allocation, random initialization, terminal output, and FP64 correctness verification are outside the timed region.
 
-### Experiment records
+## Reproducibility
 
-For reproducible measurements, record the CPU model, cache hierarchy, Fedora and kernel versions, compiler version and flags, matrix shape, individual run times, mean, median, GFLOP/s, and numerical error.
+All benchmark results should be reproducible under a fixed hardware and software environment. Each formal experiment records the Git revision, CPU and cache information, operating system and kernel, compiler version and flags, matrix shapes, individual run times, mean, median, GFLOP/s, and numerical error. WSL2 measurements are treated as development baselines rather than publication-quality hardware results.
 
-Later milestones will compare compiler options and generated LLVM IR/assembly, then introduce loop reordering, cache blocking, packing, SIMD, multithreading, Tensor IR scheduling, and CPU/GPU backends.
+## Results
 
-Run the controlled compiler optimization-level experiment with `./scripts/run_compiler_options.sh`.
+The Phase 1.1 baseline and Phase 1.2 compiler-option results are available in [`results/phase1`](results/phase1). On the current Fedora 44 WSL2 environment, GCC `-O3` is approximately 21.20×, 18.17×, and 5.15× faster than `-O0` for 256³, 512³, and 1024³ GEMM respectively. See the [Phase 1.2 result summary](results/phase1/compiler-options/summary.md) for the complete data and interpretation.
+
+## Continuous Integration
+
+GitHub Actions automatically verifies:
+
+- Release and Debug builds with CMake
+- Unit tests and correctness checks
+- AddressSanitizer and UndefinedBehaviorSanitizer checks in Debug mode
 
 ---
 
 ## 中文
 
-GEMM Optimization Lab 是一个面向 AI Compiler 的高性能计算与编译优化研究项目。当前里程碑是使用标准 C++17 编写的单线程 FP32 GEMM baseline，不依赖任何第三方矩阵库。
+GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编译器系统的高性能计算与编译优化技术。
+
+## 项目动机
+
+现代 AI 工作负载高度依赖矩阵计算。本项目研究编译器变换和硬件感知优化如何影响 GEMM 性能，并通过工程实验理解从 C++ 与张量程序到编译器 IR、机器指令以及 CPU/GPU 执行的完整路径。
+
+## 当前里程碑
+
+**Phase 1.2 — 编译器优化分析（已完成）**
+
+项目当前包含一个使用标准 C++17 实现的单线程 FP32 GEMM baseline，以及 GCC `-O0/-O1/-O2/-O3` 控制变量实验，不依赖任何第三方矩阵库。
 
 ### 当前范围
 
@@ -109,25 +177,80 @@ GEMM Optimization Lab 是一个面向 AI Compiler 的高性能计算与编译优
 - 默认一次不计时 warm-up 和七次正式测量
 - 输出单次耗时、平均值、中位数和 GFLOP/s
 - 测试手工结果、随机非方阵和非法维度
+- 比较 GCC 优化级别及其生成的汇编代码
 
-benchmark 使用 Release 构建，但源码算法保持 naive。本阶段不启用 `-march=native`、`-ffast-math`、OpenMP、手写 SIMD，也不使用 BLAS、MKL、Eigen 等外部矩阵库。
+源码层面的算法仍保持 naive。当前实验不启用 `-march=native`、`-ffast-math`、OpenMP、手写 SIMD，也不使用 BLAS、MKL、Eigen 等外部矩阵库。
 
-### Fedora 44 环境
+## 项目路线
+
+- [x] Phase 1.1：Naive GEMM baseline 与可复现 benchmark
+- [x] Phase 1.2：编译器优化级别分析
+- [ ] Phase 1.3：循环顺序与内存访问分析
+- [ ] Phase 1.4：Cache blocking 与矩阵 packing
+- [ ] Phase 1.5：SIMD/AVX 向量化
+- [ ] Phase 1.6：多线程与硬件性能计数器
+- [ ] Phase 2：LLVM IR 与机器指令分析
+- [ ] Phase 3：Tensor IR 与调度
+- [ ] Phase 4：CUDA/GPU 后端优化
+- [ ] Phase 5：硬件感知自动调优
+
+## 开发环境
+
+### 操作系统
+
+- Fedora Linux 44 on WSL2，用于开发阶段实验
+- 后续使用原生 Linux 进行受控、论文级性能测量
+
+### 工具链
+
+- C++17
+- CMake 与 Ninja
+- Git 与 GitHub Actions
+
+### 编译器工具链
+
+- GCC：baseline 与优化级别实验
+- Clang/LLVM：编译器分析阶段
+
+### 目标硬件
+
+当前目标：
+
+- x86-64 CPU
+
+未来目标：
+
+- 支持 CUDA 的 GPU
+- NPU 或其他 AI 加速器后端
+
+在 Fedora 中安装开发工具：
 
 ```bash
 sudo dnf install gcc-c++ cmake ninja-build git
-g++ --version
-cmake --version
-ninja --version
-```
-
-初期实验使用 GCC。后续编译器分析阶段可安装 Clang 和 LLVM：
-
-```bash
 sudo dnf install clang llvm
 ```
 
-### 构建和测试
+## 项目结构
+
+```text
+.
+├── .github/workflows/       # 持续集成
+├── artifacts/phase1/        # 生成的汇编和编译器报告
+├── docs/
+│   └── experiments/         # 实验设计与方法
+├── include/gemm/            # Matrix、GEMM 和验证接口
+├── results/phase1/          # 原始 benchmark 数据与结果总结
+├── scripts/                 # 可重复执行的实验脚本
+├── src/                     # GEMM kernel 与 benchmark 程序
+├── tests/                   # 正确性与错误处理测试
+├── AGENTS.md                # 项目协作与科研规范
+├── CMakeLists.txt
+└── README.md
+```
+
+`Matrix` 使用连续的 `std::vector<float>` 按 row-major 布局保存元素。kernel 支持一般矩阵形状，默认 benchmark 使用 256、512 和 1024 三种方阵规模。
+
+## 构建和测试
 
 ```bash
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
@@ -135,9 +258,9 @@ cmake --build build
 ctest --test-dir build --output-on-failure
 ```
 
-如果没有 Ninja，可去掉 `-G Ninja`，使用 CMake 默认生成器。
+如果没有 Ninja，可以去掉 `-G Ninja`，使用 CMake 的默认生成器。
 
-### 运行 benchmark
+## 运行 Benchmark
 
 ```bash
 ./build/gemm_benchmark
@@ -146,6 +269,14 @@ ctest --test-dir build --output-on-failure
 ./build/gemm_benchmark --m 128 --n 3072 --k 768
 ```
 
+运行编译器优化级别控制实验：
+
+```bash
+./scripts/run_compiler_options.sh
+```
+
+性能计算方式：
+
 ```text
 FLOPs   = 2 × M × N × K
 GFLOP/s = FLOPs / time_seconds / 1e9
@@ -153,10 +284,18 @@ GFLOP/s = FLOPs / time_seconds / 1e9
 
 计时区域只包含 `gemm_naive`。内存分配、随机初始化、终端输出和 FP64 正确性验证均不计入内核运行时间。
 
-### 实验记录
+## 可复现性
 
-为保证实验可复现，应记录 CPU 型号、cache 层级、Fedora 和 kernel 版本、编译器版本及参数、矩阵形状、每次耗时、平均值、中位数、GFLOP/s 和数值误差。
+所有 benchmark 结果都应能够在固定的软硬件环境中复现。每个正式实验记录 Git revision、CPU 与 cache 信息、操作系统与内核、编译器版本及参数、矩阵形状、每次耗时、平均值、中位数、GFLOP/s 和数值误差。WSL2 测量只作为开发基线，不直接作为论文级硬件结论。
 
-后续阶段将依次研究编译选项与 LLVM IR/汇编、循环顺序、cache blocking、packing、SIMD、多线程、Tensor IR 调度以及 CPU/GPU 后端。
+## 实验结果
 
-运行 `./scripts/run_compiler_options.sh` 可比较 GCC `-O0/-O1/-O2/-O3`；实验设计和输出说明见[编译器优化级别实验](docs/experiments/phase1-compiler-options.md)。
+Phase 1.1 baseline 和 Phase 1.2 编译选项结果位于 [`results/phase1`](results/phase1)。在当前 Fedora 44 WSL2 环境中，GCC `-O3` 相比 `-O0` 在 256³、512³ 和 1024³ GEMM 上分别约快 21.20×、18.17× 和 5.15×。完整数据和解释见 [Phase 1.2 结果总结](results/phase1/compiler-options/summary.md)。
+
+## 持续集成
+
+GitHub Actions 自动验证：
+
+- 使用 CMake 完成 Release 和 Debug 构建
+- 单元测试和基本正确性检查
+- Debug 模式下的 AddressSanitizer 与 UndefinedBehaviorSanitizer 检查
