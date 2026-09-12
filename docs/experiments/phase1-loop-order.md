@@ -53,3 +53,7 @@ CSV 中的 `kernel` 字段明确标识循环实现，避免把不同 kernel 的�
 ## 与后续阶段的连接
 
 该实验把性能变化从“编译器优化级别”转移到“源代码循环结构和访存顺序”。结果将用于下一阶段 cache blocking：先理解单个 tile 内的连续访问，再控制 tile 的工作集大小，使其适配不同层级 cache。
+
+## 本机结果
+
+正式数据和分析见 [`results/phase1/loop-order/summary.md`](../../results/phase1/loop-order/summary.md)。在当前 Fedora 44 WSL2 环境中，`i-k-j` 相比 `i-j-k` 的 median 约快 7.85×、8.51×、24.80×，对应 256³、512³、1024³。

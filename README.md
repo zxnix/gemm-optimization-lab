@@ -14,9 +14,9 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 
 ## Current Milestone
 
-**Phase 1.2 — 编译器优化分析（已完成）**
+**Phase 1.3 — 循环顺序与内存访问分析（已完成）**
 
-项目当前包含一个使用标准 C++17 实现的单线程 FP32 GEMM baseline，以及 GCC `-O0/-O1/-O2/-O3` 控制变量实验，不依赖任何第三方矩阵库。
+项目当前包含一个使用标准 C++17 实现的单线程 FP32 GEMM baseline、GCC 优化级别实验，以及 `i-j-k` 与 `i-k-j` 循环顺序实验，不依赖任何第三方矩阵库。
 
 ### Scope
 
@@ -29,6 +29,7 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 - 输出单次耗时、平均值、中位数和 GFLOP/s
 - 测试手工结果、随机非方阵和非法维度
 - 比较 GCC 优化级别及其生成的汇编代码
+- 比较 row-major 下不同循环顺序的内存访问行为
 
 源码层面的算法仍保持 naive。当前实验不启用 `-march=native`、`-ffast-math`、OpenMP、手写 SIMD，也不使用 BLAS、MKL、Eigen 等外部矩阵库。
 
@@ -36,7 +37,7 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 
 - [x] Phase 1.1：Naive GEMM baseline 与可复现 benchmark
 - [x] Phase 1.2：编译器优化级别分析
-- [ ] Phase 1.3：循环顺序与内存访问分析
+- [x] Phase 1.3：循环顺序与内存访问分析
 - [ ] Phase 1.4：Cache blocking 与矩阵 packing
 - [ ] Phase 1.5：SIMD/AVX 向量化
 - [ ] Phase 1.6：多线程与硬件性能计数器
@@ -130,6 +131,7 @@ ctest --preset debug-sanitizers
 ./build/release/gemm_benchmark --repeats 5
 ./build/release/gemm_benchmark --sizes 128,256,512 --csv results.csv
 ./build/release/gemm_benchmark --m 128 --n 3072 --k 768
+./build/release/gemm_benchmark --kernel ikj --sizes 128,256,512
 ```
 
 运行编译器优化级别控制实验：
@@ -153,7 +155,7 @@ GFLOP/s = FLOPs / time_seconds / 1e9
 
 ## Results
 
-Phase 1.1 baseline 和 Phase 1.2 编译选项结果位于 [`results/phase1`](results/phase1)。在当前 Fedora 44 WSL2 环境中，GCC `-O3` 相比 `-O0` 在 256³、512³ 和 1024³ GEMM 上分别约快 21.20×、18.17× 和 5.15×。完整数据和解释见 [Phase 1.2 结果总结](results/phase1/compiler-options/summary.md)。
+Phase 1.1 baseline、Phase 1.2 编译选项和 Phase 1.3 循环顺序结果位于 [`results/phase1`](results/phase1)。在当前 Fedora 44 WSL2 环境中，GCC `-O3` 相比 `-O0` 在 256³、512³ 和 1024³ GEMM 上分别约快 21.20×、18.17× 和 5.15×；`i-k-j` 相比 `i-j-k` 的 median 约快 7.85×、8.51× 和 24.80%。完整数据见 [Phase 1.2 结果总结](results/phase1/compiler-options/summary.md) 和 [Phase 1.3 结果总结](results/phase1/loop-order/summary.md)。
 
 ## Continuous Integration
 
@@ -175,9 +177,9 @@ Modern AI workloads rely heavily on matrix computation. This project studies how
 
 ## Current Milestone
 
-**Phase 1.2 — Compiler Optimization Analysis (completed)**
+**Phase 1.3 — Loop-order and Memory-access Analysis (completed)**
 
-The project currently provides a single-threaded FP32 GEMM baseline in standard C++17 and a controlled GCC `-O0/-O1/-O2/-O3` experiment. No third-party matrix library is used.
+The project currently provides a single-threaded FP32 GEMM baseline in standard C++17, a controlled GCC optimization-level experiment, and an `i-j-k` versus `i-k-j` loop-order experiment. No third-party matrix library is used.
 
 ### Scope
 
@@ -190,6 +192,7 @@ The project currently provides a single-threaded FP32 GEMM baseline in standard 
 - Per-run time, mean, median, and GFLOP/s reporting
 - Unit tests for known, random rectangular, and invalid-dimension cases
 - Controlled comparison of GCC optimization levels and generated assembly
+- Comparison of row-major memory-access behavior across loop orders
 
 The source-level algorithm remains naive. The current experiments do not use `-march=native`, `-ffast-math`, OpenMP, handwritten SIMD, BLAS, MKL, Eigen, or other external matrix libraries.
 
@@ -197,7 +200,7 @@ The source-level algorithm remains naive. The current experiments do not use `-m
 
 - [x] Phase 1.1: Naive GEMM baseline and reproducible benchmark
 - [x] Phase 1.2: Compiler optimization-level analysis
-- [ ] Phase 1.3: Loop-order and memory-access analysis
+- [x] Phase 1.3: Loop-order and memory-access analysis
 - [ ] Phase 1.4: Cache blocking and matrix packing
 - [ ] Phase 1.5: SIMD/AVX vectorization
 - [ ] Phase 1.6: Multithreading and hardware performance counters
@@ -291,6 +294,7 @@ ctest --preset debug-sanitizers
 ./build/release/gemm_benchmark --repeats 5
 ./build/release/gemm_benchmark --sizes 128,256,512 --csv results.csv
 ./build/release/gemm_benchmark --m 128 --n 3072 --k 768
+./build/release/gemm_benchmark --kernel ikj --sizes 128,256,512
 ```
 
 Run the controlled compiler optimization-level experiment:
@@ -314,7 +318,7 @@ All benchmark results should be reproducible under a fixed hardware and software
 
 ## Results
 
-The Phase 1.1 baseline and Phase 1.2 compiler-option results are available in [`results/phase1`](results/phase1). On the current Fedora 44 WSL2 environment, GCC `-O3` is approximately 21.20×, 18.17×, and 5.15× faster than `-O0` for 256³, 512³, and 1024³ GEMM respectively. See the [Phase 1.2 result summary](results/phase1/compiler-options/summary.md) for the complete data and interpretation.
+The Phase 1.1 baseline, Phase 1.2 compiler-option, and Phase 1.3 loop-order results are available in [`results/phase1`](results/phase1). On the current Fedora 44 WSL2 environment, GCC `-O3` is approximately 21.20×, 18.17×, and 5.15× faster than `-O0` for 256³, 512³, and 1024³ GEMM respectively; `i-k-j` is approximately 7.85×, 8.51×, and 24.80× faster than `i-j-k`. See the [Phase 1.2 result summary](results/phase1/compiler-options/summary.md) and [Phase 1.3 result summary](results/phase1/loop-order/summary.md).
 
 ## Continuous Integration
 

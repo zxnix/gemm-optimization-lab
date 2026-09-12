@@ -1,0 +1,40 @@
+GEMM Optimization Lab - FP32 GEMM benchmark
+kernel=ikj, layout=row-major, loop-order=i-k-j, threads=1, warm-up=1, repeats=7, optimization=default
+
+M=256, N=256, K=256
+  run 1: 2.158 ms, 15.546 GFLOP/s
+  run 2: 1.941 ms, 17.285 GFLOP/s
+  run 3: 1.728 ms, 19.418 GFLOP/s
+  run 4: 1.932 ms, 17.367 GFLOP/s
+  run 5: 1.835 ms, 18.284 GFLOP/s
+  run 6: 1.832 ms, 18.319 GFLOP/s
+  run 7: 1.859 ms, 18.054 GFLOP/s
+  mean:   1.898 ms, 17.680 GFLOP/s
+  median: 1.859 ms, 18.054 GFLOP/s
+  verify: PASS, max_abs_error=1.251e-05, max_rel_error=3.549e-01, failures=0
+
+M=512, N=512, K=512
+  run 1: 15.813 ms, 16.976 GFLOP/s
+  run 2: 16.827 ms, 15.952 GFLOP/s
+  run 3: 15.911 ms, 16.871 GFLOP/s
+  run 4: 15.710 ms, 17.087 GFLOP/s
+  run 5: 15.675 ms, 17.125 GFLOP/s
+  run 6: 16.105 ms, 16.667 GFLOP/s
+  run 7: 15.511 ms, 17.307 GFLOP/s
+  mean:   15.936 ms, 16.845 GFLOP/s
+  median: 15.813 ms, 16.976 GFLOP/s
+  verify: PASS, max_abs_error=2.868e-05, max_rel_error=9.403e-02, failures=0
+
+M=1024, N=1024, K=1024
+  run 1: 138.663 ms, 15.487 GFLOP/s
+  run 2: 152.603 ms, 14.072 GFLOP/s
+  run 3: 161.173 ms, 13.324 GFLOP/s
+  run 4: 144.044 ms, 14.909 GFLOP/s
+  run 5: 132.611 ms, 16.194 GFLOP/s
+  run 6: 133.672 ms, 16.065 GFLOP/s
+  run 7: 137.314 ms, 15.639 GFLOP/s
+  mean:   142.869 ms, 15.031 GFLOP/s
+  median: 138.663 ms, 15.487 GFLOP/s
+  verify: PASS, max_abs_error=7.589e-05, max_rel_error=9.563e-01, failures=0
+
+CSV written to results/phase1/loop-order/ikj/raw-results.csv
