@@ -41,6 +41,16 @@ void test_random_rectangular_case() {
     require(gemm::verify_gemm(a, b, c).passed, "random rectangular GEMM verification failed");
 }
 
+void test_ikj_random_rectangular_case() {
+    gemm::Matrix a(7, 5);
+    gemm::Matrix b(5, 9);
+    gemm::Matrix c(7, 9);
+    gemm::fill_random(a, 11U);
+    gemm::fill_random(b, 29U);
+    gemm::gemm_ikj(a, b, c);
+    require(gemm::verify_gemm(a, b, c).passed, "i-k-j GEMM verification failed");
+}
+
 void test_one_by_one_case() {
     gemm::Matrix a(1, 1), b(1, 1), c(1, 1);
     a(0, 0) = 3.0F; b(0, 0) = -2.0F;
@@ -94,6 +104,7 @@ int main() {
     try {
         test_known_rectangular_case();
         test_random_rectangular_case();
+        test_ikj_random_rectangular_case();
         test_one_by_one_case();
         test_zero_and_identity_cases();
         test_dimension_check();
