@@ -9,16 +9,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include:
-          - build_type: Release
-            sanitizers: OFF
-          - build_type: Debug
-            sanitizers: ON
+        preset:
+          - release
+          - debug-sanitizers
     steps:
       - uses: actions/checkout@v5
       - name: Configure
-        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DGEMM_ENABLE_SANITIZERS=${{ matrix.sanitizers }}
+        run: cmake --preset ${{ matrix.preset }}
       - name: Build
-        run: cmake --build build --parallel
+        run: cmake --build --preset ${{ matrix.preset }} --parallel
       - name: Test
-        run: ctest --test-dir build --output-on-failure
+        run: ctest --preset ${{ matrix.preset }}

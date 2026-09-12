@@ -2,6 +2,7 @@
 set -euo pipefail
 
 output_path=${1:-/dev/stdout}
+build_dir=${2:-build/release}
 git_commit=$(git rev-parse HEAD)
 git_dirty=$([ -n "$(git status --porcelain)" ] && echo true || echo false)
 mkdir -p "$(dirname "$output_path")"
@@ -22,9 +23,11 @@ mkdir -p "$(dirname "$output_path")"
     echo "compiler=$(c++ --version | head -n 1)"
     echo "cmake=$(cmake --version | head -n 1)"
     echo "ninja=$(ninja --version)"
-    echo "build_type=Release"
-    if [[ -f build/compile_commands.json ]]; then
-        echo "compile_commands=build/compile_commands.json"
+    echo "build_dir=$build_dir"
+    if [[ -f "$build_dir/compile_commands.json" ]]; then
+        echo "compile_commands=$build_dir/compile_commands.json"
     fi
-    cmake -LA -N build 2>/dev/null | sed -n 's/^CMAKE_CXX_FLAGS_RELEASE:STRING=/release_flags=/p'
+    cmake -LA -N "$build_dir" 2>/dev/null \
+        | sed -n -e 's/^CMAKE_BUILD_TYPE:STRING=/build_type=/p' \
+                 -e 's/^CMAKE_CXX_FLAGS_RELEASE:STRING=/release_flags=/p'
 } > "$output_path"

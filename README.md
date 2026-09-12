@@ -96,6 +96,7 @@ sudo dnf install clang llvm
 ├── tests/                   # 正确性与错误处理测试
 ├── AGENTS.md                # 项目协作与科研规范
 ├── CMakeLists.txt
+├── CMakePresets.json        # 本地与 CI 共享的构建配置
 └── README.md
 ```
 
@@ -104,20 +105,28 @@ sudo dnf install clang llvm
 ## Build and Test
 
 ```bash
-cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-cmake --build build
-ctest --test-dir build --output-on-failure
+cmake --preset release
+cmake --build --preset release
+ctest --preset release
 ```
 
-如果没有 Ninja，可以去掉 `-G Ninja`，使用 CMake 的默认生成器。
+需要排查内存错误或未定义行为时，使用同一套 Debug Sanitizer 配置：
+
+```bash
+cmake --preset debug-sanitizers
+cmake --build --preset debug-sanitizers
+ctest --preset debug-sanitizers
+```
+
+`CMakePresets.json` 是提交到仓库的共享配置，本地和 GitHub Actions 使用相同参数。个人机器专用配置可写入不提交的 `CMakeUserPresets.json`。
 
 ## Run the Benchmark
 
 ```bash
-./build/gemm_benchmark
-./build/gemm_benchmark --repeats 5
-./build/gemm_benchmark --sizes 128,256,512 --csv results.csv
-./build/gemm_benchmark --m 128 --n 3072 --k 768
+./build/release/gemm_benchmark
+./build/release/gemm_benchmark --repeats 5
+./build/release/gemm_benchmark --sizes 128,256,512 --csv results.csv
+./build/release/gemm_benchmark --m 128 --n 3072 --k 768
 ```
 
 运行编译器优化级别控制实验：
@@ -245,6 +254,7 @@ sudo dnf install clang llvm
 ├── tests/                   # Correctness and error-handling tests
 ├── AGENTS.md                # Project collaboration and research rules
 ├── CMakeLists.txt
+├── CMakePresets.json        # Shared local and CI build configurations
 └── README.md
 ```
 
@@ -253,20 +263,28 @@ sudo dnf install clang llvm
 ## Build and Test
 
 ```bash
-cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-cmake --build build
-ctest --test-dir build --output-on-failure
+cmake --preset release
+cmake --build --preset release
+ctest --preset release
 ```
 
-If Ninja is unavailable, omit `-G Ninja` to use CMake's default generator.
+Use the shared Debug Sanitizer configuration to diagnose memory errors and undefined behavior:
+
+```bash
+cmake --preset debug-sanitizers
+cmake --build --preset debug-sanitizers
+ctest --preset debug-sanitizers
+```
+
+`CMakePresets.json` is committed as the shared configuration used by local development and GitHub Actions. Machine-specific settings may be placed in the untracked `CMakeUserPresets.json`.
 
 ## Run the Benchmark
 
 ```bash
-./build/gemm_benchmark
-./build/gemm_benchmark --repeats 5
-./build/gemm_benchmark --sizes 128,256,512 --csv results.csv
-./build/gemm_benchmark --m 128 --n 3072 --k 768
+./build/release/gemm_benchmark
+./build/release/gemm_benchmark --repeats 5
+./build/release/gemm_benchmark --sizes 128,256,512 --csv results.csv
+./build/release/gemm_benchmark --m 128 --n 3072 --k 768
 ```
 
 Run the controlled compiler optimization-level experiment:
