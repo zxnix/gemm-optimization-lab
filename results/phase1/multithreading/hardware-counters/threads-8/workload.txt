@@ -1,0 +1,333 @@
+GEMM Optimization Lab - FP32 GEMM benchmark
+kernel=avx2-mt, block-size=128, layout=row-major, loop-order=packed-register-blocked, target-isa=avx2+fma, microkernel=4x8, threads=8, warm-up=1, repeats=50, optimization=O3
+
+M=1024, N=1024, K=1024
+  packing (separate from kernel time):
+    run 1: 0.849 ms
+    run 2: 0.947 ms
+    run 3: 0.844 ms
+    run 4: 0.886 ms
+    run 5: 0.934 ms
+    run 6: 1.432 ms
+    run 7: 0.529 ms
+    run 8: 0.499 ms
+    run 9: 0.499 ms
+    run 10: 0.506 ms
+    run 11: 0.514 ms
+    run 12: 0.541 ms
+    run 13: 0.478 ms
+    run 14: 0.461 ms
+    run 15: 0.461 ms
+    run 16: 0.479 ms
+    run 17: 0.474 ms
+    run 18: 0.543 ms
+    run 19: 0.571 ms
+    run 20: 0.492 ms
+    run 21: 0.534 ms
+    run 22: 0.514 ms
+    run 23: 0.496 ms
+    run 24: 0.481 ms
+    run 25: 0.513 ms
+    run 26: 0.516 ms
+    run 27: 0.528 ms
+    run 28: 0.489 ms
+    run 29: 0.473 ms
+    run 30: 0.505 ms
+    run 31: 0.524 ms
+    run 32: 0.478 ms
+    run 33: 0.474 ms
+    run 34: 0.478 ms
+    run 35: 0.529 ms
+    run 36: 0.528 ms
+    run 37: 0.479 ms
+    run 38: 0.472 ms
+    run 39: 0.489 ms
+    run 40: 0.619 ms
+    run 41: 0.507 ms
+    run 42: 0.548 ms
+    run 43: 0.511 ms
+    run 44: 0.567 ms
+    run 45: 0.578 ms
+    run 46: 0.548 ms
+    run 47: 0.514 ms
+    run 48: 0.474 ms
+    run 49: 0.492 ms
+    run 50: 0.473 ms
+    mean:   0.565 ms
+    median: 0.512 ms
+  run 1: 13.677 ms, 157.014 GFLOP/s
+  run 2: 12.672 ms, 169.470 GFLOP/s
+  run 3: 12.500 ms, 171.798 GFLOP/s
+  run 4: 13.116 ms, 163.729 GFLOP/s
+  run 5: 12.362 ms, 173.720 GFLOP/s
+  run 6: 12.692 ms, 169.196 GFLOP/s
+  run 7: 12.749 ms, 168.440 GFLOP/s
+  run 8: 12.387 ms, 173.363 GFLOP/s
+  run 9: 12.552 ms, 171.086 GFLOP/s
+  run 10: 13.000 ms, 165.185 GFLOP/s
+  run 11: 12.114 ms, 177.271 GFLOP/s
+  run 12: 12.310 ms, 174.445 GFLOP/s
+  run 13: 15.531 ms, 138.266 GFLOP/s
+  run 14: 16.186 ms, 132.679 GFLOP/s
+  run 15: 16.453 ms, 130.526 GFLOP/s
+  run 16: 19.397 ms, 110.710 GFLOP/s
+  run 17: 16.505 ms, 130.113 GFLOP/s
+  run 18: 17.905 ms, 119.938 GFLOP/s
+  run 19: 16.799 ms, 127.832 GFLOP/s
+  run 20: 16.496 ms, 130.180 GFLOP/s
+  run 21: 17.794 ms, 120.684 GFLOP/s
+  run 22: 17.614 ms, 121.921 GFLOP/s
+  run 23: 17.116 ms, 125.466 GFLOP/s
+  run 24: 17.669 ms, 121.538 GFLOP/s
+  run 25: 17.792 ms, 120.702 GFLOP/s
+  run 26: 17.298 ms, 124.144 GFLOP/s
+  run 27: 18.070 ms, 118.840 GFLOP/s
+  run 28: 20.897 ms, 102.766 GFLOP/s
+  run 29: 17.469 ms, 122.929 GFLOP/s
+  run 30: 19.883 ms, 108.004 GFLOP/s
+  run 31: 22.102 ms, 97.161 GFLOP/s
+  run 32: 17.831 ms, 120.438 GFLOP/s
+  run 33: 21.672 ms, 99.089 GFLOP/s
+  run 34: 18.665 ms, 115.054 GFLOP/s
+  run 35: 24.137 ms, 88.971 GFLOP/s
+  run 36: 23.683 ms, 90.675 GFLOP/s
+  run 37: 18.082 ms, 118.762 GFLOP/s
+  run 38: 19.985 ms, 107.454 GFLOP/s
+  run 39: 19.878 ms, 108.034 GFLOP/s
+  run 40: 24.820 ms, 86.522 GFLOP/s
+  run 41: 28.004 ms, 76.684 GFLOP/s
+  run 42: 25.632 ms, 83.783 GFLOP/s
+  run 43: 24.150 ms, 88.924 GFLOP/s
+  run 44: 67.589 ms, 31.773 GFLOP/s
+  run 45: 53.843 ms, 39.884 GFLOP/s
+  run 46: 87.410 ms, 24.568 GFLOP/s
+  run 47: 22.885 ms, 93.840 GFLOP/s
+  run 48: 23.821 ms, 90.149 GFLOP/s
+  run 49: 24.810 ms, 86.558 GFLOP/s
+  run 50: 21.906 ms, 98.031 GFLOP/s
+  mean:   21.198 ms, 101.305 GFLOP/s
+  median: 17.812 ms, 120.561 GFLOP/s
+  one-shot median (packing + kernel): 18.319 ms, 117.230 effective GFLOP/s
+  verify: SKIPPED (counter workload only)
+GEMM Optimization Lab - FP32 GEMM benchmark
+kernel=avx2-mt, block-size=128, layout=row-major, loop-order=packed-register-blocked, target-isa=avx2+fma, microkernel=4x8, threads=8, warm-up=1, repeats=50, optimization=O3
+
+M=1024, N=1024, K=1024
+  packing (separate from kernel time):
+    run 1: 0.571 ms
+    run 2: 0.522 ms
+    run 3: 0.555 ms
+    run 4: 0.513 ms
+    run 5: 0.521 ms
+    run 6: 0.517 ms
+    run 7: 0.520 ms
+    run 8: 0.527 ms
+    run 9: 0.478 ms
+    run 10: 0.475 ms
+    run 11: 0.754 ms
+    run 12: 0.531 ms
+    run 13: 0.895 ms
+    run 14: 0.526 ms
+    run 15: 0.541 ms
+    run 16: 0.576 ms
+    run 17: 0.576 ms
+    run 18: 0.523 ms
+    run 19: 0.524 ms
+    run 20: 0.542 ms
+    run 21: 0.521 ms
+    run 22: 0.520 ms
+    run 23: 0.518 ms
+    run 24: 0.538 ms
+    run 25: 0.537 ms
+    run 26: 0.519 ms
+    run 27: 0.517 ms
+    run 28: 0.538 ms
+    run 29: 0.499 ms
+    run 30: 0.477 ms
+    run 31: 0.496 ms
+    run 32: 0.476 ms
+    run 33: 0.512 ms
+    run 34: 0.512 ms
+    run 35: 0.540 ms
+    run 36: 0.519 ms
+    run 37: 0.518 ms
+    run 38: 0.521 ms
+    run 39: 0.504 ms
+    run 40: 0.477 ms
+    run 41: 0.494 ms
+    run 42: 0.477 ms
+    run 43: 0.494 ms
+    run 44: 0.498 ms
+    run 45: 0.544 ms
+    run 46: 0.478 ms
+    run 47: 0.696 ms
+    run 48: 0.551 ms
+    run 49: 0.516 ms
+    run 50: 0.538 ms
+    mean:   0.535 ms
+    median: 0.521 ms
+  run 1: 16.019 ms, 134.057 GFLOP/s
+  run 2: 18.927 ms, 113.462 GFLOP/s
+  run 3: 13.009 ms, 165.071 GFLOP/s
+  run 4: 13.525 ms, 158.779 GFLOP/s
+  run 5: 12.670 ms, 169.499 GFLOP/s
+  run 6: 12.898 ms, 166.492 GFLOP/s
+  run 7: 12.424 ms, 172.847 GFLOP/s
+  run 8: 12.984 ms, 165.392 GFLOP/s
+  run 9: 13.843 ms, 155.131 GFLOP/s
+  run 10: 12.930 ms, 166.082 GFLOP/s
+  run 11: 14.151 ms, 151.756 GFLOP/s
+  run 12: 13.445 ms, 159.722 GFLOP/s
+  run 13: 12.824 ms, 167.456 GFLOP/s
+  run 14: 12.877 ms, 166.769 GFLOP/s
+  run 15: 13.360 ms, 160.746 GFLOP/s
+  run 16: 13.083 ms, 164.145 GFLOP/s
+  run 17: 12.512 ms, 171.634 GFLOP/s
+  run 18: 12.281 ms, 174.868 GFLOP/s
+  run 19: 13.495 ms, 159.127 GFLOP/s
+  run 20: 13.135 ms, 163.490 GFLOP/s
+  run 21: 13.066 ms, 164.355 GFLOP/s
+  run 22: 12.842 ms, 167.229 GFLOP/s
+  run 23: 20.125 ms, 106.707 GFLOP/s
+  run 24: 28.601 ms, 75.083 GFLOP/s
+  run 25: 35.023 ms, 61.316 GFLOP/s
+  run 26: 32.922 ms, 65.230 GFLOP/s
+  run 27: 31.526 ms, 68.117 GFLOP/s
+  run 28: 30.367 ms, 70.719 GFLOP/s
+  run 29: 33.109 ms, 64.861 GFLOP/s
+  run 30: 49.184 ms, 43.663 GFLOP/s
+  run 31: 36.408 ms, 58.983 GFLOP/s
+  run 32: 37.757 ms, 56.876 GFLOP/s
+  run 33: 33.717 ms, 63.691 GFLOP/s
+  run 34: 48.970 ms, 43.853 GFLOP/s
+  run 35: 57.042 ms, 37.648 GFLOP/s
+  run 36: 51.196 ms, 41.946 GFLOP/s
+  run 37: 65.204 ms, 32.935 GFLOP/s
+  run 38: 69.283 ms, 30.996 GFLOP/s
+  run 39: 74.262 ms, 28.918 GFLOP/s
+  run 40: 33.244 ms, 64.597 GFLOP/s
+  run 41: 18.209 ms, 117.938 GFLOP/s
+  run 42: 28.307 ms, 75.865 GFLOP/s
+  run 43: 23.452 ms, 91.568 GFLOP/s
+  run 44: 20.774 ms, 103.372 GFLOP/s
+  run 45: 18.764 ms, 114.448 GFLOP/s
+  run 46: 16.673 ms, 128.797 GFLOP/s
+  run 47: 19.005 ms, 112.994 GFLOP/s
+  run 48: 17.774 ms, 120.824 GFLOP/s
+  run 49: 15.237 ms, 140.940 GFLOP/s
+  run 50: 13.442 ms, 159.754 GFLOP/s
+  mean:   25.118 ms, 85.497 GFLOP/s
+  median: 17.991 ms, 119.363 GFLOP/s
+  one-shot median (packing + kernel): 18.513 ms, 115.996 effective GFLOP/s
+  verify: SKIPPED (counter workload only)
+GEMM Optimization Lab - FP32 GEMM benchmark
+kernel=avx2-mt, block-size=128, layout=row-major, loop-order=packed-register-blocked, target-isa=avx2+fma, microkernel=4x8, threads=8, warm-up=1, repeats=50, optimization=O3
+
+M=1024, N=1024, K=1024
+  packing (separate from kernel time):
+    run 1: 0.604 ms
+    run 2: 0.894 ms
+    run 3: 0.542 ms
+    run 4: 0.584 ms
+    run 5: 0.558 ms
+    run 6: 0.559 ms
+    run 7: 0.513 ms
+    run 8: 0.506 ms
+    run 9: 0.502 ms
+    run 10: 0.519 ms
+    run 11: 0.518 ms
+    run 12: 0.524 ms
+    run 13: 0.532 ms
+    run 14: 0.511 ms
+    run 15: 0.550 ms
+    run 16: 0.545 ms
+    run 17: 0.561 ms
+    run 18: 0.541 ms
+    run 19: 0.506 ms
+    run 20: 0.537 ms
+    run 21: 0.674 ms
+    run 22: 0.528 ms
+    run 23: 0.503 ms
+    run 24: 0.542 ms
+    run 25: 0.537 ms
+    run 26: 0.583 ms
+    run 27: 0.541 ms
+    run 28: 0.563 ms
+    run 29: 0.542 ms
+    run 30: 0.509 ms
+    run 31: 0.500 ms
+    run 32: 0.516 ms
+    run 33: 0.573 ms
+    run 34: 0.502 ms
+    run 35: 0.501 ms
+    run 36: 0.519 ms
+    run 37: 0.508 ms
+    run 38: 0.512 ms
+    run 39: 0.559 ms
+    run 40: 0.551 ms
+    run 41: 0.580 ms
+    run 42: 0.558 ms
+    run 43: 0.562 ms
+    run 44: 0.542 ms
+    run 45: 0.541 ms
+    run 46: 0.546 ms
+    run 47: 0.531 ms
+    run 48: 0.539 ms
+    run 49: 0.505 ms
+    run 50: 0.554 ms
+    mean:   0.547 ms
+    median: 0.541 ms
+  run 1: 13.913 ms, 154.346 GFLOP/s
+  run 2: 15.556 ms, 138.049 GFLOP/s
+  run 3: 12.592 ms, 170.540 GFLOP/s
+  run 4: 12.692 ms, 169.197 GFLOP/s
+  run 5: 13.494 ms, 159.147 GFLOP/s
+  run 6: 12.847 ms, 167.158 GFLOP/s
+  run 7: 12.235 ms, 175.513 GFLOP/s
+  run 8: 12.377 ms, 173.501 GFLOP/s
+  run 9: 13.082 ms, 164.159 GFLOP/s
+  run 10: 12.282 ms, 174.843 GFLOP/s
+  run 11: 11.509 ms, 186.584 GFLOP/s
+  run 12: 11.879 ms, 180.784 GFLOP/s
+  run 13: 12.430 ms, 172.771 GFLOP/s
+  run 14: 12.229 ms, 175.606 GFLOP/s
+  run 15: 12.439 ms, 172.646 GFLOP/s
+  run 16: 12.875 ms, 166.788 GFLOP/s
+  run 17: 12.544 ms, 171.193 GFLOP/s
+  run 18: 12.423 ms, 172.867 GFLOP/s
+  run 19: 12.812 ms, 167.620 GFLOP/s
+  run 20: 12.960 ms, 165.704 GFLOP/s
+  run 21: 12.373 ms, 173.558 GFLOP/s
+  run 22: 11.207 ms, 191.619 GFLOP/s
+  run 23: 11.590 ms, 185.289 GFLOP/s
+  run 24: 12.476 ms, 172.127 GFLOP/s
+  run 25: 16.063 ms, 133.694 GFLOP/s
+  run 26: 17.290 ms, 124.202 GFLOP/s
+  run 27: 16.818 ms, 127.688 GFLOP/s
+  run 28: 16.188 ms, 132.661 GFLOP/s
+  run 29: 16.771 ms, 128.047 GFLOP/s
+  run 30: 17.356 ms, 123.732 GFLOP/s
+  run 31: 18.221 ms, 117.859 GFLOP/s
+  run 32: 14.636 ms, 146.726 GFLOP/s
+  run 33: 17.676 ms, 121.493 GFLOP/s
+  run 34: 19.012 ms, 112.954 GFLOP/s
+  run 35: 17.525 ms, 122.539 GFLOP/s
+  run 36: 16.698 ms, 128.606 GFLOP/s
+  run 37: 18.161 ms, 118.248 GFLOP/s
+  run 38: 18.244 ms, 117.711 GFLOP/s
+  run 39: 17.393 ms, 123.465 GFLOP/s
+  run 40: 18.464 ms, 116.305 GFLOP/s
+  run 41: 18.154 ms, 118.291 GFLOP/s
+  run 42: 18.269 ms, 117.549 GFLOP/s
+  run 43: 21.855 ms, 98.262 GFLOP/s
+  run 44: 21.359 ms, 100.543 GFLOP/s
+  run 45: 22.965 ms, 93.511 GFLOP/s
+  run 46: 23.420 ms, 91.694 GFLOP/s
+  run 47: 21.563 ms, 99.590 GFLOP/s
+  run 48: 21.123 ms, 101.666 GFLOP/s
+  run 49: 27.657 ms, 77.648 GFLOP/s
+  run 50: 36.733 ms, 58.463 GFLOP/s
+  mean:   16.249 ms, 132.164 GFLOP/s
+  median: 15.809 ms, 135.836 GFLOP/s
+  one-shot median (packing + kernel): 16.525 ms, 129.957 effective GFLOP/s
+  verify: SKIPPED (counter workload only)

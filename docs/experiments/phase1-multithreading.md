@@ -104,8 +104,9 @@ reference，并重复执行 50 次 kernel，使初始化、packing、一次 warm
 这些计数器仍是 kernel-dominated process-level 数据，不应声称为严格的 kernel-only
 计数。精确区间测量可在后续使用 `perf_event_open` 或受控 profiler marker。
 
-若 `perf` 未安装、`kernel.perf_event_paranoid` 禁止访问或 WSL2 不暴露计数器，脚本会
-写入 `hardware-counters/status.txt`，保留“不可获得”这一实验事实，而不会伪造数据。
+脚本会分别探测 hardware 与 software event。若 hardware PMU 不可用但 software event
+可用，仍采集后者；能力状态写入 `hardware-counters/status.txt`，保留“不可获得”
+这一实验事实，而不会把缺失值伪造成零。
 
 ## 运行方法
 
@@ -133,6 +134,17 @@ GEMM_SIZES=256 GEMM_REPEATS=2 GEMM_THREAD_COUNTS=1,2,4 \
 普通 benchmark 的计时区间包括线程创建、AVX2/FMA 计算和 join；不包括矩阵分配、
 随机初始化、B packing、终端输出和 FP64 verification。packing 继续单独测量，并报告
 one-shot `packing + compute` 成本。
+
+## 结果
+
+正式结果见 [`results/phase1/multithreading/summary.md`](../../results/phase1/multithreading/summary.md)。
+256³ 在 2 threads 达到最佳 105.555 GFLOP/s（1.561×）；512³ 在 20 threads 达到
+214.423 GFLOP/s（3.333×）；1024³ 在 20 threads 达到 272.810 GFLOP/s（4.218×）。
+小矩阵在线程生命周期成本下很快退化，而较大矩阵能更充分摊薄开销。
+
+WSL2 不支持 cycles、instructions 和 cache 等 hardware PMU events，因此本轮没有 IPC
+或 cache miss ratio；可用的 software counters 已被记录。硬件计数器部分必须在原生
+Linux 上复现后才能形成硬件层结论。
 
 ## 解释边界
 

@@ -14,7 +14,7 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 
 ## Current Milestone
 
-**Phase 1.7 — Multithreading 与 Hardware Performance Counters（进行中）**
+**Phase 1.7 — Multithreading 与 Hardware Performance Counters（已完成）**
 
 项目当前包含单线程 FP32 GEMM baseline、GCC 优化级别实验、循环顺序、cache blocking、B matrix packing、portable 4×8 microkernel、显式 AVX2/FMA 4×8 microkernel，以及沿 M 维静态分区的 C++17 多线程 kernel，不依赖任何第三方矩阵库。
 
@@ -46,7 +46,7 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 - [x] Phase 1.4：Cache blocking 分析
 - [x] Phase 1.5：Matrix packing
 - [x] Phase 1.6：SIMD/AVX 向量化
-- [ ] Phase 1.7：多线程与硬件性能计数器
+- [x] Phase 1.7：多线程与硬件性能计数器
 - [ ] Phase 2：LLVM IR 与机器指令分析
 - [ ] Phase 3：Tensor IR 与调度
 - [ ] Phase 4：CUDA/GPU 后端优化
@@ -86,6 +86,7 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 ```bash
 sudo dnf install gcc-c++ cmake ninja-build git
 sudo dnf install clang llvm
+sudo dnf install perf libtsan
 ```
 
 ## Project Structure
@@ -183,7 +184,10 @@ GFLOP/s = FLOPs / time_seconds / 1e9
 
 ## Results
 
-Phase 1.1–1.6 的结果位于 [`results/phase1`](results/phase1)。Phase 1.6 的最佳 AVX2/FMA 4×8 kernel 在 256³、512³、1024³ 上达到 56.511、57.630 和 53.416 GFLOP/s，相对本轮 `i-k-j` median 分别加速 3.758×、3.979× 和 3.532×。完整数据见 [Phase 1.2](results/phase1/compiler-options/summary.md)、[Phase 1.3](results/phase1/loop-order/summary.md)、[Phase 1.4](results/phase1/blocking/summary.md)、[Phase 1.5](results/phase1/packing/summary.md) 和 [Phase 1.6](results/phase1/simd/summary.md)。
+Phase 1.1–1.7 的结果位于 [`results/phase1`](results/phase1)。Phase 1.7 的多线程
+AVX2/FMA kernel 在 1024³ 上从 64.671 GFLOP/s（1 thread）提升到
+272.810 GFLOP/s（20 threads），speedup 为 4.218×。256³ 的最佳点则是 2 threads，
+说明线程创建与调度开销会限制小矩阵。完整数据见 [Phase 1.2](results/phase1/compiler-options/summary.md)、[Phase 1.3](results/phase1/loop-order/summary.md)、[Phase 1.4](results/phase1/blocking/summary.md)、[Phase 1.5](results/phase1/packing/summary.md)、[Phase 1.6](results/phase1/simd/summary.md) 和 [Phase 1.7](results/phase1/multithreading/summary.md)。
 
 ## Continuous Integration
 
@@ -206,7 +210,7 @@ Modern AI workloads rely heavily on matrix computation. This project studies how
 
 ## Current Milestone
 
-**Phase 1.7 — Multithreading and Hardware Performance Counters (in progress)**
+**Phase 1.7 — Multithreading and Hardware Performance Counters (completed)**
 
 The project currently provides a single-threaded FP32 GEMM baseline, controlled GCC optimization-level and loop-order experiments, cache blocking, B matrix packing, portable and explicit AVX2/FMA 4×8 microkernels, and a C++17 multithreaded kernel that statically partitions the M dimension. No third-party matrix library is used.
 
@@ -238,7 +242,7 @@ All implementations except the dedicated AVX2 kernel use ordinary C++ loops. AVX
 - [x] Phase 1.4: Cache-blocking analysis
 - [x] Phase 1.5: Matrix packing
 - [x] Phase 1.6: SIMD/AVX vectorization
-- [ ] Phase 1.7: Multithreading and hardware performance counters
+- [x] Phase 1.7: Multithreading and hardware performance counters
 - [ ] Phase 2: LLVM IR and machine-instruction analysis
 - [ ] Phase 3: Tensor IR and scheduling
 - [ ] Phase 4: CUDA/GPU backend optimization
@@ -278,6 +282,7 @@ Install the development tools on Fedora:
 ```bash
 sudo dnf install gcc-c++ cmake ninja-build git
 sudo dnf install clang llvm
+sudo dnf install perf libtsan
 ```
 
 ## Project Structure
@@ -375,7 +380,10 @@ All benchmark results should be reproducible under a fixed hardware and software
 
 ## Results
 
-Results for Phases 1.1–1.6 are available in [`results/phase1`](results/phase1). The best Phase 1.6 AVX2/FMA 4×8 kernel reaches 56.511, 57.630, and 53.416 GFLOP/s for 256³, 512³, and 1024³, corresponding to 3.758×, 3.979×, and 3.532× over the `i-k-j` medians from the same run. See the result summaries for [Phase 1.2](results/phase1/compiler-options/summary.md), [Phase 1.3](results/phase1/loop-order/summary.md), [Phase 1.4](results/phase1/blocking/summary.md), [Phase 1.5](results/phase1/packing/summary.md), and [Phase 1.6](results/phase1/simd/summary.md).
+Results for Phases 1.1–1.7 are available in [`results/phase1`](results/phase1). On 1024³,
+the Phase 1.7 multithreaded AVX2/FMA kernel improves from 64.671 GFLOP/s with one thread to
+272.810 GFLOP/s with 20 threads, a 4.218× speedup. The best 256³ result uses only two threads,
+showing that thread lifecycle and scheduling overhead dominate small matrices. See the summaries for [Phase 1.2](results/phase1/compiler-options/summary.md), [Phase 1.3](results/phase1/loop-order/summary.md), [Phase 1.4](results/phase1/blocking/summary.md), [Phase 1.5](results/phase1/packing/summary.md), [Phase 1.6](results/phase1/simd/summary.md), and [Phase 1.7](results/phase1/multithreading/summary.md).
 
 ## Continuous Integration
 

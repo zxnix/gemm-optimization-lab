@@ -1,0 +1,46 @@
+timestamp_utc=2026-09-12T15:27:04Z
+git_commit=a21fb441556c62c1498b3ab8082f5dcfcd5635f7
+git_dirty=false
+distribution=Fedora Linux 44 (WSL)
+kernel=Linux 6.6.87.2-microsoft-standard-WSL2 x86_64 GNU/Linux
+wsl=true
+architecture=x86_64
+logical_cpus=20
+cpu_model=13th Gen Intel(R) Core(TM) i9-13905H
+l1d_cache=480 KiB (10 instances)
+l2_cache=12.5 MiB (10 instances)
+l3_cache=24 MiB (1 instance)
+cpu_avx2=true
+cpu_fma=true
+compiler=c++ (GCC) 16.1.1 20260515 (Red Hat 16.1.1-2)
+cmake=cmake version 4.3.0
+ninja=1.13.2
+build_dir=build/release
+compile_commands=build/release/compile_commands.json
+build_type=Release
+release_flags=-O3 -DNDEBUG
+requested_thread_counts=1,2,4,8,10,20
+online_cpus=20
+
+cpu_topology:
+CPU CORE SOCKET NODE ONLINE
+  0    0      0    0    yes
+  1    0      0    0    yes
+  2    1      0    0    yes
+  3    1      0    0    yes
+  4    2      0    0    yes
+  5    2      0    0    yes
+  6    3      0    0    yes
+  7    3      0    0    yes
+  8    4      0    0    yes
+  9    4      0    0    yes
+ 10    5      0    0    yes
+ 11    5      0    0    yes
+ 12    6      0    0    yes
+ 13    6      0    0    yes
+ 14    7      0    0    yes
+ 15    7      0    0    yes
+ 16    8      0    0    yes
+ 17    8      0    0    yes
+ 18    9      0    0    yes
+ 19    9      0    0    yes

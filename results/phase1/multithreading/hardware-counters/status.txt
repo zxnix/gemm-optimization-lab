@@ -1,0 +1,6 @@
+perf=available
+hardware_events=unavailable
+software_events=available
+events=task-clock,context-switches,cpu-migrations,page-faults
+kernel.perf_event_paranoid=2
+reason=hardware PMU events were denied or are unsupported by this kernel
