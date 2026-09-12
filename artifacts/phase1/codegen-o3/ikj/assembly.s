@@ -13,10 +13,10 @@
 	.globl	"_ZN4gemm8gemm_ikjERKNS_6MatrixES2_RS0_"
 	.type	"_ZN4gemm8gemm_ikjERKNS_6MatrixES2_RS0_", @function
 "_ZN4gemm8gemm_ikjERKNS_6MatrixES2_RS0_":
-.LFB3334:
+.LFB3340:
 	.cfi_startproc
 	.cfi_personality 0x3,"__gxx_personality_v0"
-	.cfi_lsda 0x3,.LLSDA3334
+	.cfi_lsda 0x3,.LLSDA3340
 	sub	rsp, 136
 	.cfi_def_cfa_offset 144
 	mov	rax, rdi
@@ -275,22 +275,22 @@
 	.cfi_offset 3, -56
 	jmp	.L2
 	.section	.gcc_except_table,"a",@progbits
-.LLSDA3334:
+.LLSDA3340:
 	.byte	0xff
 	.byte	0xff
 	.byte	0x1
-	.uleb128 .LLSDACSE3334-.LLSDACSB3334
-.LLSDACSB3334:
-.LLSDACSE3334:
+	.uleb128 .LLSDACSE3340-.LLSDACSB3340
+.LLSDACSB3340:
+.LLSDACSE3340:
 	.text
 	.cfi_endproc
 	.section	.text.unlikely
 	.cfi_startproc
 	.cfi_personality 0x3,"__gxx_personality_v0"
-	.cfi_lsda 0x3,.LLSDAC3334
+	.cfi_lsda 0x3,.LLSDAC3340
 	.type	"_ZN4gemm8gemm_ikjERKNS_6MatrixES2_RS0_.cold", @function
 "_ZN4gemm8gemm_ikjERKNS_6MatrixES2_RS0_.cold":
-.LFSB3334:
+.LFSB3340:
 .L2:
 	.cfi_def_cfa_offset 144
 	.cfi_offset 3, -56
@@ -337,14 +337,14 @@
 	call	"_Unwind_Resume"
 .LEHE1:
 	.cfi_endproc
-.LFE3334:
+.LFE3340:
 	.section	.gcc_except_table
-.LLSDAC3334:
+.LLSDAC3340:
 	.byte	0xff
 	.byte	0xff
 	.byte	0x1
-	.uleb128 .LLSDACSEC3334-.LLSDACSBC3334
-.LLSDACSBC3334:
+	.uleb128 .LLSDACSEC3340-.LLSDACSBC3340
+.LLSDACSBC3340:
 	.uleb128 .LEHB0-.LCOLDB1
 	.uleb128 .LEHE0-.LEHB0
 	.uleb128 .L23-.LCOLDB1
@@ -353,7 +353,7 @@
 	.uleb128 .LEHE1-.LEHB1
 	.uleb128 0
 	.uleb128 0
-.LLSDACSEC3334:
+.LLSDACSEC3340:
 	.section	.text.unlikely
 	.text
 	.size	"_ZN4gemm8gemm_ikjERKNS_6MatrixES2_RS0_", .-"_ZN4gemm8gemm_ikjERKNS_6MatrixES2_RS0_"

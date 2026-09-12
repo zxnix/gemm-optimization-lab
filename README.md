@@ -139,14 +139,14 @@ ctest --preset debug-sanitizers
 ./build/release/gemm_benchmark --kernel packed --block-size 64 --sizes 128,256,512
 ```
 
-运行编译器优化级别控制实验：
+运行可复现实验：
 
 ```bash
 ./scripts/run_compiler_options.sh
 ./scripts/run_packing.sh
 ```
 
-生成 `i-k-j` 与 blocked kernel 的 O3 Assembly 和向量化报告：
+生成 `i-k-j`、blocked 与 packed kernel 的 O3 Assembly 和向量化报告：
 
 ```bash
 ./scripts/generate_codegen_reports.sh
@@ -314,14 +314,14 @@ ctest --preset debug-sanitizers
 ./build/release/gemm_benchmark --kernel packed --block-size 64 --sizes 128,256,512
 ```
 
-Run the controlled compiler optimization-level experiment:
+Run the reproducible experiments:
 
 ```bash
 ./scripts/run_compiler_options.sh
 ./scripts/run_packing.sh
 ```
 
-Generate O3 assembly and vectorization reports for the `i-k-j` and blocked kernels:
+Generate O3 assembly and vectorization reports for the `i-k-j`, blocked, and packed kernels:
 
 ```bash
 ./scripts/generate_codegen_reports.sh

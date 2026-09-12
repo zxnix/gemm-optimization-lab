@@ -19,3 +19,24 @@ include/gemm/matrix.hpp:34:39: note: ***** Re-trying analysis with vector mode V
 include/gemm/matrix.hpp:34:39: note: ***** Analysis failed with vector mode V8QI
 include/gemm/matrix.hpp:34:39: note: ***** Re-trying analysis with vector mode V4QI
 include/gemm/matrix.hpp:34:39: note: ***** Analysis failed with vector mode V4QI
+src/kernels/gemm_ikj.cpp:23:31: missed: couldn't vectorize loop
+src/kernels/gemm_ikj.cpp:23:31: missed: not vectorized: multiple nested loops.
+src/kernels/gemm_ikj.cpp:24:35: missed: couldn't vectorize loop
+src/kernels/gemm_ikj.cpp:27:39: missed: failed: evolution of base is not affine.
+src/kernels/gemm_ikj.cpp:26:39: optimized: loop vectorized using 16 byte vectors and unroll factor 4
+src/kernels/gemm_ikj.cpp:26:39: optimized:  loop versioned for vectorization because of possible aliasing
+src/kernels/gemm_ikj.cpp:26:39: optimized: epilogue loop vectorized using 8 byte vectors and unroll factor 2
+src/kernels/gemm_ikj.cpp:17:31: missed: couldn't vectorize loop
+src/kernels/gemm_ikj.cpp:19:21: missed: statement clobbers memory: __builtin_memset (_115, 0, _78);
+src/kernels/gemm_ikj.cpp:7:6: note: vectorized 1 loops in function.
+src/kernels/gemm_ikj.cpp:19:21: missed: statement clobbers memory: __builtin_memset (_115, 0, _78);
+src/kernels/gemm_ikj.cpp:9:74: missed: statement clobbers memory: _37 = __cxa_allocate_exception (16);
+src/kernels/gemm_ikj.cpp:9:74: missed: not vectorized: statement can throw an exception: std::invalid_argument::invalid_argument (_37, "incompatible GEMM matrix dimensions");
+src/kernels/gemm_ikj.cpp:9:74: missed: statement clobbers memory: __cxa_throw (_37, &_ZTISt16invalid_argument, __dt_comp );
+src/kernels/gemm_ikj.cpp:9:74: missed: statement clobbers memory: __cxa_free_exception (_37);
+include/gemm/matrix.hpp:34:39: note: ***** Analysis failed with vector mode V2DI
+include/gemm/matrix.hpp:34:39: note: ***** The result for vector mode V16QI would be the same
+include/gemm/matrix.hpp:34:39: note: ***** Re-trying analysis with vector mode V8QI
+include/gemm/matrix.hpp:34:39: note: ***** Analysis failed with vector mode V8QI
+include/gemm/matrix.hpp:34:39: note: ***** Re-trying analysis with vector mode V4QI
+include/gemm/matrix.hpp:34:39: note: ***** Analysis failed with vector mode V4QI

@@ -58,6 +58,14 @@ packing 的 median 为 0.011–0.370 ms。对这些方阵而言，`O(KN)` 数据
 但也保留了 tile 循环、边界和索引开销。这表明 packing 是供后续微内核消费的数据
 布局变换，而不是脱离 code generation 就必然加速的独立开关。
 
+## 生成代码证据
+
+GCC `-O3` 报告确认 packed 与 blocked 的最内层 j 循环都被自动向量化为
+16-byte XMM packed 操作，unroll factor 为 4。packed Assembly 中出现
+`mulps/addps`，标量尾部出现 `mulss/addss`；没有 YMM、ZMM 或 FMA。
+因此可以排除“packed 的收益只是因为 blocked 完全没有 SIMD”这一解释。对应报告、
+汇编和复现命令位于 `artifacts/phase1/codegen-o3/packed/`。
+
 ## 变异与解释边界
 
 部分序列存在明显的运行时漂移，例如同一组 1024³ 的连续样本变化超过一般稳定
