@@ -21,7 +21,8 @@ mkdir -p "$artifact_root" "$analysis_dir"
 
 for entry in \
     "ikj:src/kernels/gemm_ikj.cpp" \
-    "blocked:src/kernels/gemm_blocked.cpp"; do
+    "blocked:src/kernels/gemm_blocked.cpp" \
+    "packed:src/kernels/gemm_packed.cpp"; do
     kernel=${entry%%:*}
     source=${entry#*:}
     kernel_dir="$artifact_root/$kernel"
