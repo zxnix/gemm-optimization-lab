@@ -24,6 +24,7 @@ add_library(gemm_baseline
     src/kernels/gemm_naive.cpp
     src/kernels/gemm_ikj.cpp
     src/kernels/gemm_blocked.cpp
+    src/kernels/gemm_packed.cpp
     src/verification/verification.cpp
 )
 target_include_directories(gemm_baseline PUBLIC ${PROJECT_SOURCE_DIR}/include)

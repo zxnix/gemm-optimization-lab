@@ -11,6 +11,7 @@
 #include <iostream>
 #include <limits>
 #include <numeric>
+#include <optional>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -25,6 +26,7 @@ struct RunResult { int run; double milliseconds; double gflops; };
 struct CaseResult {
     Shape shape;
     std::vector<RunResult> runs;
+    std::vector<double> packing_times;
     gemm::VerificationResult verification;
 };
 struct Options {
@@ -83,14 +85,15 @@ Options parse_options(int argc, char** argv) {
             options.csv_path = require_value();
         } else if (argument == "--kernel") {
             options.kernel = require_value();
-            if (options.kernel != "naive" && options.kernel != "ikj" && options.kernel != "blocked") {
-                throw std::invalid_argument("--kernel must be naive, ikj, or blocked");
+            if (options.kernel != "naive" && options.kernel != "ikj" &&
+                options.kernel != "blocked" && options.kernel != "packed") {
+                throw std::invalid_argument("--kernel must be naive, ikj, blocked, or packed");
             }
         } else if (argument == "--block-size") {
             options.block_size = parse_positive_size(require_value(), "block-size");
         } else if (argument == "--help") {
             std::cout << "Usage: gemm_benchmark [--repeats R] [--sizes S1,S2,...] "
-                         "[--m M --n N --k K] [--kernel naive|ikj|blocked] "
+                         "[--m M --n N --k K] [--kernel naive|ikj|blocked|packed] "
                          "[--block-size B] [--csv PATH]\n";
             std::exit(EXIT_SUCCESS);
         } else {
@@ -130,13 +133,17 @@ std::string utc_timestamp() {
 void run_kernel(const Options& options,
                 const gemm::Matrix& a,
                 const gemm::Matrix& b,
-                gemm::Matrix& c) {
+                gemm::Matrix& c,
+                const gemm::PackedB* packed_b) {
     if (options.kernel == "naive") {
         gemm::gemm_naive(a, b, c);
     } else if (options.kernel == "ikj") {
         gemm::gemm_ikj(a, b, c);
-    } else {
+    } else if (options.kernel == "blocked") {
         gemm::gemm_blocked(a, b, c, options.block_size);
+    } else {
+        if (packed_b == nullptr) throw std::logic_error("packed B was not prepared");
+        gemm::gemm_packed_b(a, *packed_b, c);
     }
 }
 
@@ -147,15 +154,40 @@ CaseResult benchmark_shape(const Shape& shape, const Options& options) {
     gemm::fill_random(b, 20261009U + seed_offset);
 
     std::cout << "\nM=" << shape.m << ", N=" << shape.n << ", K=" << shape.k << '\n';
-    // warm-up 不计时，降低首次访存和 CPU 状态变化造成的特殊性。
-    run_kernel(options, a, b, c);
+    std::optional<gemm::PackedB> packed_b;
+    std::vector<double> packing_times;
+    if (options.kernel == "packed") {
+        // workspace 分配在计时外；这里只测量 row-major B 到预分配 packed buffer 的转换。
+        packed_b.emplace(shape.k, shape.n, options.block_size);
+        gemm::pack_b(b, *packed_b);
+        packing_times.reserve(static_cast<std::size_t>(options.repeats));
+        std::cout << "  packing (separate from kernel time):\n";
+        for (int run = 1; run <= options.repeats; ++run) {
+            const auto start = Clock::now();
+            gemm::pack_b(b, *packed_b);
+            const auto stop = Clock::now();
+            const double ms =
+                std::chrono::duration<double, std::milli>(stop - start).count();
+            packing_times.push_back(ms);
+            std::cout << "    run " << run << ": " << std::fixed << std::setprecision(3)
+                      << ms << " ms\n";
+        }
+        const double packing_mean =
+            std::accumulate(packing_times.begin(), packing_times.end(), 0.0) /
+            packing_times.size();
+        std::cout << "    mean:   " << packing_mean << " ms\n"
+                  << "    median: " << median(packing_times) << " ms\n";
+    }
 
-    CaseResult result{shape, {}, {}};
+    // warm-up 不计时，降低首次访存和 CPU 状态变化造成的特殊性。
+    run_kernel(options, a, b, c, packed_b ? &*packed_b : nullptr);
+
+    CaseResult result{shape, {}, packing_times, {}};
     result.runs.reserve(static_cast<std::size_t>(options.repeats));
     for (int run = 1; run <= options.repeats; ++run) {
         // 计时边界只包围 kernel；分配、初始化、输出和验证均在边界外。
         const auto start = Clock::now();
-        run_kernel(options, a, b, c);
+        run_kernel(options, a, b, c, packed_b ? &*packed_b : nullptr);
         const auto stop = Clock::now();
         const double ms = std::chrono::duration<double, std::milli>(stop - start).count();
         result.runs.push_back({run, ms, calculate_gflops(shape, ms)});
@@ -169,6 +201,17 @@ CaseResult benchmark_shape(const Shape& shape, const Options& options) {
     const double median_ms = median(times);
     std::cout << "  mean:   " << mean_ms << " ms, " << calculate_gflops(shape, mean_ms) << " GFLOP/s\n"
               << "  median: " << median_ms << " ms, " << calculate_gflops(shape, median_ms) << " GFLOP/s\n";
+    if (!packing_times.empty()) {
+        std::vector<double> one_shot_times;
+        one_shot_times.reserve(times.size());
+        for (std::size_t index = 0; index < times.size(); ++index) {
+            one_shot_times.push_back(times[index] + packing_times[index]);
+        }
+        const double one_shot_median = median(one_shot_times);
+        std::cout << "  one-shot median (packing + kernel): " << one_shot_median
+                  << " ms, " << calculate_gflops(shape, one_shot_median)
+                  << " effective GFLOP/s\n";
+    }
 
     // FP64 reference 也是 O(MNK)，必须在计时外执行。
     result.verification = gemm::verify_gemm(a, b, c);
@@ -186,16 +229,23 @@ void write_csv(const std::string& path,
     if (output_path.has_parent_path()) std::filesystem::create_directories(output_path.parent_path());
     std::ofstream output(output_path);
     if (!output) throw std::runtime_error("cannot open CSV output: " + path);
-    output << "timestamp_utc,compiler,compiler_version,build_type,kernel,block_size,optimization_level,m,n,k,run,time_ms,gflops,verified,max_abs_error,max_rel_error\n";
+    output << "timestamp_utc,compiler,compiler_version,build_type,kernel,block_size,optimization_level,m,n,k,run,time_ms,gflops,packing_time_ms,one_shot_time_ms,one_shot_gflops,verified,max_abs_error,max_rel_error\n";
     const std::string timestamp = utc_timestamp();
-    const std::size_t reported_block_size = options.kernel == "blocked" ? options.block_size : 0;
+    const bool uses_blocks = options.kernel == "blocked" || options.kernel == "packed";
+    const std::size_t reported_block_size = uses_blocks ? options.block_size : 0;
     output << std::setprecision(12);
     for (const CaseResult& item : cases) {
         for (const RunResult& run : item.runs) {
+            const double packing_ms = item.packing_times.empty()
+                ? 0.0
+                : item.packing_times[static_cast<std::size_t>(run.run - 1)];
+            const double one_shot_ms = run.milliseconds + packing_ms;
             output << timestamp << ',' << GEMM_COMPILER_ID << ',' << GEMM_COMPILER_VERSION << ','
                    << GEMM_BUILD_TYPE << ',' << options.kernel << ',' << reported_block_size << ','
                    << GEMM_OPT_LEVEL << ',' << item.shape.m << ',' << item.shape.n << ',' << item.shape.k
                    << ',' << run.run << ',' << run.milliseconds << ',' << run.gflops << ','
+                   << packing_ms << ',' << one_shot_ms << ','
+                   << calculate_gflops(item.shape, one_shot_ms) << ','
                    << (item.verification.passed ? "true" : "false") << ','
                    << item.verification.max_absolute_error << ',' << item.verification.max_relative_error << '\n';
         }
@@ -209,8 +259,11 @@ int main(int argc, char** argv) {
     try {
         const Options options = parse_options(argc, argv);
         const std::string loop_order = options.kernel == "naive" ? "i-j-k" :
-                                       options.kernel == "ikj" ? "i-k-j" : "blocked-i-k-j";
-        const std::size_t reported_block_size = options.kernel == "blocked" ? options.block_size : 0;
+                                       options.kernel == "ikj" ? "i-k-j" :
+                                       options.kernel == "blocked" ? "blocked-i-k-j" :
+                                       "packed-blocked-i-k-j";
+        const bool uses_blocks = options.kernel == "blocked" || options.kernel == "packed";
+        const std::size_t reported_block_size = uses_blocks ? options.block_size : 0;
         std::cout << "GEMM Optimization Lab - FP32 GEMM benchmark\n"
                   << "kernel=" << options.kernel << ", block-size=" << reported_block_size
                   << ", layout=row-major, loop-order=" << loop_order

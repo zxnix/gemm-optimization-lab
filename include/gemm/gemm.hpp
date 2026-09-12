@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gemm/matrix.hpp"
+#include "gemm/packing.hpp"
 
 namespace gemm {
 
@@ -22,5 +23,11 @@ void gemm_blocked(const Matrix& a,
                   const Matrix& b,
                   Matrix& c,
                   std::size_t block_size);
+
+/** @brief 使用预打包的 B，以单线程 blocked i-k-j 循环计算并覆盖 C=A×B。
+ * A 为 M×K、packed_b 的逻辑形状为 K×N、C 为 M×N。packing 与计算分离，
+ * 使 benchmark 能分别研究一次性使用和重复使用 B 的场景。
+ * @throws std::invalid_argument 矩阵形状不兼容时抛出。 */
+void gemm_packed_b(const Matrix& a, const PackedB& packed_b, Matrix& c);
 
 }  // namespace gemm
