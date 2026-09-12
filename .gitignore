@@ -1,5 +1,6 @@
 /build/
 /build-*/
+/build-phase12/
 /.cache/
 compile_commands.json
 /build-asan/

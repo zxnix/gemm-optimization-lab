@@ -161,13 +161,13 @@ void write_csv(const std::string& path, const std::vector<CaseResult>& cases) {
     if (output_path.has_parent_path()) std::filesystem::create_directories(output_path.parent_path());
     std::ofstream output(output_path);
     if (!output) throw std::runtime_error("cannot open CSV output: " + path);
-    output << "timestamp_utc,compiler,compiler_version,build_type,m,n,k,run,time_ms,gflops,verified,max_abs_error,max_rel_error\n";
+    output << "timestamp_utc,compiler,compiler_version,build_type,optimization_level,m,n,k,run,time_ms,gflops,verified,max_abs_error,max_rel_error\n";
     const std::string timestamp = utc_timestamp();
     output << std::setprecision(12);
     for (const CaseResult& item : cases) {
         for (const RunResult& run : item.runs) {
             output << timestamp << ',' << GEMM_COMPILER_ID << ',' << GEMM_COMPILER_VERSION << ','
-                   << GEMM_BUILD_TYPE << ',' << item.shape.m << ',' << item.shape.n << ',' << item.shape.k
+                   << GEMM_BUILD_TYPE << ',' << GEMM_OPT_LEVEL << ',' << item.shape.m << ',' << item.shape.n << ',' << item.shape.k
                    << ',' << run.run << ',' << run.milliseconds << ',' << run.gflops << ','
                    << (item.verification.passed ? "true" : "false") << ','
                    << item.verification.max_absolute_error << ',' << item.verification.max_relative_error << '\n';
@@ -183,7 +183,7 @@ int main(int argc, char** argv) {
         const Options options = parse_options(argc, argv);
         std::cout << "GEMM Optimization Lab - FP32 naive baseline\n"
                   << "layout=row-major, loop-order=i-j-k, threads=1, warm-up=1, repeats="
-                  << options.repeats << '\n';
+                  << options.repeats << ", optimization=" << GEMM_OPT_LEVEL << '\n';
         std::vector<CaseResult> results;
         bool all_passed = true;
         for (const Shape& shape : options.shapes) {

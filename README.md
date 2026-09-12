@@ -2,7 +2,7 @@
 
 [English](#english) | [中文](#中文)
 
-中文详解：[项目结构](docs/architecture.md) · [代码走读](docs/code-walkthrough.md) · [数值验证](docs/numerical-verification.md) · [Benchmark 方法](docs/benchmark-methodology.md) · [Baseline 实验](docs/experiments/phase1-baseline.md)
+中文详解：[项目结构](docs/architecture.md) · [代码走读](docs/code-walkthrough.md) · [数值验证](docs/numerical-verification.md) · [Benchmark 方法](docs/benchmark-methodology.md) · [Baseline 实验](docs/experiments/phase1-baseline.md) · [编译器优化级别实验](docs/experiments/phase1-compiler-options.md)
 
 ## English
 
@@ -91,6 +91,8 @@ For reproducible measurements, record the CPU model, cache hierarchy, Fedora and
 
 Later milestones will compare compiler options and generated LLVM IR/assembly, then introduce loop reordering, cache blocking, packing, SIMD, multithreading, Tensor IR scheduling, and CPU/GPU backends.
 
+Run the controlled compiler optimization-level experiment with `./scripts/run_compiler_options.sh`.
+
 ---
 
 ## 中文
@@ -156,3 +158,5 @@ GFLOP/s = FLOPs / time_seconds / 1e9
 为保证实验可复现，应记录 CPU 型号、cache 层级、Fedora 和 kernel 版本、编译器版本及参数、矩阵形状、每次耗时、平均值、中位数、GFLOP/s 和数值误差。
 
 后续阶段将依次研究编译选项与 LLVM IR/汇编、循环顺序、cache blocking、packing、SIMD、多线程、Tensor IR 调度以及 CPU/GPU 后端。
+
+运行 `./scripts/run_compiler_options.sh` 可比较 GCC `-O0/-O1/-O2/-O3`；实验设计和输出说明见[编译器优化级别实验](docs/experiments/phase1-compiler-options.md)。
