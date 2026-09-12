@@ -15,7 +15,7 @@ jobs:
           - build_type: Debug
             sanitizers: ON
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Configure
         run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DGEMM_ENABLE_SANITIZERS=${{ matrix.sanitizers }}
       - name: Build
