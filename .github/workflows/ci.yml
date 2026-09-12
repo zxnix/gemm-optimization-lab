@@ -12,6 +12,7 @@ jobs:
         preset:
           - release
           - debug-sanitizers
+          - debug-thread-sanitizer
     steps:
       - uses: actions/checkout@v5
       - name: Configure

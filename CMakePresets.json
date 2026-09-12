@@ -33,6 +33,18 @@
         "GEMM_ENABLE_SANITIZERS": "ON",
         "GEMM_OPT_LEVEL": "O0"
       }
+    },
+    {
+      "name": "debug-thread-sanitizer",
+      "displayName": "Debug build with ThreadSanitizer",
+      "description": "Debug build used to detect data races in multithreaded kernels",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "GEMM_ENABLE_SANITIZERS": "OFF",
+        "GEMM_ENABLE_THREAD_SANITIZER": "ON",
+        "GEMM_OPT_LEVEL": "O0"
+      }
     }
   ],
   "buildPresets": [
@@ -43,6 +55,10 @@
     {
       "name": "debug-sanitizers",
       "configurePreset": "debug-sanitizers"
+    },
+    {
+      "name": "debug-thread-sanitizer",
+      "configurePreset": "debug-thread-sanitizer"
     }
   ],
   "testPresets": [
@@ -56,6 +72,13 @@
     {
       "name": "debug-sanitizers",
       "configurePreset": "debug-sanitizers",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "debug-thread-sanitizer",
+      "configurePreset": "debug-thread-sanitizer",
       "output": {
         "outputOnFailure": true
       }

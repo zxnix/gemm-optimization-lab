@@ -28,6 +28,7 @@ struct CaseResult {
     std::vector<RunResult> runs;
     std::vector<double> packing_times;
     gemm::VerificationResult verification;
+    bool verification_performed = true;
 };
 struct Options {
     int repeats = 7;
@@ -35,6 +36,8 @@ struct Options {
     std::string csv_path;
     std::string kernel = "naive";
     std::size_t block_size = 32;
+    std::size_t thread_count = 1;
+    bool verify_results = true;
 };
 
 std::size_t parse_positive_size(const std::string& text, const char* name) {
@@ -87,17 +90,23 @@ Options parse_options(int argc, char** argv) {
             options.kernel = require_value();
             if (options.kernel != "naive" && options.kernel != "ikj" &&
                 options.kernel != "blocked" && options.kernel != "packed" &&
-                options.kernel != "micro" && options.kernel != "avx2") {
+                options.kernel != "micro" && options.kernel != "avx2" &&
+                options.kernel != "avx2-mt") {
                 throw std::invalid_argument(
-                    "--kernel must be naive, ikj, blocked, packed, micro, or avx2");
+                    "--kernel must be naive, ikj, blocked, packed, micro, avx2, or avx2-mt");
             }
         } else if (argument == "--block-size") {
             options.block_size = parse_positive_size(require_value(), "block-size");
+        } else if (argument == "--threads") {
+            options.thread_count = parse_positive_size(require_value(), "threads");
+        } else if (argument == "--skip-verification") {
+            options.verify_results = false;
         } else if (argument == "--help") {
             std::cout << "Usage: gemm_benchmark [--repeats R] [--sizes S1,S2,...] "
                          "[--m M --n N --k K] "
-                         "[--kernel naive|ikj|blocked|packed|micro|avx2] "
-                         "[--block-size B] [--csv PATH]\n";
+                         "[--kernel naive|ikj|blocked|packed|micro|avx2|avx2-mt] "
+                         "[--block-size B] [--threads T] [--csv PATH] "
+                         "[--skip-verification]\n";
             std::exit(EXIT_SUCCESS);
         } else {
             throw std::invalid_argument("unknown argument: " + argument);
@@ -107,6 +116,14 @@ Options parse_options(int argc, char** argv) {
     if (rectangular) {
         if (m == 0 || n == 0 || k == 0) throw std::invalid_argument("--m, --n, and --k must be provided together");
         options.shapes = {{m, n, k}};
+    }
+    if (options.kernel != "avx2-mt" && options.thread_count != 1) {
+        throw std::invalid_argument(
+            "--threads greater than 1 requires --kernel avx2-mt");
+    }
+    if (!options.verify_results && !options.csv_path.empty()) {
+        throw std::invalid_argument(
+            "--skip-verification cannot be combined with --csv");
     }
     return options;
 }
@@ -126,15 +143,17 @@ double calculate_gflops(const Shape& shape, double milliseconds) {
 
 bool uses_packed_b(const Options& options) {
     return options.kernel == "packed" || options.kernel == "micro" ||
-           options.kernel == "avx2";
+           options.kernel == "avx2" || options.kernel == "avx2-mt";
 }
 
 const char* target_isa(const Options& options) {
-    return options.kernel == "avx2" ? "avx2+fma" : "generic";
+    return options.kernel == "avx2" || options.kernel == "avx2-mt"
+        ? "avx2+fma" : "generic";
 }
 
 const char* microkernel_shape(const Options& options) {
-    return options.kernel == "micro" || options.kernel == "avx2" ? "4x8" : "none";
+    return options.kernel == "micro" || options.kernel == "avx2" ||
+           options.kernel == "avx2-mt" ? "4x8" : "none";
 }
 
 std::string utc_timestamp() {
@@ -163,9 +182,13 @@ void run_kernel(const Options& options,
     } else if (options.kernel == "micro") {
         if (packed_b == nullptr) throw std::logic_error("packed B was not prepared");
         gemm::gemm_microkernel_4x8(a, *packed_b, c);
-    } else {
+    } else if (options.kernel == "avx2") {
         if (packed_b == nullptr) throw std::logic_error("packed B was not prepared");
         gemm::gemm_avx2_4x8(a, *packed_b, c);
+    } else {
+        if (packed_b == nullptr) throw std::logic_error("packed B was not prepared");
+        gemm::gemm_avx2_4x8_parallel(
+            a, *packed_b, c, options.thread_count);
     }
 }
 
@@ -204,7 +227,7 @@ CaseResult benchmark_shape(const Shape& shape, const Options& options) {
     // warm-up 不计时，降低首次访存和 CPU 状态变化造成的特殊性。
     run_kernel(options, a, b, c, packed_b ? &*packed_b : nullptr);
 
-    CaseResult result{shape, {}, packing_times, {}};
+    CaseResult result{shape, {}, packing_times, {}, options.verify_results};
     result.runs.reserve(static_cast<std::size_t>(options.repeats));
     for (int run = 1; run <= options.repeats; ++run) {
         // 计时边界只包围 kernel；分配、初始化、输出和验证均在边界外。
@@ -235,12 +258,19 @@ CaseResult benchmark_shape(const Shape& shape, const Options& options) {
                   << " effective GFLOP/s\n";
     }
 
-    // FP64 reference 也是 O(MNK)，必须在计时外执行。
-    result.verification = gemm::verify_gemm(a, b, c);
-    std::cout << "  verify: " << (result.verification.passed ? "PASS" : "FAIL")
-              << ", max_abs_error=" << std::scientific << result.verification.max_absolute_error
-              << ", max_rel_error=" << result.verification.max_relative_error
-              << ", failures=" << result.verification.failure_count << std::defaultfloat << '\n';
+    if (options.verify_results) {
+        // FP64 reference 也是 O(MNK)，必须在计时外执行。
+        result.verification = gemm::verify_gemm(a, b, c);
+        std::cout << "  verify: " << (result.verification.passed ? "PASS" : "FAIL")
+                  << ", max_abs_error=" << std::scientific
+                  << result.verification.max_absolute_error
+                  << ", max_rel_error=" << result.verification.max_relative_error
+                  << ", failures=" << result.verification.failure_count
+                  << std::defaultfloat << '\n';
+    } else {
+        // 仅供外部硬件计数器 workload 使用；正式 benchmark 和 CSV 禁止跳过验证。
+        std::cout << "  verify: SKIPPED (counter workload only)\n";
+    }
     return result;
 }
 
@@ -251,7 +281,7 @@ void write_csv(const std::string& path,
     if (output_path.has_parent_path()) std::filesystem::create_directories(output_path.parent_path());
     std::ofstream output(output_path);
     if (!output) throw std::runtime_error("cannot open CSV output: " + path);
-    output << "timestamp_utc,compiler,compiler_version,build_type,kernel,target_isa,microkernel,block_size,optimization_level,m,n,k,run,time_ms,gflops,packing_time_ms,one_shot_time_ms,one_shot_gflops,verified,max_abs_error,max_rel_error\n";
+    output << "timestamp_utc,compiler,compiler_version,build_type,kernel,target_isa,microkernel,block_size,threads,optimization_level,m,n,k,run,time_ms,gflops,packing_time_ms,one_shot_time_ms,one_shot_gflops,verified,max_abs_error,max_rel_error\n";
     const std::string timestamp = utc_timestamp();
     const bool uses_blocks = options.kernel == "blocked" || uses_packed_b(options);
     const std::size_t reported_block_size = uses_blocks ? options.block_size : 0;
@@ -265,7 +295,8 @@ void write_csv(const std::string& path,
             output << timestamp << ',' << GEMM_COMPILER_ID << ',' << GEMM_COMPILER_VERSION << ','
                    << GEMM_BUILD_TYPE << ',' << options.kernel << ',' << target_isa(options) << ','
                    << microkernel_shape(options) << ',' << reported_block_size << ','
-                   << GEMM_OPT_LEVEL << ',' << item.shape.m << ',' << item.shape.n << ',' << item.shape.k
+                   << options.thread_count << ',' << GEMM_OPT_LEVEL << ','
+                   << item.shape.m << ',' << item.shape.n << ',' << item.shape.k
                    << ',' << run.run << ',' << run.milliseconds << ',' << run.gflops << ','
                    << packing_ms << ',' << one_shot_ms << ','
                    << calculate_gflops(item.shape, one_shot_ms) << ','
@@ -293,13 +324,16 @@ int main(int argc, char** argv) {
                   << ", layout=row-major, loop-order=" << loop_order
                   << ", target-isa=" << target_isa(options)
                   << ", microkernel=" << microkernel_shape(options)
-                  << ", threads=1, warm-up=1, repeats=" << options.repeats
+                  << ", threads=" << options.thread_count
+                  << ", warm-up=1, repeats=" << options.repeats
                   << ", optimization=" << GEMM_OPT_LEVEL << '\n';
         std::vector<CaseResult> results;
         bool all_passed = true;
         for (const Shape& shape : options.shapes) {
             results.push_back(benchmark_shape(shape, options));
-            all_passed = results.back().verification.passed && all_passed;
+            if (results.back().verification_performed) {
+                all_passed = results.back().verification.passed && all_passed;
+            }
         }
         if (!options.csv_path.empty()) write_csv(options.csv_path, results, options);
         return all_passed ? EXIT_SUCCESS : EXIT_FAILURE;

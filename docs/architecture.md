@@ -1,6 +1,7 @@
 # 项目结构与职责
 
-当前对象是单线程 FP32 稠密矩阵乘法：`A(M×K) · B(K×N) = C(M×N)`。
+当前对象是 FP32 稠密矩阵乘法：`A(M×K) · B(K×N) = C(M×N)`。naive 到
+AVX2 的历史 kernel 保持单线程，Phase 1.7 另设多线程实验入口。
 
 ```text
 Matrix（逻辑 row-major 数据）
@@ -10,7 +11,8 @@ Matrix（逻辑 row-major 数据）
   ├── pack_b ──→ PackedB（tile-major 物理布局）
   │                    ├── gemm_packed_b
   │                    ├── gemm_microkernel_4x8
-  │                    └── gemm_avx2_4x8
+  │                    ├── gemm_avx2_4x8
+  │                    └── gemm_avx2_4x8_parallel
   └── verify_gemm（FP64 reference）
                     ↑
              benchmark 与 tests
@@ -22,7 +24,8 @@ Matrix（逻辑 row-major 数据）
 - `src/kernels/gemm_ikj.cpp`：连续访问 B/C 的 `i-k-j` 实现。
 - `src/kernels/gemm_blocked.cpp`：三维 cache blocking 对照。
 - `src/kernels/gemm_packed.cpp`：B layout transformation 与 packed kernel。
-- `src/kernels/gemm_microkernel.cpp`：portable 4×8 与 AVX2/FMA 4×8 微内核。
+- `src/kernels/gemm_microkernel.cpp`：portable 4×8、AVX2/FMA 4×8 微内核与
+  沿 M 维静态分区的 C++17 worker thread 调度。
 - `src/verification/verification.cpp`：FP64 reference 与误差报告。
 - `src/benchmark/benchmark.cpp`：warm-up、计时、统计和 GFLOP/s。
 - `test_gemm.cpp`：手工结果、随机非方阵和非法维度测试。

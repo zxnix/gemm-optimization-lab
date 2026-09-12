@@ -141,6 +141,36 @@ void test_avx2_random_rectangular_case_when_supported() {
             "AVX2/FMA 4x8 microkernel verification failed");
 }
 
+void test_parallel_avx2_random_rectangular_case_when_supported() {
+    if (!gemm::cpu_supports_avx2_fma()) return;
+
+    // 19 行不能被 4×8 microkernel 或 3 个 worker 平均整除，覆盖线程分区和边界。
+    gemm::Matrix a(19, 13);
+    gemm::Matrix b(13, 17);
+    gemm::Matrix c(19, 17);
+    gemm::fill_random(a, 83U);
+    gemm::fill_random(b, 97U);
+    gemm::PackedB packed_b(13, 17, 16);
+    gemm::pack_b(b, packed_b);
+
+    gemm::gemm_avx2_4x8_parallel(a, packed_b, c, 3);
+    require(gemm::verify_gemm(a, b, c).passed,
+            "parallel AVX2/FMA verification failed");
+
+    // 请求的线程数超过 row group 数时应安全收缩，而不是产生空 worker。
+    gemm::gemm_avx2_4x8_parallel(a, packed_b, c, 32);
+    require(gemm::verify_gemm(a, b, c).passed,
+            "parallel AVX2/FMA oversized thread request failed");
+
+    bool zero_threads_threw = false;
+    try {
+        gemm::gemm_avx2_4x8_parallel(a, packed_b, c, 0);
+    } catch (const std::invalid_argument&) {
+        zero_threads_threw = true;
+    }
+    require(zero_threads_threw, "zero thread count was not rejected");
+}
+
 void test_one_by_one_case() {
     gemm::Matrix a(1, 1), b(1, 1), c(1, 1);
     a(0, 0) = 3.0F; b(0, 0) = -2.0F;
@@ -201,6 +231,7 @@ int main() {
         test_packed_dimension_checks();
         test_microkernel_random_rectangular_case();
         test_avx2_random_rectangular_case_when_supported();
+        test_parallel_avx2_random_rectangular_case_when_supported();
         test_one_by_one_case();
         test_zero_and_identity_cases();
         test_dimension_check();

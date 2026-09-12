@@ -42,6 +42,17 @@ void gemm_microkernel_4x8(const Matrix& a, const PackedB& packed_b, Matrix& c);
  * @throws std::runtime_error 当前 CPU 不支持 AVX2 或 FMA 时抛出。 */
 void gemm_avx2_4x8(const Matrix& a, const PackedB& packed_b, Matrix& c);
 
+/** @brief 使用多个 C++17 worker thread 并行执行 AVX2/FMA 4×8 microkernel。
+ * A 为 M×K、packed_b 的逻辑形状为 K×N、C 为 M×N。线程沿 M 维按 4 行
+ * micro-tile 分配互不重叠的 C 行区间；A 与 packed_b 只读共享。
+ * thread_count 表示请求的线程数；当线程数多于 M 方向 micro-tile 数时自动减少。
+ * @throws std::invalid_argument 矩阵形状不兼容或 thread_count 为零时抛出。
+ * @throws std::runtime_error 当前 CPU 不支持 AVX2 或 FMA 时抛出。 */
+void gemm_avx2_4x8_parallel(const Matrix& a,
+                            const PackedB& packed_b,
+                            Matrix& c,
+                            std::size_t thread_count);
+
 /** @brief 返回当前 x86 CPU 和操作系统上下文是否支持 AVX2 与 FMA。 */
 [[nodiscard]] bool cpu_supports_avx2_fma() noexcept;
 

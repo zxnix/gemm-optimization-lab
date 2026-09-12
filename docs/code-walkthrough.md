@@ -41,6 +41,13 @@ portable `gemm_microkernel_4x8` 用 32 个 FP32 accumulator 表达 4×8 输出�
 专用函数通过 target attribute 编译，因此不会让 generic 程序路径隐式要求 AVX2。
 FMA 只有一次舍入，所以 AVX2 与非 FMA 结果允许存在正常的末位差异。
 
+## Multithreading
+
+`gemm_avx2_4x8_parallel` 沿 M 维把 4-row micro-tile group 静态分配给
+`std::thread`。每个 worker 调用同一个 AVX2 row-range 内核，只读 A 与 PackedB，
+并写入不重叠的 C 行。主线程等待全部 worker join 后才返回，因此调用者看到的仍是
+同步 GEMM 语义。当前每次调用都会创建和销毁线程，生命周期成本有意包含在计时内。
+
 ## Verification 与 Benchmark
 
 验证器先把 FP32 输入提升为 FP64，再乘法和累加。benchmark 的矩阵分配、初始化、warm-up、统计、输出和验证都不进入正式 kernel 计时。

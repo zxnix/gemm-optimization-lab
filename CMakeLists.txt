@@ -2,13 +2,20 @@ cmake_minimum_required(VERSION 3.20)
 
 project(GEMMOptimizationLab VERSION 0.1.0 LANGUAGES CXX)
 
+find_package(Threads REQUIRED)
+
 option(GEMM_ENABLE_SANITIZERS "Enable AddressSanitizer and UndefinedBehaviorSanitizer" OFF)
+option(GEMM_ENABLE_THREAD_SANITIZER "Enable ThreadSanitizer" OFF)
 set(GEMM_OPT_LEVEL "default" CACHE STRING "Optimization-level label recorded by benchmarks")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+if(GEMM_ENABLE_SANITIZERS AND GEMM_ENABLE_THREAD_SANITIZER)
+    message(FATAL_ERROR "AddressSanitizer and ThreadSanitizer cannot be enabled together")
+endif()
 
 if(GEMM_ENABLE_SANITIZERS)
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -17,6 +24,15 @@ if(GEMM_ENABLE_SANITIZERS)
         add_link_options(-fsanitize=address,undefined)
     else()
         message(FATAL_ERROR "Sanitizers are supported only with GCC or Clang")
+    endif()
+endif()
+
+if(GEMM_ENABLE_THREAD_SANITIZER)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        add_compile_options(-fsanitize=thread -fno-omit-frame-pointer)
+        add_link_options(-fsanitize=thread)
+    else()
+        message(FATAL_ERROR "ThreadSanitizer is supported only with GCC or Clang")
     endif()
 endif()
 
@@ -29,6 +45,7 @@ add_library(gemm_baseline
     src/verification/verification.cpp
 )
 target_include_directories(gemm_baseline PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(gemm_baseline PUBLIC Threads::Threads)
 target_compile_options(gemm_baseline PRIVATE
     $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic>
 )

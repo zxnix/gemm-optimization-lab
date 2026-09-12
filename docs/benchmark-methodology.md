@@ -15,6 +15,10 @@ warm-up 1 次       不计时
 
 packed kernel 额外把 B 的 workspace 分配、packing 和 GEMM 分开。workspace 分配不计时；packing 与 compute-only 各自 warm-up 并分别记录。one_shot_time_ms 是同序号 packing 与 kernel 样本之和，用于估算 B 只使用一次时的端到端成本；B 被重复使用时应主要比较 compute-only。
 
-`micro` 与 `avx2` 复用相同 packing 协议。CSV 额外记录 `target_isa` 和
-`microkernel`，避免只通过 kernel 名称推断机器指令。AVX2 实验运行前必须确认
-CPU 同时支持 AVX2 与 FMA。
+`micro`、`avx2` 与 `avx2-mt` 复用相同 packing 协议。CSV 额外记录
+`target_isa`、`microkernel` 和 `threads`，避免只通过 kernel 名称推断机器
+指令或并行度。AVX2 实验运行前必须确认 CPU 同时支持 AVX2 与 FMA。
+
+多线程 kernel 的计时包含 `std::thread` 创建与 join，但仍不包含 packing 和验证。
+`--skip-verification` 只允许硬件计数器 workload 使用，并禁止与 CSV 同时启用；
+普通 benchmark 必须保留 FP64 reference 验证。
