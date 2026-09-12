@@ -47,8 +47,15 @@ GEMM_SIZES=64,128 GEMM_REPEATS=2 ./scripts/run_loop_order.sh /tmp/gemm-loop-orde
 - `results/phase1/loop-order/system-info.txt`：硬件、系统、编译器和 git revision；
 - `results/phase1/loop-order/naive/`：`i-j-k` 原始数据和终端输出；
 - `results/phase1/loop-order/ikj/`：`i-k-j` 原始数据和终端输出。
+- `artifacts/phase1/codegen-o3/ikj/`：`i-k-j` 的 O3 Assembly、向量化报告和命令记录。
 
 CSV 中的 `kernel` 字段明确标识循环实现，避免把不同 kernel 的记录混在一起。
+
+## 自动向量化证据
+
+运行 `./scripts/generate_codegen_reports.sh` 可复现生成代码审计。GCC 报告显示 `gemm_ikj` 的最内层 j 循环使用 16-byte vectors，并按 4 展开；Assembly 出现 `mulps/addps` XMM packed 指令，同时保留 `mulss/addss` 标量尾部。没有启用或观察到 YMM、ZMM、AVX2 或 FMA。
+
+因此 Phase 1.3 的速度差异不能全部归因于 cache locality；它还包含连续内层循环更适合自动向量化、地址计算和指令调度的综合影响。
 
 ## 与后续阶段的连接
 

@@ -57,7 +57,19 @@ c(i, j) += a_value * b(k, j);
 - C 的一整行连续访问；
 - 更符合 row-major 的空间局部性。
 
-因此这次性能提升主要来自访存顺序和 cache locality 的改善，而不是增加了浮点运算吞吐。
+因此这次性能提升与访存顺序和 cache locality 的改善密切相关，但不能仅凭 benchmark 把全部加速归于 cache。
+
+## 生成代码证据
+
+补充审计使用 GCC 16.1.1、`-O3 -DNDEBUG`，且没有启用 `-march=native`、`-mavx2` 或 `-mfma`。`gemm_ikj` 的 GCC 向量化报告显示：
+
+- 最内层 j 循环使用 16-byte vectors，即 XMM 中的 4 个 FP32；
+- 主循环按 4 展开，并因潜在 aliasing 生成运行时版本；
+- epilogue 使用 8-byte vectors，并保留标量 remainder；
+- Assembly 出现 `mulps/addps`，标量尾部出现 `mulss/addss`；
+- 没有观察到 YMM、ZMM 或 FMA。
+
+证据位于 `artifacts/phase1/codegen-o3/ikj/`。这说明 Phase 1.3 的加速是连续访存、更适合自动向量化以及地址/指令执行变化的综合结果，而不是单一因素。
 
 ## 实现边界
 

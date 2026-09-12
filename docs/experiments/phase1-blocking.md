@@ -57,7 +57,9 @@ GEMM_SIZES=64,128 GEMM_REPEATS=2 GEMM_BLOCK_SIZES=16,32,64 ./scripts/run_blockin
 
 ## 解释边界
 
-当前结果只能说明“本实现、当前 GCC、当前 CPU 和 WSL2 环境”下的端到端性能关系。没有 cache miss 硬件计数器或详细反汇编证据，不能把变慢唯一归因于某一种 cache 层级或某一类循环开销。下一步应加入 matrix packing，并配合 Assembly、`perf stat` 和更细粒度的 tile 工作集分析。
+`./scripts/generate_codegen_reports.sh` 生成的 GCC 报告显示，blocked kernel 的最内层 j 循环已经使用 16-byte XMM packed 向量，并保留标量尾部；因此 blocked 变慢不是因为它完全没有 SIMD。不过当前仍没有 cache miss 硬件计数器，不能把变慢唯一归因于某一种 cache 层级或某一类循环开销。下一步应加入 matrix packing，并配合 `perf stat` 和更细粒度的 tile 工作集分析。
+
+生成代码证据位于 `artifacts/phase1/codegen-o3/blocked/`。审计未启用 `-march=native`、`-mavx2` 或 `-mfma`，也没有观察到 YMM、ZMM 或 FMA 指令。
 
 ## 与后续阶段的连接
 

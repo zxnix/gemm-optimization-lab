@@ -143,6 +143,12 @@ ctest --preset debug-sanitizers
 ./scripts/run_compiler_options.sh
 ```
 
+生成 `i-k-j` 与 blocked kernel 的 O3 Assembly 和向量化报告：
+
+```bash
+./scripts/generate_codegen_reports.sh
+```
+
 性能计算方式：
 
 ```text
@@ -150,7 +156,7 @@ FLOPs   = 2 × M × N × K
 GFLOP/s = FLOPs / time_seconds / 1e9
 ```
 
-计时区域只包含 `gemm_naive`。内存分配、随机初始化、终端输出和 FP64 正确性验证均不计入内核运行时间。
+计时区域只包含当前选择的 GEMM kernel。内存分配、随机初始化、终端输出和 FP64 正确性验证均不计入内核运行时间。
 
 ## Reproducibility
 
@@ -309,6 +315,12 @@ Run the controlled compiler optimization-level experiment:
 ./scripts/run_compiler_options.sh
 ```
 
+Generate O3 assembly and vectorization reports for the `i-k-j` and blocked kernels:
+
+```bash
+./scripts/generate_codegen_reports.sh
+```
+
 Performance is reported using:
 
 ```text
@@ -316,7 +328,7 @@ FLOPs   = 2 × M × N × K
 GFLOP/s = FLOPs / time_seconds / 1e9
 ```
 
-Only `gemm_naive` is timed. Memory allocation, random initialization, terminal output, and FP64 correctness verification are outside the timed region.
+Only the selected GEMM kernel is timed. Memory allocation, random initialization, terminal output, and FP64 correctness verification are outside the timed region.
 
 ## Reproducibility
 
