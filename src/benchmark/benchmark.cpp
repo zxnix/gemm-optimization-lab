@@ -86,14 +86,17 @@ Options parse_options(int argc, char** argv) {
         } else if (argument == "--kernel") {
             options.kernel = require_value();
             if (options.kernel != "naive" && options.kernel != "ikj" &&
-                options.kernel != "blocked" && options.kernel != "packed") {
-                throw std::invalid_argument("--kernel must be naive, ikj, blocked, or packed");
+                options.kernel != "blocked" && options.kernel != "packed" &&
+                options.kernel != "micro" && options.kernel != "avx2") {
+                throw std::invalid_argument(
+                    "--kernel must be naive, ikj, blocked, packed, micro, or avx2");
             }
         } else if (argument == "--block-size") {
             options.block_size = parse_positive_size(require_value(), "block-size");
         } else if (argument == "--help") {
             std::cout << "Usage: gemm_benchmark [--repeats R] [--sizes S1,S2,...] "
-                         "[--m M --n N --k K] [--kernel naive|ikj|blocked|packed] "
+                         "[--m M --n N --k K] "
+                         "[--kernel naive|ikj|blocked|packed|micro|avx2] "
                          "[--block-size B] [--csv PATH]\n";
             std::exit(EXIT_SUCCESS);
         } else {
@@ -121,6 +124,19 @@ double calculate_gflops(const Shape& shape, double milliseconds) {
     return operations / (milliseconds * 1.0e6);
 }
 
+bool uses_packed_b(const Options& options) {
+    return options.kernel == "packed" || options.kernel == "micro" ||
+           options.kernel == "avx2";
+}
+
+const char* target_isa(const Options& options) {
+    return options.kernel == "avx2" ? "avx2+fma" : "generic";
+}
+
+const char* microkernel_shape(const Options& options) {
+    return options.kernel == "micro" || options.kernel == "avx2" ? "4x8" : "none";
+}
+
 std::string utc_timestamp() {
     const std::time_t now = std::time(nullptr);
     std::tm value{};
@@ -141,9 +157,15 @@ void run_kernel(const Options& options,
         gemm::gemm_ikj(a, b, c);
     } else if (options.kernel == "blocked") {
         gemm::gemm_blocked(a, b, c, options.block_size);
-    } else {
+    } else if (options.kernel == "packed") {
         if (packed_b == nullptr) throw std::logic_error("packed B was not prepared");
         gemm::gemm_packed_b(a, *packed_b, c);
+    } else if (options.kernel == "micro") {
+        if (packed_b == nullptr) throw std::logic_error("packed B was not prepared");
+        gemm::gemm_microkernel_4x8(a, *packed_b, c);
+    } else {
+        if (packed_b == nullptr) throw std::logic_error("packed B was not prepared");
+        gemm::gemm_avx2_4x8(a, *packed_b, c);
     }
 }
 
@@ -156,7 +178,7 @@ CaseResult benchmark_shape(const Shape& shape, const Options& options) {
     std::cout << "\nM=" << shape.m << ", N=" << shape.n << ", K=" << shape.k << '\n';
     std::optional<gemm::PackedB> packed_b;
     std::vector<double> packing_times;
-    if (options.kernel == "packed") {
+    if (uses_packed_b(options)) {
         // workspace 分配在计时外；这里只测量 row-major B 到预分配 packed buffer 的转换。
         packed_b.emplace(shape.k, shape.n, options.block_size);
         gemm::pack_b(b, *packed_b);
@@ -229,9 +251,9 @@ void write_csv(const std::string& path,
     if (output_path.has_parent_path()) std::filesystem::create_directories(output_path.parent_path());
     std::ofstream output(output_path);
     if (!output) throw std::runtime_error("cannot open CSV output: " + path);
-    output << "timestamp_utc,compiler,compiler_version,build_type,kernel,block_size,optimization_level,m,n,k,run,time_ms,gflops,packing_time_ms,one_shot_time_ms,one_shot_gflops,verified,max_abs_error,max_rel_error\n";
+    output << "timestamp_utc,compiler,compiler_version,build_type,kernel,target_isa,microkernel,block_size,optimization_level,m,n,k,run,time_ms,gflops,packing_time_ms,one_shot_time_ms,one_shot_gflops,verified,max_abs_error,max_rel_error\n";
     const std::string timestamp = utc_timestamp();
-    const bool uses_blocks = options.kernel == "blocked" || options.kernel == "packed";
+    const bool uses_blocks = options.kernel == "blocked" || uses_packed_b(options);
     const std::size_t reported_block_size = uses_blocks ? options.block_size : 0;
     output << std::setprecision(12);
     for (const CaseResult& item : cases) {
@@ -241,7 +263,8 @@ void write_csv(const std::string& path,
                 : item.packing_times[static_cast<std::size_t>(run.run - 1)];
             const double one_shot_ms = run.milliseconds + packing_ms;
             output << timestamp << ',' << GEMM_COMPILER_ID << ',' << GEMM_COMPILER_VERSION << ','
-                   << GEMM_BUILD_TYPE << ',' << options.kernel << ',' << reported_block_size << ','
+                   << GEMM_BUILD_TYPE << ',' << options.kernel << ',' << target_isa(options) << ','
+                   << microkernel_shape(options) << ',' << reported_block_size << ','
                    << GEMM_OPT_LEVEL << ',' << item.shape.m << ',' << item.shape.n << ',' << item.shape.k
                    << ',' << run.run << ',' << run.milliseconds << ',' << run.gflops << ','
                    << packing_ms << ',' << one_shot_ms << ','
@@ -261,12 +284,15 @@ int main(int argc, char** argv) {
         const std::string loop_order = options.kernel == "naive" ? "i-j-k" :
                                        options.kernel == "ikj" ? "i-k-j" :
                                        options.kernel == "blocked" ? "blocked-i-k-j" :
-                                       "packed-blocked-i-k-j";
-        const bool uses_blocks = options.kernel == "blocked" || options.kernel == "packed";
+                                       options.kernel == "packed" ? "packed-blocked-i-k-j" :
+                                       "packed-register-blocked";
+        const bool uses_blocks = options.kernel == "blocked" || uses_packed_b(options);
         const std::size_t reported_block_size = uses_blocks ? options.block_size : 0;
         std::cout << "GEMM Optimization Lab - FP32 GEMM benchmark\n"
                   << "kernel=" << options.kernel << ", block-size=" << reported_block_size
                   << ", layout=row-major, loop-order=" << loop_order
+                  << ", target-isa=" << target_isa(options)
+                  << ", microkernel=" << microkernel_shape(options)
                   << ", threads=1, warm-up=1, repeats=" << options.repeats
                   << ", optimization=" << GEMM_OPT_LEVEL << '\n';
         std::vector<CaseResult> results;

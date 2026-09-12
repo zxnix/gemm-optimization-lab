@@ -20,6 +20,8 @@ mkdir -p "$(dirname "$output_path")"
                      -e 's/^L1d cache:[[:space:]]*/l1d_cache=/p' \
                      -e 's/^L2 cache:[[:space:]]*/l2_cache=/p' \
                      -e 's/^L3 cache:[[:space:]]*/l3_cache=/p'
+    echo "cpu_avx2=$(grep -qwm1 avx2 /proc/cpuinfo && echo true || echo false)"
+    echo "cpu_fma=$(grep -qwm1 fma /proc/cpuinfo && echo true || echo false)"
     echo "compiler=$(c++ --version | head -n 1)"
     echo "cmake=$(cmake --version | head -n 1)"
     echo "ninja=$(ninja --version)"

@@ -112,6 +112,35 @@ void test_packed_dimension_checks() {
     require(shape_threw, "mismatched packed B dimensions were not rejected");
 }
 
+void test_microkernel_random_rectangular_case() {
+    gemm::Matrix a(9, 13);
+    gemm::Matrix b(13, 17);
+    gemm::Matrix c(9, 17);
+    gemm::fill_random(a, 53U);
+    gemm::fill_random(b, 71U);
+    gemm::PackedB packed_b(13, 17, 16);
+    gemm::pack_b(b, packed_b);
+    gemm::gemm_microkernel_4x8(a, packed_b, c);
+    require(gemm::verify_gemm(a, b, c).passed,
+            "portable 4x8 microkernel verification failed");
+}
+
+void test_avx2_random_rectangular_case_when_supported() {
+    if (!gemm::cpu_supports_avx2_fma()) return;
+
+    // 该形状同时覆盖完整 4×8 micro-tile 以及 M、N、K 三个方向的边界。
+    gemm::Matrix a(9, 13);
+    gemm::Matrix b(13, 17);
+    gemm::Matrix c(9, 17);
+    gemm::fill_random(a, 53U);
+    gemm::fill_random(b, 71U);
+    gemm::PackedB packed_b(13, 17, 16);
+    gemm::pack_b(b, packed_b);
+    gemm::gemm_avx2_4x8(a, packed_b, c);
+    require(gemm::verify_gemm(a, b, c).passed,
+            "AVX2/FMA 4x8 microkernel verification failed");
+}
+
 void test_one_by_one_case() {
     gemm::Matrix a(1, 1), b(1, 1), c(1, 1);
     a(0, 0) = 3.0F; b(0, 0) = -2.0F;
@@ -170,6 +199,8 @@ int main() {
         test_packed_random_rectangular_case();
         test_packed_layout_and_padding();
         test_packed_dimension_checks();
+        test_microkernel_random_rectangular_case();
+        test_avx2_random_rectangular_case_when_supported();
         test_one_by_one_case();
         test_zero_and_identity_cases();
         test_dimension_check();

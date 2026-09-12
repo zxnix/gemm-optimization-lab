@@ -30,4 +30,19 @@ void gemm_blocked(const Matrix& a,
  * @throws std::invalid_argument 矩阵形状不兼容时抛出。 */
 void gemm_packed_b(const Matrix& a, const PackedB& packed_b, Matrix& c);
 
+/** @brief 使用 portable C++ 4×8 register microkernel 计算并覆盖 C=A×B。
+ * 该实现消费 PackedB，但不使用 SIMD intrinsic，作为显式 AVX2/FMA 的控制组。
+ * 编译器仍可能按照优化规则自动向量化普通 C++ 循环。
+ * @throws std::invalid_argument 矩阵形状不兼容时抛出。 */
+void gemm_microkernel_4x8(const Matrix& a, const PackedB& packed_b, Matrix& c);
+
+/** @brief 使用 4×8 register microkernel 和 AVX2/FMA intrinsic 计算并覆盖 C=A×B。
+ * 完整 4×8 micro-tile 使用四个 YMM 累加器；边界 micro-tile 使用 portable 路径。
+ * @throws std::invalid_argument 矩阵形状不兼容时抛出。
+ * @throws std::runtime_error 当前 CPU 不支持 AVX2 或 FMA 时抛出。 */
+void gemm_avx2_4x8(const Matrix& a, const PackedB& packed_b, Matrix& c);
+
+/** @brief 返回当前 x86 CPU 和操作系统上下文是否支持 AVX2 与 FMA。 */
+[[nodiscard]] bool cpu_supports_avx2_fma() noexcept;
+
 }  // namespace gemm
