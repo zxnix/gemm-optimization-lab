@@ -45,7 +45,7 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 
 ## Roadmap
 
-- [x] Phase 1：CPU GEMM baseline、数据局部性、SIMD、多线程与工程冻结
+- [x] Phase 1：CPU GEMM baseline、数据局部性、SIMD、多线程与工程收尾
 - [ ] Phase 2：LLVM IR 与机器指令分析（进行中）
   - [x] Phase 2.1：LLVM 工具链与 O0/O3 IR baseline
   - [x] Phase 2.2：C++ 与 O0 IR 语义映射
@@ -227,7 +227,7 @@ GFLOP/s = FLOPs / time_seconds / 1e9
 
 ## Results
 
-Phase 1 已完成并由 annotated tag `phase1-complete` 冻结，阶段总结见
+Phase 1 已完成，并由 annotated tag `phase1-complete` 标记，阶段总结见
 [`docs/phase1-summary.md`](docs/phase1-summary.md)。Phase 1.1–1.7 的结果位于
 [`results/phase1`](results/phase1)。Phase 1.7 的多线程
 AVX2/FMA kernel 在 1024³ 上从 64.671 GFLOP/s（1 thread）提升到
@@ -292,7 +292,7 @@ All implementations except the dedicated AVX2 kernel use ordinary C++ loops. AVX
 
 ## Roadmap
 
-- [x] Phase 1: CPU GEMM baseline, data locality, SIMD, multithreading, and engineering freeze
+- [x] Phase 1: CPU GEMM baseline, data locality, SIMD, multithreading, and engineering closure
 - [ ] Phase 2: LLVM IR and machine-instruction analysis (in progress)
   - [x] Phase 2.1: LLVM toolchain and O0/O3 IR baseline
   - [x] Phase 2.2: C++ to O0 IR semantic mapping
@@ -474,7 +474,7 @@ All benchmark results should be reproducible under a fixed hardware and software
 
 ## Results
 
-Phase 1 is complete and frozen by the annotated tag `phase1-complete`; see
+Phase 1 is complete and marked by the annotated tag `phase1-complete`; see
 [`docs/phase1-summary.md`](docs/phase1-summary.md) for the phase summary. Results for
 Phases 1.1–1.7 are available in [`results/phase1`](results/phase1). On 1024³,
 the Phase 1.7 multithreaded AVX2/FMA kernel improves from 64.671 GFLOP/s with one thread to
