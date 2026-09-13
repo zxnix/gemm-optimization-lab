@@ -1,0 +1,10 @@
+git_commit=b092db345b39b8ddd23c5408402809693b4ed31d
+input_ir=artifacts/phase2/llvm-baseline/naive/O0/llvm-ir.ll
+input_ir_sha256=25023ebd4c6de0342d6f16f5f70ea01c270b5d48c6b5afb6ba5f219f97d8d94f
+function_mangled=_ZN4gemm10gemm_naiveERKNS_6MatrixES2_RS0_
+function_demangled=gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)
+generator=LLVM version 22.1.8
+generator_pass=dot-cfg-only
+normalization=replace process-local node addresses with LLVM basic-block names
+basic_blocks=20
+edges=24

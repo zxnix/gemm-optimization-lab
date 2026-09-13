@@ -2,7 +2,7 @@
 
 [中文](#中文) | [English](#english)
 
-中文详解：[项目结构](docs/architecture.md) · [代码走读](docs/code-walkthrough.md) · [数值验证](docs/numerical-verification.md) · [Benchmark 方法](docs/benchmark-methodology.md) · [Phase 1 总结](docs/phase1-summary.md) · [Phase 1 工程收尾](docs/phase1-engineering-closure.md) · [Baseline 实验](docs/experiments/phase1-baseline.md) · [编译器优化级别实验](docs/experiments/phase1-compiler-options.md) · [Cache Blocking 实验](docs/experiments/phase1-blocking.md) · [Matrix Packing 实验](docs/experiments/phase1-packing.md) · [SIMD 实验](docs/experiments/phase1-simd.md) · [多线程实验](docs/experiments/phase1-multithreading.md) · [LLVM baseline](docs/experiments/phase2-llvm-baseline.md)
+中文详解：[项目结构](docs/architecture.md) · [代码走读](docs/code-walkthrough.md) · [数值验证](docs/numerical-verification.md) · [Benchmark 方法](docs/benchmark-methodology.md) · [Phase 1 总结](docs/phase1-summary.md) · [Phase 1 工程收尾](docs/phase1-engineering-closure.md) · [Baseline 实验](docs/experiments/phase1-baseline.md) · [编译器优化级别实验](docs/experiments/phase1-compiler-options.md) · [Cache Blocking 实验](docs/experiments/phase1-blocking.md) · [Matrix Packing 实验](docs/experiments/phase1-packing.md) · [SIMD 实验](docs/experiments/phase1-simd.md) · [多线程实验](docs/experiments/phase1-multithreading.md) · [LLVM baseline](docs/experiments/phase2-llvm-baseline.md) · [O0 IR 语义映射](docs/experiments/phase2-unoptimized-ir.md)
 
 ## 中文
 
@@ -14,7 +14,7 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 
 ## Current Milestone
 
-**Phase 2.2 — Unoptimized IR and C++ Semantic Mapping（准备开始）**
+**Phase 2.3 — Optimization Passes and O0/O3 Comparison（准备开始）**
 
 项目当前包含单线程 FP32 GEMM baseline、GCC 优化级别实验、循环顺序、cache blocking、B matrix packing、portable 4×8 microkernel、显式 AVX2/FMA 4×8 microkernel，以及沿 M 维静态分区的 C++17 多线程 kernel，不依赖任何第三方矩阵库。
 
@@ -61,7 +61,7 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
   - [x] Phase 1.8.6：Phase 1 最终冻结
 - [ ] Phase 2：LLVM IR 与机器指令分析
   - [x] Phase 2.1：LLVM 工具链与 naive IR baseline
-  - [ ] Phase 2.2：未优化 IR 与 C++ 语义映射
+  - [x] Phase 2.2：未优化 IR 与 C++ 语义映射
   - [ ] Phase 2.3：优化 pass 与 O0/O3 对比
   - [ ] Phase 2.4：循环、内存访问与 alias analysis
   - [ ] Phase 2.5：自动向量化诊断
@@ -183,15 +183,19 @@ ctest --preset debug-thread-sanitizer
 ./scripts/check_style.sh
 ```
 
-## Generate LLVM Baseline
+## Generate and Analyze LLVM IR
 
 ```bash
 ./scripts/generate_llvm_baseline.sh
+./scripts/generate_unoptimized_ir_cfg.sh
 ```
 
-该脚本从 naive kernel 生成 `-O0/-O3` LLVM IR、Assembly 和 object disassembly。
-实验方法与结论见 [Phase 2.1](docs/experiments/phase2-llvm-baseline.md)，文本证据位于
-[`artifacts/phase2/llvm-baseline`](artifacts/phase2/llvm-baseline)。
+第一个脚本从 naive kernel 生成 `-O0/-O3` LLVM IR、Assembly 和 object
+disassembly；第二个脚本从固定 O0 IR 生成稳定的 `gemm_naive` CFG。实验方法与
+结论见 [Phase 2.1](docs/experiments/phase2-llvm-baseline.md) 和
+[Phase 2.2](docs/experiments/phase2-unoptimized-ir.md)。文本证据位于
+[`artifacts/phase2/llvm-baseline`](artifacts/phase2/llvm-baseline) 和
+[`artifacts/phase2/unoptimized-ir`](artifacts/phase2/unoptimized-ir)。
 
 ## Run the Benchmark
 
@@ -246,6 +250,10 @@ AVX2/FMA kernel 在 1024³ 上从 64.671 GFLOP/s（1 thread）提升到
 272.810 GFLOP/s（20 threads），speedup 为 4.218×。256³ 的最佳点则是 2 threads，
 说明线程创建与调度开销会限制小矩阵。完整数据见 [Phase 1.2](results/phase1/compiler-options/summary.md)、[Phase 1.3](results/phase1/loop-order/summary.md)、[Phase 1.4](results/phase1/blocking/summary.md)、[Phase 1.5](results/phase1/packing/summary.md)、[Phase 1.6](results/phase1/simd/summary.md) 和 [Phase 1.7](results/phase1/multithreading/summary.md)。
 
+Phase 2.1 已建立 Clang/LLVM 22.1.8 的 O0/O3 IR baseline；Phase 2.2 已完成 naive
+C++ 与 O0 IR 的语义映射，并保存 20 个 basic block、24 条 edge 的稳定 CFG。两阶段
+均不修改 Phase 1 kernel，也不新增性能结论。
+
 ## Continuous Integration
 
 GitHub Actions 自动验证：
@@ -269,7 +277,7 @@ Modern AI workloads rely heavily on matrix computation. This project studies how
 
 ## Current Milestone
 
-**Phase 2.2 — Unoptimized IR and C++ Semantic Mapping (ready to start)**
+**Phase 2.3 — Optimization Passes and O0/O3 Comparison (ready to start)**
 
 The project currently provides a single-threaded FP32 GEMM baseline, controlled GCC optimization-level and loop-order experiments, cache blocking, B matrix packing, portable and explicit AVX2/FMA 4×8 microkernels, and a C++17 multithreaded kernel that statically partitions the M dimension. No third-party matrix library is used.
 
@@ -316,7 +324,7 @@ All implementations except the dedicated AVX2 kernel use ordinary C++ loops. AVX
   - [x] Phase 1.8.6: Final Phase 1 freeze
 - [ ] Phase 2: LLVM IR and machine-instruction analysis
   - [x] Phase 2.1: LLVM toolchain and naive IR baseline
-  - [ ] Phase 2.2: Unoptimized IR and C++ semantic mapping
+  - [x] Phase 2.2: Unoptimized IR and C++ semantic mapping
   - [ ] Phase 2.3: Optimization passes and O0/O3 comparison
   - [ ] Phase 2.4: Loops, memory access, and alias analysis
   - [ ] Phase 2.5: Auto-vectorization diagnostics
@@ -438,15 +446,19 @@ Check source formatting, final newlines, and Shell syntax:
 ./scripts/check_style.sh
 ```
 
-## Generate LLVM Baseline
+## Generate and Analyze LLVM IR
 
 ```bash
 ./scripts/generate_llvm_baseline.sh
+./scripts/generate_unoptimized_ir_cfg.sh
 ```
 
-The script emits `-O0/-O3` LLVM IR, Assembly, and object disassembly for the naive kernel.
-See [Phase 2.1](docs/experiments/phase2-llvm-baseline.md) for the method and findings; textual
-evidence is stored in [`artifacts/phase2/llvm-baseline`](artifacts/phase2/llvm-baseline).
+The first script emits `-O0/-O3` LLVM IR, Assembly, and object disassembly for the naive
+kernel. The second derives a stable `gemm_naive` CFG from the fixed O0 IR. See
+[Phase 2.1](docs/experiments/phase2-llvm-baseline.md) and
+[Phase 2.2](docs/experiments/phase2-unoptimized-ir.md) for the methods and findings. Textual
+evidence is stored in [`artifacts/phase2/llvm-baseline`](artifacts/phase2/llvm-baseline) and
+[`artifacts/phase2/unoptimized-ir`](artifacts/phase2/unoptimized-ir).
 
 ## Run the Benchmark
 
@@ -500,6 +512,10 @@ Phases 1.1–1.7 are available in [`results/phase1`](results/phase1). On 1024³,
 the Phase 1.7 multithreaded AVX2/FMA kernel improves from 64.671 GFLOP/s with one thread to
 272.810 GFLOP/s with 20 threads, a 4.218× speedup. The best 256³ result uses only two threads,
 showing that thread lifecycle and scheduling overhead dominate small matrices. See the summaries for [Phase 1.2](results/phase1/compiler-options/summary.md), [Phase 1.3](results/phase1/loop-order/summary.md), [Phase 1.4](results/phase1/blocking/summary.md), [Phase 1.5](results/phase1/packing/summary.md), [Phase 1.6](results/phase1/simd/summary.md), and [Phase 1.7](results/phase1/multithreading/summary.md).
+
+Phase 2.1 establishes the Clang/LLVM 22.1.8 O0/O3 IR baseline. Phase 2.2 maps the naive C++
+semantics to O0 IR and records a stable CFG with 20 basic blocks and 24 edges. Neither phase
+changes the Phase 1 kernels or introduces new performance claims.
 
 ## Continuous Integration
 

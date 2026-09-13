@@ -1,0 +1,51 @@
+digraph "gemm_naive O0 CFG" {
+  label="gemm::gemm_naive -O0 control-flow graph";
+  rankdir=TB;
+  node [shape=box, fontname="monospace"];
+
+  "entry";
+  "lor.lhs.false";
+  "lor.lhs.false5";
+  "if.then";
+  "invoke.cont";
+  "lpad";
+  "if.end";
+  "for.cond";
+  "for.body";
+  "for.cond13";
+  "for.body15";
+  "for.cond16";
+  "for.body18";
+  "for.inc";
+  "for.end";
+  "for.inc22";
+  "for.end24";
+  "for.inc25";
+  "for.end27";
+  "eh.resume";
+
+  "entry" -> "if.then" [label="T"];
+  "entry" -> "lor.lhs.false" [label="F"];
+  "lor.lhs.false" -> "if.then" [label="T"];
+  "lor.lhs.false" -> "lor.lhs.false5" [label="F"];
+  "lor.lhs.false5" -> "if.then" [label="T"];
+  "lor.lhs.false5" -> "if.end" [label="F"];
+  "if.then" -> "invoke.cont" [label="normal"];
+  "if.then" -> "lpad" [label="unwind"];
+  "lpad" -> "eh.resume";
+  "if.end" -> "for.cond";
+  "for.cond" -> "for.body" [label="T"];
+  "for.cond" -> "for.end27" [label="F"];
+  "for.body" -> "for.cond13";
+  "for.cond13" -> "for.body15" [label="T"];
+  "for.cond13" -> "for.end24" [label="F"];
+  "for.body15" -> "for.cond16";
+  "for.cond16" -> "for.body18" [label="T"];
+  "for.cond16" -> "for.end" [label="F"];
+  "for.body18" -> "for.inc";
+  "for.inc" -> "for.cond16";
+  "for.end" -> "for.inc22";
+  "for.inc22" -> "for.cond13";
+  "for.end24" -> "for.inc25";
+  "for.inc25" -> "for.cond";
+}
