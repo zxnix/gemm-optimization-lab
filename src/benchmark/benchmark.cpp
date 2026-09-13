@@ -1,5 +1,6 @@
 #include "gemm/gemm.hpp"
 #include "gemm/verification.hpp"
+#include "kernel_registry.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -34,7 +35,8 @@ struct Options {
     int repeats = 7;
     std::vector<Shape> shapes{{256, 256, 256}, {512, 512, 512}, {1024, 1024, 1024}};
     std::string csv_path;
-    std::string kernel = "naive";
+    gemm::benchmark::KernelKind kernel =
+        gemm::benchmark::KernelKind::Naive;
     std::size_t block_size = 32;
     std::size_t thread_count = 1;
     bool verify_results = true;
@@ -87,14 +89,8 @@ Options parse_options(int argc, char** argv) {
         } else if (argument == "--csv") {
             options.csv_path = require_value();
         } else if (argument == "--kernel") {
-            options.kernel = require_value();
-            if (options.kernel != "naive" && options.kernel != "ikj" &&
-                options.kernel != "blocked" && options.kernel != "packed" &&
-                options.kernel != "micro" && options.kernel != "avx2" &&
-                options.kernel != "avx2-mt") {
-                throw std::invalid_argument(
-                    "--kernel must be naive, ikj, blocked, packed, micro, avx2, or avx2-mt");
-            }
+            options.kernel =
+                gemm::benchmark::parse_kernel_kind(require_value());
         } else if (argument == "--block-size") {
             options.block_size = parse_positive_size(require_value(), "block-size");
         } else if (argument == "--threads") {
@@ -102,11 +98,12 @@ Options parse_options(int argc, char** argv) {
         } else if (argument == "--skip-verification") {
             options.verify_results = false;
         } else if (argument == "--help") {
-            std::cout << "Usage: gemm_benchmark [--repeats R] [--sizes S1,S2,...] "
-                         "[--m M --n N --k K] "
-                         "[--kernel naive|ikj|blocked|packed|micro|avx2|avx2-mt] "
-                         "[--block-size B] [--threads T] [--csv PATH] "
-                         "[--skip-verification]\n";
+            std::cout
+                << "Usage: gemm_benchmark [--repeats R] [--sizes S1,S2,...] "
+                   "[--m M --n N --k K] [--kernel "
+                << gemm::benchmark::kernel_choices("|")
+                << "] [--block-size B] [--threads T] [--csv PATH] "
+                   "[--skip-verification]\n";
             std::exit(EXIT_SUCCESS);
         } else {
             throw std::invalid_argument("unknown argument: " + argument);
@@ -117,7 +114,9 @@ Options parse_options(int argc, char** argv) {
         if (m == 0 || n == 0 || k == 0) throw std::invalid_argument("--m, --n, and --k must be provided together");
         options.shapes = {{m, n, k}};
     }
-    if (options.kernel != "avx2-mt" && options.thread_count != 1) {
+    const gemm::benchmark::KernelDescriptor& descriptor =
+        gemm::benchmark::kernel_descriptor(options.kernel);
+    if (!descriptor.supports_threads && options.thread_count != 1) {
         throw std::invalid_argument(
             "--threads greater than 1 requires --kernel avx2-mt");
     }
@@ -141,21 +140,6 @@ double calculate_gflops(const Shape& shape, double milliseconds) {
     return operations / (milliseconds * 1.0e6);
 }
 
-bool uses_packed_b(const Options& options) {
-    return options.kernel == "packed" || options.kernel == "micro" ||
-           options.kernel == "avx2" || options.kernel == "avx2-mt";
-}
-
-const char* target_isa(const Options& options) {
-    return options.kernel == "avx2" || options.kernel == "avx2-mt"
-        ? "avx2+fma" : "generic";
-}
-
-const char* microkernel_shape(const Options& options) {
-    return options.kernel == "micro" || options.kernel == "avx2" ||
-           options.kernel == "avx2-mt" ? "4x8" : "none";
-}
-
 std::string utc_timestamp() {
     const std::time_t now = std::time(nullptr);
     std::tm value{};
@@ -163,33 +147,6 @@ std::string utc_timestamp() {
     std::ostringstream output;
     output << std::put_time(&value, "%Y-%m-%dT%H:%M:%SZ");
     return output.str();
-}
-
-void run_kernel(const Options& options,
-                const gemm::Matrix& a,
-                const gemm::Matrix& b,
-                gemm::Matrix& c,
-                const gemm::PackedB* packed_b) {
-    if (options.kernel == "naive") {
-        gemm::gemm_naive(a, b, c);
-    } else if (options.kernel == "ikj") {
-        gemm::gemm_ikj(a, b, c);
-    } else if (options.kernel == "blocked") {
-        gemm::gemm_blocked(a, b, c, options.block_size);
-    } else if (options.kernel == "packed") {
-        if (packed_b == nullptr) throw std::logic_error("packed B was not prepared");
-        gemm::gemm_packed_b(a, *packed_b, c);
-    } else if (options.kernel == "micro") {
-        if (packed_b == nullptr) throw std::logic_error("packed B was not prepared");
-        gemm::gemm_microkernel_4x8(a, *packed_b, c);
-    } else if (options.kernel == "avx2") {
-        if (packed_b == nullptr) throw std::logic_error("packed B was not prepared");
-        gemm::gemm_avx2_4x8(a, *packed_b, c);
-    } else {
-        if (packed_b == nullptr) throw std::logic_error("packed B was not prepared");
-        gemm::gemm_avx2_4x8_parallel(
-            a, *packed_b, c, options.thread_count);
-    }
 }
 
 CaseResult benchmark_shape(const Shape& shape, const Options& options) {
@@ -201,7 +158,9 @@ CaseResult benchmark_shape(const Shape& shape, const Options& options) {
     std::cout << "\nM=" << shape.m << ", N=" << shape.n << ", K=" << shape.k << '\n';
     std::optional<gemm::PackedB> packed_b;
     std::vector<double> packing_times;
-    if (uses_packed_b(options)) {
+    const gemm::benchmark::KernelDescriptor& descriptor =
+        gemm::benchmark::kernel_descriptor(options.kernel);
+    if (descriptor.uses_packed_b) {
         // workspace 分配在计时外；这里只测量 row-major B 到预分配 packed buffer 的转换。
         packed_b.emplace(shape.k, shape.n, options.block_size);
         gemm::pack_b(b, *packed_b);
@@ -225,14 +184,18 @@ CaseResult benchmark_shape(const Shape& shape, const Options& options) {
     }
 
     // warm-up 不计时，降低首次访存和 CPU 状态变化造成的特殊性。
-    run_kernel(options, a, b, c, packed_b ? &*packed_b : nullptr);
+    gemm::benchmark::execute_kernel(
+        options.kernel, a, b, c, packed_b ? &*packed_b : nullptr,
+        options.block_size, options.thread_count);
 
     CaseResult result{shape, {}, packing_times, {}, options.verify_results};
     result.runs.reserve(static_cast<std::size_t>(options.repeats));
     for (int run = 1; run <= options.repeats; ++run) {
         // 计时边界只包围 kernel；分配、初始化、输出和验证均在边界外。
         const auto start = Clock::now();
-        run_kernel(options, a, b, c, packed_b ? &*packed_b : nullptr);
+        gemm::benchmark::execute_kernel(
+            options.kernel, a, b, c, packed_b ? &*packed_b : nullptr,
+            options.block_size, options.thread_count);
         const auto stop = Clock::now();
         const double ms = std::chrono::duration<double, std::milli>(stop - start).count();
         result.runs.push_back({run, ms, calculate_gflops(shape, ms)});
@@ -283,8 +246,10 @@ void write_csv(const std::string& path,
     if (!output) throw std::runtime_error("cannot open CSV output: " + path);
     output << "timestamp_utc,compiler,compiler_version,build_type,kernel,target_isa,microkernel,block_size,threads,optimization_level,m,n,k,run,time_ms,gflops,packing_time_ms,one_shot_time_ms,one_shot_gflops,verified,max_abs_error,max_rel_error\n";
     const std::string timestamp = utc_timestamp();
-    const bool uses_blocks = options.kernel == "blocked" || uses_packed_b(options);
-    const std::size_t reported_block_size = uses_blocks ? options.block_size : 0;
+    const gemm::benchmark::KernelDescriptor& descriptor =
+        gemm::benchmark::kernel_descriptor(options.kernel);
+    const std::size_t reported_block_size =
+        descriptor.uses_block_size ? options.block_size : 0;
     output << std::setprecision(12);
     for (const CaseResult& item : cases) {
         for (const RunResult& run : item.runs) {
@@ -293,8 +258,9 @@ void write_csv(const std::string& path,
                 : item.packing_times[static_cast<std::size_t>(run.run - 1)];
             const double one_shot_ms = run.milliseconds + packing_ms;
             output << timestamp << ',' << GEMM_COMPILER_ID << ',' << GEMM_COMPILER_VERSION << ','
-                   << GEMM_BUILD_TYPE << ',' << options.kernel << ',' << target_isa(options) << ','
-                   << microkernel_shape(options) << ',' << reported_block_size << ','
+                   << GEMM_BUILD_TYPE << ',' << descriptor.name << ','
+                   << descriptor.target_isa << ',' << descriptor.microkernel << ','
+                   << reported_block_size << ','
                    << options.thread_count << ',' << GEMM_OPT_LEVEL << ','
                    << item.shape.m << ',' << item.shape.n << ',' << item.shape.k
                    << ',' << run.run << ',' << run.milliseconds << ',' << run.gflops << ','
@@ -312,18 +278,16 @@ void write_csv(const std::string& path,
 int main(int argc, char** argv) {
     try {
         const Options options = parse_options(argc, argv);
-        const std::string loop_order = options.kernel == "naive" ? "i-j-k" :
-                                       options.kernel == "ikj" ? "i-k-j" :
-                                       options.kernel == "blocked" ? "blocked-i-k-j" :
-                                       options.kernel == "packed" ? "packed-blocked-i-k-j" :
-                                       "packed-register-blocked";
-        const bool uses_blocks = options.kernel == "blocked" || uses_packed_b(options);
-        const std::size_t reported_block_size = uses_blocks ? options.block_size : 0;
+        const gemm::benchmark::KernelDescriptor& descriptor =
+            gemm::benchmark::kernel_descriptor(options.kernel);
+        const std::size_t reported_block_size =
+            descriptor.uses_block_size ? options.block_size : 0;
         std::cout << "GEMM Optimization Lab - FP32 GEMM benchmark\n"
-                  << "kernel=" << options.kernel << ", block-size=" << reported_block_size
-                  << ", layout=row-major, loop-order=" << loop_order
-                  << ", target-isa=" << target_isa(options)
-                  << ", microkernel=" << microkernel_shape(options)
+                  << "kernel=" << descriptor.name
+                  << ", block-size=" << reported_block_size
+                  << ", layout=row-major, loop-order=" << descriptor.loop_order
+                  << ", target-isa=" << descriptor.target_isa
+                  << ", microkernel=" << descriptor.microkernel
                   << ", threads=" << options.thread_count
                   << ", warm-up=1, repeats=" << options.repeats
                   << ", optimization=" << GEMM_OPT_LEVEL << '\n';

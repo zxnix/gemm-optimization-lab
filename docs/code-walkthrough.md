@@ -51,3 +51,8 @@ FMA 只有一次舍入，所以 AVX2 与非 FMA 结果允许存在正常的末�
 ## Verification 与 Benchmark
 
 验证器先把 FP32 输入提升为 FP64，再乘法和累加。benchmark 的矩阵分配、初始化、warm-up、统计、输出和验证都不进入正式 kernel 计时。
+
+benchmark 在 CLI 边界通过 `parse_kernel_kind()` 把名称转换为强类型 `KernelKind`。
+`KernelDescriptor` 集中保存 loop order、ISA、microkernel、packing、block size 与线程
+能力，控制台和 CSV 都读取同一份 metadata；`execute_kernel()` 使用显式 `switch`
+调用对应的 Phase 1 kernel。

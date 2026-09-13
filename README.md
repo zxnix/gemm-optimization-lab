@@ -2,7 +2,7 @@
 
 [中文](#中文) | [English](#english)
 
-中文详解：[项目结构](docs/architecture.md) · [代码走读](docs/code-walkthrough.md) · [数值验证](docs/numerical-verification.md) · [Benchmark 方法](docs/benchmark-methodology.md) · [Baseline 实验](docs/experiments/phase1-baseline.md) · [编译器优化级别实验](docs/experiments/phase1-compiler-options.md) · [Cache Blocking 实验](docs/experiments/phase1-blocking.md) · [Matrix Packing 实验](docs/experiments/phase1-packing.md) · [SIMD 实验](docs/experiments/phase1-simd.md) · [多线程实验](docs/experiments/phase1-multithreading.md)
+中文详解：[项目结构](docs/architecture.md) · [代码走读](docs/code-walkthrough.md) · [数值验证](docs/numerical-verification.md) · [Benchmark 方法](docs/benchmark-methodology.md) · [Phase 1 工程收尾](docs/phase1-engineering-closure.md) · [Baseline 实验](docs/experiments/phase1-baseline.md) · [编译器优化级别实验](docs/experiments/phase1-compiler-options.md) · [Cache Blocking 实验](docs/experiments/phase1-blocking.md) · [Matrix Packing 实验](docs/experiments/phase1-packing.md) · [SIMD 实验](docs/experiments/phase1-simd.md) · [多线程实验](docs/experiments/phase1-multithreading.md)
 
 ## 中文
 
@@ -14,7 +14,7 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 
 ## Current Milestone
 
-**Phase 1.7 — Multithreading 与 Hardware Performance Counters（已完成）**
+**Phase 1.8 — Engineering Closure（1.8.1 已完成）**
 
 项目当前包含单线程 FP32 GEMM baseline、GCC 优化级别实验、循环顺序、cache blocking、B matrix packing、portable 4×8 microkernel、显式 AVX2/FMA 4×8 microkernel，以及沿 M 维静态分区的 C++17 多线程 kernel，不依赖任何第三方矩阵库。
 
@@ -35,6 +35,7 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 - 比较 portable register microkernel 与显式 AVX2/FMA
 - 测量 1、2、4、8、10、20 个 worker thread 的 speedup 与并行效率
 - 使用 Linux `perf` 采集可用的硬件性能计数器
+- 使用强类型 `KernelKind` 和集中式 descriptor 管理 benchmark kernel
 
 除专用 AVX2 kernel 外，其余实现使用普通 C++ 循环。AVX2/FMA 仅应用于带运行时能力检查的目标函数；项目仍不启用全局 `-march=native`、`-ffast-math` 或 OpenMP，也不使用 BLAS、MKL、Eigen 等外部矩阵库。
 
@@ -47,6 +48,13 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 - [x] Phase 1.5：Matrix packing
 - [x] Phase 1.6：SIMD/AVX 向量化
 - [x] Phase 1.7：多线程与硬件性能计数器
+- [ ] Phase 1.8：工程收尾与阶段冻结
+  - [x] Phase 1.8.1：集中管理 KernelKind、metadata 与执行分派
+  - [ ] Phase 1.8.2：拆分 benchmark 组件
+  - [ ] Phase 1.8.3：重命名核心 CMake target
+  - [ ] Phase 1.8.4：分离 portable 与 AVX2 源文件
+  - [ ] Phase 1.8.5：测试、格式与回归整理
+  - [ ] Phase 1.8.6：Phase 1 最终冻结
 - [ ] Phase 2：LLVM IR 与机器指令分析
 - [ ] Phase 3：Tensor IR 与调度
 - [ ] Phase 4：CUDA/GPU 后端优化
@@ -210,7 +218,7 @@ Modern AI workloads rely heavily on matrix computation. This project studies how
 
 ## Current Milestone
 
-**Phase 1.7 — Multithreading and Hardware Performance Counters (completed)**
+**Phase 1.8 — Engineering Closure (1.8.1 completed)**
 
 The project currently provides a single-threaded FP32 GEMM baseline, controlled GCC optimization-level and loop-order experiments, cache blocking, B matrix packing, portable and explicit AVX2/FMA 4×8 microkernels, and a C++17 multithreaded kernel that statically partitions the M dimension. No third-party matrix library is used.
 
@@ -231,6 +239,7 @@ The project currently provides a single-threaded FP32 GEMM baseline, controlled 
 - Comparison of a portable register microkernel with explicit AVX2/FMA
 - Speedup and parallel-efficiency measurements across 1, 2, 4, 8, 10, and 20 workers
 - Linux `perf` hardware-counter collection when available
+- Strongly typed `KernelKind` and centralized benchmark-kernel descriptors
 
 All implementations except the dedicated AVX2 kernel use ordinary C++ loops. AVX2/FMA is limited to a target-specific function guarded by a runtime capability check. The project still does not enable global `-march=native`, `-ffast-math`, or OpenMP, and does not use BLAS, MKL, Eigen, or other external matrix libraries.
 
@@ -243,6 +252,13 @@ All implementations except the dedicated AVX2 kernel use ordinary C++ loops. AVX
 - [x] Phase 1.5: Matrix packing
 - [x] Phase 1.6: SIMD/AVX vectorization
 - [x] Phase 1.7: Multithreading and hardware performance counters
+- [ ] Phase 1.8: Engineering closure and phase freeze
+  - [x] Phase 1.8.1: Centralize KernelKind, metadata, and dispatch
+  - [ ] Phase 1.8.2: Split benchmark components
+  - [ ] Phase 1.8.3: Rename the core CMake target
+  - [ ] Phase 1.8.4: Separate portable and AVX2 source files
+  - [ ] Phase 1.8.5: Test, formatting, and regression cleanup
+  - [ ] Phase 1.8.6: Final Phase 1 freeze
 - [ ] Phase 2: LLVM IR and machine-instruction analysis
 - [ ] Phase 3: Tensor IR and scheduling
 - [ ] Phase 4: CUDA/GPU backend optimization

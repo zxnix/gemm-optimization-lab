@@ -27,7 +27,9 @@ Matrix（逻辑 row-major 数据）
 - `src/kernels/gemm_microkernel.cpp`：portable 4×8、AVX2/FMA 4×8 微内核与
   沿 M 维静态分区的 C++17 worker thread 调度。
 - `src/verification/verification.cpp`：FP64 reference 与误差报告。
-- `src/benchmark/benchmark.cpp`：warm-up、计时、统计和 GFLOP/s。
+- `src/benchmark/kernel_registry.*`：强类型 kernel 标识、集中 metadata 与执行分派。
+- `src/benchmark/benchmark.cpp`：CLI、warm-up、计时、统计和 GFLOP/s；将在
+  Phase 1.8.2 继续按职责拆分。
 - `test_gemm.cpp`：手工结果、随机非方阵和非法维度测试。
 
 二维元素 `(row,col)` 映射为 `row*cols+col`。行内连续，跨行 stride 为 `cols*sizeof(float)`。核心库不依赖 benchmark 或 tests，后续可替换 kernel 而不改变测量工具。

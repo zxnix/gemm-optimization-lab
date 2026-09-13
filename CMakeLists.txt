@@ -50,8 +50,14 @@ target_compile_options(gemm_baseline PRIVATE
     $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic>
 )
 
-add_executable(gemm_benchmark src/benchmark/benchmark.cpp)
+add_executable(gemm_benchmark
+    src/benchmark/benchmark.cpp
+    src/benchmark/kernel_registry.cpp
+)
 target_link_libraries(gemm_benchmark PRIVATE gemm_baseline)
+target_compile_options(gemm_benchmark PRIVATE
+    $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic;-Wswitch-enum>
+)
 target_compile_definitions(gemm_benchmark PRIVATE
     GEMM_BUILD_TYPE="${CMAKE_BUILD_TYPE}"
     GEMM_COMPILER_ID="${CMAKE_CXX_COMPILER_ID}"
@@ -64,4 +70,17 @@ if(BUILD_TESTING)
     add_executable(gemm_tests tests/test_gemm.cpp)
     target_link_libraries(gemm_tests PRIVATE gemm_baseline)
     add_test(NAME gemm_correctness COMMAND gemm_tests)
+
+    add_executable(gemm_kernel_registry_tests
+        tests/test_kernel_registry.cpp
+        src/benchmark/kernel_registry.cpp
+    )
+    target_include_directories(gemm_kernel_registry_tests PRIVATE
+        ${PROJECT_SOURCE_DIR}/src/benchmark
+    )
+    target_link_libraries(gemm_kernel_registry_tests PRIVATE gemm_baseline)
+    target_compile_options(gemm_kernel_registry_tests PRIVATE
+        $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic;-Wswitch-enum>
+    )
+    add_test(NAME gemm_kernel_registry COMMAND gemm_kernel_registry_tests)
 endif()
