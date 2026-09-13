@@ -36,7 +36,7 @@ if(GEMM_ENABLE_THREAD_SANITIZER)
     endif()
 endif()
 
-add_library(gemm_baseline
+add_library(gemm_core
     src/kernels/gemm_naive.cpp
     src/kernels/gemm_ikj.cpp
     src/kernels/gemm_blocked.cpp
@@ -44,9 +44,9 @@ add_library(gemm_baseline
     src/kernels/gemm_microkernel.cpp
     src/verification/verification.cpp
 )
-target_include_directories(gemm_baseline PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(gemm_baseline PUBLIC Threads::Threads)
-target_compile_options(gemm_baseline PRIVATE
+target_include_directories(gemm_core PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(gemm_core PUBLIC Threads::Threads)
+target_compile_options(gemm_core PRIVATE
     $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic>
 )
 
@@ -60,7 +60,7 @@ add_library(gemm_benchmark_support
 target_include_directories(gemm_benchmark_support PUBLIC
     ${PROJECT_SOURCE_DIR}/src/benchmark
 )
-target_link_libraries(gemm_benchmark_support PUBLIC gemm_baseline)
+target_link_libraries(gemm_benchmark_support PUBLIC gemm_core)
 target_compile_options(gemm_benchmark_support PRIVATE
     $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic;-Wswitch-enum>
 )
@@ -82,7 +82,7 @@ target_compile_options(gemm_benchmark PRIVATE
 include(CTest)
 if(BUILD_TESTING)
     add_executable(gemm_tests tests/test_gemm.cpp)
-    target_link_libraries(gemm_tests PRIVATE gemm_baseline)
+    target_link_libraries(gemm_tests PRIVATE gemm_core)
     add_test(NAME gemm_correctness COMMAND gemm_tests)
 
     add_executable(gemm_kernel_registry_tests tests/test_kernel_registry.cpp)

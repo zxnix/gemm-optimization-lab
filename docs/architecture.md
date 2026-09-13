@@ -49,6 +49,22 @@ CLI → ParsedOptions → benchmark runner → CaseResult → console / CSV
 `gemm_benchmark_support` 是仅供 benchmark 与测试使用的内部 CMake target，不属于
 GEMM 公共 API。拆分后，入口文件不再包含参数规则、计时细节或 CSV 字段。
 
+CMake target 依赖关系为：
+
+```text
+Threads::Threads
+      ↓
+  gemm_core ─────────────→ gemm_tests
+      ↓
+gemm_benchmark_support ──→ registry/options tests
+      ↓
+gemm_benchmark
+```
+
+`gemm_core` 包含所有 Phase 1 kernel 和 verification 实现。它不再使用
+`gemm_baseline` 这一旧名称，因为该 target 早已不只包含 naive baseline；
+同时它也不命名为 `gemm_kernels`，因为 verification 同样属于该构建单元。
+
 `PackedB` 不改变 B 的逻辑 K×N 形状，而是把数据保存为
 `[k_tile][n_tile][k_inner][n_inner]`，边界 tile 补零。packing API 与计算 API
 分离，因此调用者可以只使用一次 packed B，也可以像神经网络权重一样重复使用。

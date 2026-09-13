@@ -28,7 +28,7 @@ revision。
 |---|---|---|
 | Phase 1.8.1 | 集中管理 KernelKind、metadata 与执行分派 | 完成 |
 | Phase 1.8.2 | 拆分 benchmark 组件 | 完成 |
-| Phase 1.8.3 | 重命名核心 CMake target | 待开始 |
+| Phase 1.8.3 | 重命名核心 CMake target | 完成 |
 | Phase 1.8.4 | 分离 portable 与 AVX2 源文件 | 待开始 |
 | Phase 1.8.5 | 测试、格式与回归整理 | 待开始 |
 | Phase 1.8.6 | 最终检查并建立 phase1-complete tag | 待开始 |
@@ -125,8 +125,41 @@ CLI 和实验元数据，不是 GEMM 计算库的公共 API。
 kernel/thread 约束以及 verification/CSV 冲突。兼容性回归使用 Phase 1.8.1 可执行文件
 逐项比较七种 kernel 的配置与验证摘要、错误文本和 CSV header。
 
+## Phase 1.8.3：Core CMake Target
+
+### 问题
+
+`gemm_baseline` 最初只表示 naive baseline，但随后逐步加入 loop-order、blocking、
+packing、microkernel、AVX2、多线程和 verification 实现。继续使用这个名称会让构建图
+误导读者，以为优化 kernel 位于另一个 target。
+
+### 方案
+
+将内部静态库 target 重命名为 `gemm_core`，并同步更新 benchmark support 和
+correctness tests 的链接依赖。选择 `core` 是因为该 target 不只包含 kernels，
+还包含 verification 实现并导出 `include/gemm/` 头文件搜索路径。
+
+重命名后的构建关系是：
+
+```text
+gemm_core → gemm_benchmark_support → gemm_benchmark
+    └──────────────────────────────→ gemm_tests
+```
+
+这是构建系统中的语义重命名。源文件、命名空间、公共函数、可执行文件
+`gemm_benchmark`、CTest 名称、编译参数和 CLI 均保持不变。新构建目录生成
+`libgemm_core.a`，该文件属于未提交的构建产物。
+
+### 验证
+
+- CMake 配置中不再存在名为 `gemm_baseline` 的 target 或链接依赖；
+- fresh Release 构建只生成 `libgemm_core.a`；
+- Release、Address/Undefined Sanitizer 和 Thread Sanitizer 测试通过；
+- Phase 1.8.2 与 Phase 1.8.3 的 benchmark 输出兼容；
+- kernels、公共头文件、脚本与历史结果没有修改。
+
 ## 下一步
 
-Phase 1.8.3 将把仍带有历史阶段含义的 `gemm_baseline` CMake target 重命名为
-更符合当前职责的核心 kernel target。只调整构建图中的工程名称，不修改公共 API、
-kernel 源码或 benchmark 协议。
+Phase 1.8.4 将把当前混合在 `gemm_microkernel.cpp` 中的 portable microkernel、
+AVX2/FMA kernel 和多线程调度按实现边界拆分。公共 API 与算法循环保持不变，并通过
+对象级代码生成检查确认专用 ISA 没有扩散到 generic translation unit。
