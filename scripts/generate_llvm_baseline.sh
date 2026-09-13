@@ -77,7 +77,7 @@ for level in O0 O3; do
         echo "getelementptr=$(grep -Ec '(^|[[:space:]])getelementptr([[:space:]]|$)' "$level_dir/llvm-ir.ll" || true)"
         echo "fmul=$(grep -Ec '(^|[[:space:]])fmul([[:space:]]|$)' "$level_dir/llvm-ir.ll" || true)"
         echo "fadd=$(grep -Ec '(^|[[:space:]])fadd([[:space:]]|$)' "$level_dir/llvm-ir.ll" || true)"
-        echo "fmuladd=$(grep -Ec 'llvm\.fmuladd\.f32' "$level_dir/llvm-ir.ll" || true)"
+        echo "fmuladd=$(grep -Ec 'call float @llvm\.fmuladd\.f32' "$level_dir/llvm-ir.ll" || true)"
         echo "vector_float=$(grep -Ec '<[0-9]+ x float>' "$level_dir/llvm-ir.ll" || true)"
     } > "$level_dir/ir-stats.txt"
 done
