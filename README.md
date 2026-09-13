@@ -45,28 +45,12 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 
 ## Roadmap
 
-- [x] Phase 1.1：Naive GEMM baseline 与可复现 benchmark
-- [x] Phase 1.2：编译器优化级别分析
-- [x] Phase 1.3：循环顺序与内存访问分析
-- [x] Phase 1.4：Cache blocking 分析
-- [x] Phase 1.5：Matrix packing
-- [x] Phase 1.6：SIMD/AVX 向量化
-- [x] Phase 1.7：多线程与硬件性能计数器
-- [x] Phase 1.8：工程收尾与阶段冻结
-  - [x] Phase 1.8.1：集中管理 KernelKind、metadata 与执行分派
-  - [x] Phase 1.8.2：拆分 benchmark 组件
-  - [x] Phase 1.8.3：重命名核心 CMake target
-  - [x] Phase 1.8.4：分离 portable 与 AVX2 源文件
-  - [x] Phase 1.8.5：测试、格式与回归整理
-  - [x] Phase 1.8.6：Phase 1 最终冻结
-- [ ] Phase 2：LLVM IR 与机器指令分析
-  - [x] Phase 2.1：LLVM 工具链与 naive IR baseline
-  - [x] Phase 2.2：未优化 IR 与 C++ 语义映射
-  - [ ] Phase 2.3：优化 pass 与 O0/O3 对比
-  - [ ] Phase 2.4：循环、内存访问与 alias analysis
-  - [ ] Phase 2.5：自动向量化诊断
-  - [ ] Phase 2.6：AVX2/FMA lowering
-  - [ ] Phase 2.7：机器指令分析与阶段总结
+- [x] Phase 1：CPU GEMM baseline、数据局部性、SIMD、多线程与工程冻结
+- [ ] Phase 2：LLVM IR 与机器指令分析（进行中）
+  - [x] Phase 2.1：LLVM 工具链与 O0/O3 IR baseline
+  - [x] Phase 2.2：C++ 与 O0 IR 语义映射
+  - [ ] Phase 2.3：Optimization pass 与 O0/O3 对比（下一步）
+  - [ ] Phase 2.4–2.7：Memory/alias、向量化、lowering 与机器指令分析
 - [ ] Phase 3：Tensor IR 与调度
 - [ ] Phase 4：CUDA/GPU 后端优化
 - [ ] Phase 5：硬件感知自动调优
@@ -308,28 +292,12 @@ All implementations except the dedicated AVX2 kernel use ordinary C++ loops. AVX
 
 ## Roadmap
 
-- [x] Phase 1.1: Naive GEMM baseline and reproducible benchmark
-- [x] Phase 1.2: Compiler optimization-level analysis
-- [x] Phase 1.3: Loop-order and memory-access analysis
-- [x] Phase 1.4: Cache-blocking analysis
-- [x] Phase 1.5: Matrix packing
-- [x] Phase 1.6: SIMD/AVX vectorization
-- [x] Phase 1.7: Multithreading and hardware performance counters
-- [x] Phase 1.8: Engineering closure and phase freeze
-  - [x] Phase 1.8.1: Centralize KernelKind, metadata, and dispatch
-  - [x] Phase 1.8.2: Split benchmark components
-  - [x] Phase 1.8.3: Rename the core CMake target
-  - [x] Phase 1.8.4: Separate portable and AVX2 source files
-  - [x] Phase 1.8.5: Test, formatting, and regression cleanup
-  - [x] Phase 1.8.6: Final Phase 1 freeze
-- [ ] Phase 2: LLVM IR and machine-instruction analysis
-  - [x] Phase 2.1: LLVM toolchain and naive IR baseline
-  - [x] Phase 2.2: Unoptimized IR and C++ semantic mapping
-  - [ ] Phase 2.3: Optimization passes and O0/O3 comparison
-  - [ ] Phase 2.4: Loops, memory access, and alias analysis
-  - [ ] Phase 2.5: Auto-vectorization diagnostics
-  - [ ] Phase 2.6: AVX2/FMA lowering
-  - [ ] Phase 2.7: Machine-instruction analysis and phase summary
+- [x] Phase 1: CPU GEMM baseline, data locality, SIMD, multithreading, and engineering freeze
+- [ ] Phase 2: LLVM IR and machine-instruction analysis (in progress)
+  - [x] Phase 2.1: LLVM toolchain and O0/O3 IR baseline
+  - [x] Phase 2.2: C++ to O0 IR semantic mapping
+  - [ ] Phase 2.3: Optimization passes and O0/O3 comparison (next)
+  - [ ] Phase 2.4–2.7: Memory/alias, vectorization, lowering, and machine-code analysis
 - [ ] Phase 3: Tensor IR and scheduling
 - [ ] Phase 4: CUDA/GPU backend optimization
 - [ ] Phase 5: Hardware-aware automatic tuning
