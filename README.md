@@ -14,7 +14,7 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 
 ## Current Milestone
 
-**Phase 2.1 — LLVM Toolchain and Naive IR Baseline（进行中）**
+**Phase 2.2 — Unoptimized IR and C++ Semantic Mapping（准备开始）**
 
 项目当前包含单线程 FP32 GEMM baseline、GCC 优化级别实验、循环顺序、cache blocking、B matrix packing、portable 4×8 microkernel、显式 AVX2/FMA 4×8 microkernel，以及沿 M 维静态分区的 C++17 多线程 kernel，不依赖任何第三方矩阵库。
 
@@ -60,7 +60,7 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
   - [x] Phase 1.8.5：测试、格式与回归整理
   - [x] Phase 1.8.6：Phase 1 最终冻结
 - [ ] Phase 2：LLVM IR 与机器指令分析
-  - [ ] Phase 2.1：LLVM 工具链与 naive IR baseline
+  - [x] Phase 2.1：LLVM 工具链与 naive IR baseline
   - [ ] Phase 2.2：未优化 IR 与 C++ 语义映射
   - [ ] Phase 2.3：优化 pass 与 O0/O3 对比
   - [ ] Phase 2.4：循环、内存访问与 alias analysis
@@ -190,6 +190,8 @@ ctest --preset debug-thread-sanitizer
 ```
 
 该脚本从 naive kernel 生成 `-O0/-O3` LLVM IR、Assembly 和 object disassembly。
+实验方法与结论见 [Phase 2.1](docs/experiments/phase2-llvm-baseline.md)，文本证据位于
+[`artifacts/phase2/llvm-baseline`](artifacts/phase2/llvm-baseline)。
 
 ## Run the Benchmark
 
@@ -248,7 +250,7 @@ AVX2/FMA kernel 在 1024³ 上从 64.671 GFLOP/s（1 thread）提升到
 
 GitHub Actions 自动验证：
 
-- 使用 CMake 完成 Release 和 Debug 构建
+- 使用 GCC/Clang 完成 Release 构建，并执行两种 Debug Sanitizer 构建
 - 单元测试和基本正确性检查
 - Debug 模式下的 AddressSanitizer 与 UndefinedBehaviorSanitizer 检查
 - 独立 ThreadSanitizer 构建中的数据竞争检查
@@ -267,7 +269,7 @@ Modern AI workloads rely heavily on matrix computation. This project studies how
 
 ## Current Milestone
 
-**Phase 2.1 — LLVM Toolchain and Naive IR Baseline (in progress)**
+**Phase 2.2 — Unoptimized IR and C++ Semantic Mapping (ready to start)**
 
 The project currently provides a single-threaded FP32 GEMM baseline, controlled GCC optimization-level and loop-order experiments, cache blocking, B matrix packing, portable and explicit AVX2/FMA 4×8 microkernels, and a C++17 multithreaded kernel that statically partitions the M dimension. No third-party matrix library is used.
 
@@ -313,7 +315,7 @@ All implementations except the dedicated AVX2 kernel use ordinary C++ loops. AVX
   - [x] Phase 1.8.5: Test, formatting, and regression cleanup
   - [x] Phase 1.8.6: Final Phase 1 freeze
 - [ ] Phase 2: LLVM IR and machine-instruction analysis
-  - [ ] Phase 2.1: LLVM toolchain and naive IR baseline
+  - [x] Phase 2.1: LLVM toolchain and naive IR baseline
   - [ ] Phase 2.2: Unoptimized IR and C++ semantic mapping
   - [ ] Phase 2.3: Optimization passes and O0/O3 comparison
   - [ ] Phase 2.4: Loops, memory access, and alias analysis
@@ -443,6 +445,8 @@ Check source formatting, final newlines, and Shell syntax:
 ```
 
 The script emits `-O0/-O3` LLVM IR, Assembly, and object disassembly for the naive kernel.
+See [Phase 2.1](docs/experiments/phase2-llvm-baseline.md) for the method and findings; textual
+evidence is stored in [`artifacts/phase2/llvm-baseline`](artifacts/phase2/llvm-baseline).
 
 ## Run the Benchmark
 
@@ -501,7 +505,7 @@ showing that thread lifecycle and scheduling overhead dominate small matrices. S
 
 GitHub Actions automatically verifies:
 
-- Release and Debug builds with CMake
+- GCC/Clang Release builds and both Debug Sanitizer builds
 - Unit tests and correctness checks
 - AddressSanitizer and UndefinedBehaviorSanitizer checks in Debug mode
 - A separate ThreadSanitizer build for data-race detection

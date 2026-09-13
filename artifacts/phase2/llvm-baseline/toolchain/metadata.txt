@@ -1,0 +1,11 @@
+timestamp_utc=2026-09-13T10:30:03Z
+git_commit=04c6ac74cadfb1558aa4443c0f9b0555ec12f116
+os=Fedora Linux 44 (WSL)
+kernel=Linux 6.6.87.2-microsoft-standard-WSL2
+architecture=x86_64
+target_triple=x86_64-redhat-linux-gnu
+clang=clang version 22.1.8 (Fedora 22.1.8-4.fc44)
+llvm=LLVM version 22.1.8
+source=src/kernels/gemm_naive.cpp
+common_flags=-std=c++17 -Iinclude -DNDEBUG -fno-discard-value-names -g0
+target_policy=no -march=native, -mavx2, -mfma, or -ffast-math

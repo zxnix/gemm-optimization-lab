@@ -1,0 +1,217 @@
+
+build/phase2-llvm-baseline/gemm_naive_O3.o:	file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)>:
+       0: 55                           	push	rbp
+       1: 41 57                        	push	r15
+       3: 41 56                        	push	r14
+       5: 41 55                        	push	r13
+       7: 41 54                        	push	r12
+       9: 53                           	push	rbx
+       a: 48 83 ec 38                  	sub	rsp, 0x38
+       e: 48 89 7c 24 20               	mov	qword ptr [rsp + 0x20], rdi
+      13: 48 8b 47 08                  	mov	rax, qword ptr [rdi + 0x8]
+      17: 48 89 74 24 18               	mov	qword ptr [rsp + 0x18], rsi
+      1c: 48 3b 06                     	cmp	rax, qword ptr [rsi]
+      1f: 0f 85 cf 02 00 00            	jne	0x2f4 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x2f4>
+      25: 48 8b 32                     	mov	rsi, qword ptr [rdx]
+      28: 48 8b 4c 24 20               	mov	rcx, qword ptr [rsp + 0x20]
+      2d: 48 3b 31                     	cmp	rsi, qword ptr [rcx]
+      30: 0f 85 be 02 00 00            	jne	0x2f4 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x2f4>
+      36: 4c 8b 62 08                  	mov	r12, qword ptr [rdx + 0x8]
+      3a: 48 8b 4c 24 18               	mov	rcx, qword ptr [rsp + 0x18]
+      3f: 4c 3b 61 08                  	cmp	r12, qword ptr [rcx + 0x8]
+      43: 0f 85 ab 02 00 00            	jne	0x2f4 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x2f4>
+      49: 48 85 f6                     	test	rsi, rsi
+      4c: 0f 84 93 02 00 00            	je	0x2e5 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x2e5>
+      52: 4d 85 e4                     	test	r12, r12
+      55: 0f 84 8a 02 00 00            	je	0x2e5 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x2e5>
+      5b: 48 8b 4a 10                  	mov	rcx, qword ptr [rdx + 0x10]
+      5f: 48 89 0c 24                  	mov	qword ptr [rsp], rcx
+      63: 48 85 c0                     	test	rax, rax
+      66: 0f 84 73 01 00 00            	je	0x1df <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x1df>
+      6c: 89 c1                        	mov	ecx, eax
+      6e: 83 e1 03                     	and	ecx, 0x3
+      71: 48 89 c2                     	mov	rdx, rax
+      74: 48 83 e2 fc                  	and	rdx, -0x4
+      78: 4e 8d 0c a5 00 00 00 00      	lea	r9, [4*r12]
+      80: 4f 8d 14 49                  	lea	r10, [r9 + 2*r9]
+      84: 4d 89 e3                     	mov	r11, r12
+      87: 49 c1 e3 04                  	shl	r11, 0x4
+      8b: 41 b8 0c 00 00 00            	mov	r8d, 0xc
+      91: 31 ff                        	xor	edi, edi
+      93: 31 db                        	xor	ebx, ebx
+      95: 48 89 74 24 08               	mov	qword ptr [rsp + 0x8], rsi
+      9a: eb 32                        	jmp	0xce <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0xce>
+      9c: 0f 1f 40 00                  	nop	dword ptr [rax]
+      a0: 48 8b 7c 24 30               	mov	rdi, qword ptr [rsp + 0x30]
+      a5: 48 ff c7                     	inc	rdi
+      a8: 48 8d 34 85 00 00 00 00      	lea	rsi, [4*rax]
+      b0: 4c 8b 44 24 10               	mov	r8, qword ptr [rsp + 0x10]
+      b5: 49 01 f0                     	add	r8, rsi
+      b8: 48 8b 5c 24 28               	mov	rbx, qword ptr [rsp + 0x28]
+      bd: 48 01 f3                     	add	rbx, rsi
+      c0: 48 8b 74 24 08               	mov	rsi, qword ptr [rsp + 0x8]
+      c5: 48 39 f7                     	cmp	rdi, rsi
+      c8: 0f 84 17 02 00 00            	je	0x2e5 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x2e5>
+      ce: 48 8b 74 24 20               	mov	rsi, qword ptr [rsp + 0x20]
+      d3: 4c 8b 6e 10                  	mov	r13, qword ptr [rsi + 0x10]
+      d7: 48 8b 74 24 18               	mov	rsi, qword ptr [rsp + 0x18]
+      dc: 4c 8b 7e 10                  	mov	r15, qword ptr [rsi + 0x10]
+      e0: 48 89 7c 24 30               	mov	qword ptr [rsp + 0x30], rdi
+      e5: 48 89 fe                     	mov	rsi, rdi
+      e8: 49 0f af f4                  	imul	rsi, r12
+      ec: 48 8b 3c 24                  	mov	rdi, qword ptr [rsp]
+      f0: 48 8d 2c b7                  	lea	rbp, [rdi + 4*rsi]
+      f4: 4c 89 44 24 10               	mov	qword ptr [rsp + 0x10], r8
+      f9: 48 89 de                     	mov	rsi, rbx
+      fc: 4b 8d 1c 28                  	lea	rbx, [r8 + r13]
+     100: 48 89 74 24 28               	mov	qword ptr [rsp + 0x28], rsi
+     105: 49 01 f5                     	add	r13, rsi
+     108: 31 f6                        	xor	esi, esi
+     10a: eb 1a                        	jmp	0x126 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x126>
+     10c: 0f 1f 40 00                  	nop	dword ptr [rax]
+     110: f3 0f 11 44 b5 00            	movss	dword ptr [rbp + 4*rsi], xmm0
+     116: 48 ff c6                     	inc	rsi
+     119: 49 83 c7 04                  	add	r15, 0x4
+     11d: 4c 39 e6                     	cmp	rsi, r12
+     120: 0f 84 7a ff ff ff            	je	0xa0 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0xa0>
+     126: 0f 57 c0                     	xorps	xmm0, xmm0
+     129: 48 83 f8 04                  	cmp	rax, 0x4
+     12d: 73 11                        	jae	0x140 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x140>
+     12f: 31 ff                        	xor	edi, edi
+     131: eb 70                        	jmp	0x1a3 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x1a3>
+     133: 66 66 66 66 2e 0f 1f 84 00 00 00 00 00       	nop	word ptr cs:[rax + rax]
+     140: 4d 89 f8                     	mov	r8, r15
+     143: 31 ff                        	xor	edi, edi
+     145: 66 66 2e 0f 1f 84 00 00 00 00 00     	nop	word ptr cs:[rax + rax]
+     150: f3 0f 10 4c bb f4            	movss	xmm1, dword ptr [rbx + 4*rdi - 0xc]
+     156: f3 41 0f 59 08               	mulss	xmm1, dword ptr [r8]
+     15b: f3 0f 10 54 bb f8            	movss	xmm2, dword ptr [rbx + 4*rdi - 0x8]
+     161: f3 0f 58 c8                  	addss	xmm1, xmm0
+     165: f3 43 0f 59 14 a0            	mulss	xmm2, dword ptr [r8 + 4*r12]
+     16b: f3 0f 58 d1                  	addss	xmm2, xmm1
+     16f: f3 0f 10 4c bb fc            	movss	xmm1, dword ptr [rbx + 4*rdi - 0x4]
+     175: f3 43 0f 59 0c e0            	mulss	xmm1, dword ptr [r8 + 8*r12]
+     17b: f3 0f 58 ca                  	addss	xmm1, xmm2
+     17f: f3 0f 10 04 bb               	movss	xmm0, dword ptr [rbx + 4*rdi]
+     184: f3 43 0f 59 04 10            	mulss	xmm0, dword ptr [r8 + r10]
+     18a: f3 0f 58 c1                  	addss	xmm0, xmm1
+     18e: 48 83 c7 04                  	add	rdi, 0x4
+     192: 4d 01 d8                     	add	r8, r11
+     195: 48 39 fa                     	cmp	rdx, rdi
+     198: 75 b6                        	jne	0x150 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x150>
+     19a: 48 85 c9                     	test	rcx, rcx
+     19d: 0f 84 6d ff ff ff            	je	0x110 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x110>
+     1a3: 4d 89 c8                     	mov	r8, r9
+     1a6: 4c 0f af c7                  	imul	r8, rdi
+     1aa: 4d 01 f8                     	add	r8, r15
+     1ad: 48 8d 3c bd 00 00 00 00      	lea	rdi, [4*rdi]
+     1b5: 4c 01 ef                     	add	rdi, r13
+     1b8: 45 31 f6                     	xor	r14d, r14d
+     1bb: 0f 1f 44 00 00               	nop	dword ptr [rax + rax]
+     1c0: f3 42 0f 10 0c b7            	movss	xmm1, dword ptr [rdi + 4*r14]
+     1c6: f3 41 0f 59 08               	mulss	xmm1, dword ptr [r8]
+     1cb: f3 0f 58 c1                  	addss	xmm0, xmm1
+     1cf: 49 ff c6                     	inc	r14
+     1d2: 4d 01 c8                     	add	r8, r9
+     1d5: 4c 39 f1                     	cmp	rcx, r14
+     1d8: 75 e6                        	jne	0x1c0 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x1c0>
+     1da: e9 31 ff ff ff               	jmp	0x110 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x110>
+     1df: 4a 8d 1c a5 00 00 00 00      	lea	rbx, [4*r12]
+     1e7: 41 89 f5                     	mov	r13d, esi
+     1ea: 41 83 e5 07                  	and	r13d, 0x7
+     1ee: 48 83 fe 08                  	cmp	rsi, 0x8
+     1f2: 73 07                        	jae	0x1fb <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x1fb>
+     1f4: 31 ed                        	xor	ebp, ebp
+     1f6: e9 bf 00 00 00               	jmp	0x2ba <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x2ba>
+     1fb: 48 83 e6 f8                  	and	rsi, -0x8
+     1ff: 4c 89 e0                     	mov	rax, r12
+     202: 48 c1 e0 05                  	shl	rax, 0x5
+     206: 48 89 44 24 10               	mov	qword ptr [rsp + 0x10], rax
+     20b: 31 ed                        	xor	ebp, ebp
+     20d: 4c 8b 34 24                  	mov	r14, qword ptr [rsp]
+     211: 48 89 74 24 08               	mov	qword ptr [rsp + 0x8], rsi
+     216: 66 2e 0f 1f 84 00 00 00 00 00	nop	word ptr cs:[rax + rax]
+     220: 4c 89 f7                     	mov	rdi, r14
+     223: 31 f6                        	xor	esi, esi
+     225: 48 89 da                     	mov	rdx, rbx
+     228: e8 00 00 00 00               	call	0x22d <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x22d>
+     22d: 4d 8d 3c 1e                  	lea	r15, [r14 + rbx]
+     231: 4c 89 ff                     	mov	rdi, r15
+     234: 31 f6                        	xor	esi, esi
+     236: 48 89 da                     	mov	rdx, rbx
+     239: e8 00 00 00 00               	call	0x23e <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x23e>
+     23e: 49 01 df                     	add	r15, rbx
+     241: 4c 89 ff                     	mov	rdi, r15
+     244: 31 f6                        	xor	esi, esi
+     246: 48 89 da                     	mov	rdx, rbx
+     249: e8 00 00 00 00               	call	0x24e <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x24e>
+     24e: 49 01 df                     	add	r15, rbx
+     251: 4c 89 ff                     	mov	rdi, r15
+     254: 31 f6                        	xor	esi, esi
+     256: 48 89 da                     	mov	rdx, rbx
+     259: e8 00 00 00 00               	call	0x25e <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x25e>
+     25e: 49 01 df                     	add	r15, rbx
+     261: 4c 89 ff                     	mov	rdi, r15
+     264: 31 f6                        	xor	esi, esi
+     266: 48 89 da                     	mov	rdx, rbx
+     269: e8 00 00 00 00               	call	0x26e <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x26e>
+     26e: 49 01 df                     	add	r15, rbx
+     271: 4c 89 ff                     	mov	rdi, r15
+     274: 31 f6                        	xor	esi, esi
+     276: 48 89 da                     	mov	rdx, rbx
+     279: e8 00 00 00 00               	call	0x27e <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x27e>
+     27e: 49 01 df                     	add	r15, rbx
+     281: 4c 89 ff                     	mov	rdi, r15
+     284: 31 f6                        	xor	esi, esi
+     286: 48 89 da                     	mov	rdx, rbx
+     289: e8 00 00 00 00               	call	0x28e <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x28e>
+     28e: 49 01 df                     	add	r15, rbx
+     291: 4c 89 ff                     	mov	rdi, r15
+     294: 31 f6                        	xor	esi, esi
+     296: 48 89 da                     	mov	rdx, rbx
+     299: e8 00 00 00 00               	call	0x29e <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x29e>
+     29e: 48 8b 74 24 08               	mov	rsi, qword ptr [rsp + 0x8]
+     2a3: 48 83 c5 08                  	add	rbp, 0x8
+     2a7: 4c 03 74 24 10               	add	r14, qword ptr [rsp + 0x10]
+     2ac: 48 39 ee                     	cmp	rsi, rbp
+     2af: 0f 85 6b ff ff ff            	jne	0x220 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x220>
+     2b5: 4d 85 ed                     	test	r13, r13
+     2b8: 74 2b                        	je	0x2e5 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x2e5>
+     2ba: 49 0f af ec                  	imul	rbp, r12
+     2be: 48 8b 04 24                  	mov	rax, qword ptr [rsp]
+     2c2: 4c 8d 34 a8                  	lea	r14, [rax + 4*rbp]
+     2c6: 66 2e 0f 1f 84 00 00 00 00 00	nop	word ptr cs:[rax + rax]
+     2d0: 4c 89 f7                     	mov	rdi, r14
+     2d3: 31 f6                        	xor	esi, esi
+     2d5: 48 89 da                     	mov	rdx, rbx
+     2d8: e8 00 00 00 00               	call	0x2dd <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x2dd>
+     2dd: 49 01 de                     	add	r14, rbx
+     2e0: 49 ff cd                     	dec	r13
+     2e3: 75 eb                        	jne	0x2d0 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x2d0>
+     2e5: 48 83 c4 38                  	add	rsp, 0x38
+     2e9: 5b                           	pop	rbx
+     2ea: 41 5c                        	pop	r12
+     2ec: 41 5d                        	pop	r13
+     2ee: 41 5e                        	pop	r14
+     2f0: 41 5f                        	pop	r15
+     2f2: 5d                           	pop	rbp
+     2f3: c3                           	ret
+     2f4: bf 10 00 00 00               	mov	edi, 0x10
+     2f9: e8 00 00 00 00               	call	0x2fe <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x2fe>
+     2fe: 48 89 c3                     	mov	rbx, rax
+     301: be 00 00 00 00               	mov	esi, 0x0
+     306: 48 89 c7                     	mov	rdi, rax
+     309: e8 00 00 00 00               	call	0x30e <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x30e>
+     30e: be 00 00 00 00               	mov	esi, 0x0
+     313: ba 00 00 00 00               	mov	edx, 0x0
+     318: 48 89 df                     	mov	rdi, rbx
+     31b: e8 00 00 00 00               	call	0x320 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x320>
+     320: 49 89 c6                     	mov	r14, rax
+     323: 48 89 df                     	mov	rdi, rbx
+     326: e8 00 00 00 00               	call	0x32b <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x32b>
+     32b: 4c 89 f7                     	mov	rdi, r14
+     32e: e8 00 00 00 00               	call	0x333 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x333>

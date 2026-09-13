@@ -1,0 +1,279 @@
+
+build/phase2-llvm-baseline/gemm_naive_O0.o:	file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)>:
+       0: 55                           	push	rbp
+       1: 48 89 e5                     	mov	rbp, rsp
+       4: 48 81 ec 90 00 00 00         	sub	rsp, 0x90
+       b: 48 89 7d f8                  	mov	qword ptr [rbp - 0x8], rdi
+       f: 48 89 75 f0                  	mov	qword ptr [rbp - 0x10], rsi
+      13: 48 89 55 e8                  	mov	qword ptr [rbp - 0x18], rdx
+      17: 48 8b 7d f8                  	mov	rdi, qword ptr [rbp - 0x8]
+      1b: e8 00 00 00 00               	call	0x20 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x20>
+      20: 48 89 45 98                  	mov	qword ptr [rbp - 0x68], rax
+      24: 48 8b 7d f0                  	mov	rdi, qword ptr [rbp - 0x10]
+      28: e8 00 00 00 00               	call	0x2d <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x2d>
+      2d: 48 89 c1                     	mov	rcx, rax
+      30: 48 8b 45 98                  	mov	rax, qword ptr [rbp - 0x68]
+      34: 48 39 c8                     	cmp	rax, rcx
+      37: 75 44                        	jne	0x7d <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x7d>
+      39: 48 8b 7d e8                  	mov	rdi, qword ptr [rbp - 0x18]
+      3d: e8 00 00 00 00               	call	0x42 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x42>
+      42: 48 89 45 90                  	mov	qword ptr [rbp - 0x70], rax
+      46: 48 8b 7d f8                  	mov	rdi, qword ptr [rbp - 0x8]
+      4a: e8 00 00 00 00               	call	0x4f <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x4f>
+      4f: 48 89 c1                     	mov	rcx, rax
+      52: 48 8b 45 90                  	mov	rax, qword ptr [rbp - 0x70]
+      56: 48 39 c8                     	cmp	rax, rcx
+      59: 75 22                        	jne	0x7d <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x7d>
+      5b: 48 8b 7d e8                  	mov	rdi, qword ptr [rbp - 0x18]
+      5f: e8 00 00 00 00               	call	0x64 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x64>
+      64: 48 89 45 88                  	mov	qword ptr [rbp - 0x78], rax
+      68: 48 8b 7d f0                  	mov	rdi, qword ptr [rbp - 0x10]
+      6c: e8 00 00 00 00               	call	0x71 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x71>
+      71: 48 89 c1                     	mov	rcx, rax
+      74: 48 8b 45 88                  	mov	rax, qword ptr [rbp - 0x78]
+      78: 48 39 c8                     	cmp	rax, rcx
+      7b: 74 57                        	je	0xd4 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0xd4>
+      7d: bf 10 00 00 00               	mov	edi, 0x10
+      82: e8 00 00 00 00               	call	0x87 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x87>
+      87: 48 89 c7                     	mov	rdi, rax
+      8a: 48 89 f8                     	mov	rax, rdi
+      8d: 48 89 45 80                  	mov	qword ptr [rbp - 0x80], rax
+      91: be 00 00 00 00               	mov	esi, 0x0
+      96: e8 00 00 00 00               	call	0x9b <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x9b>
+      9b: eb 00                        	jmp	0x9d <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x9d>
+      9d: 48 8b 7d 80                  	mov	rdi, qword ptr [rbp - 0x80]
+      a1: 48 be 00 00 00 00 00 00 00 00	movabs	rsi, 0x0
+      ab: 48 ba 00 00 00 00 00 00 00 00	movabs	rdx, 0x0
+      b5: e8 00 00 00 00               	call	0xba <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0xba>
+      ba: 48 8b 7d 80                  	mov	rdi, qword ptr [rbp - 0x80]
+      be: 48 89 c1                     	mov	rcx, rax
+      c1: 89 d0                        	mov	eax, edx
+      c3: 48 89 4d e0                  	mov	qword ptr [rbp - 0x20], rcx
+      c7: 89 45 dc                     	mov	dword ptr [rbp - 0x24], eax
+      ca: e8 00 00 00 00               	call	0xcf <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0xcf>
+      cf: e9 1e 01 00 00               	jmp	0x1f2 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x1f2>
+      d4: 48 8b 7d f8                  	mov	rdi, qword ptr [rbp - 0x8]
+      d8: e8 00 00 00 00               	call	0xdd <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0xdd>
+      dd: 48 89 45 d0                  	mov	qword ptr [rbp - 0x30], rax
+      e1: 48 8b 7d f0                  	mov	rdi, qword ptr [rbp - 0x10]
+      e5: e8 00 00 00 00               	call	0xea <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0xea>
+      ea: 48 89 45 c8                  	mov	qword ptr [rbp - 0x38], rax
+      ee: 48 8b 7d f8                  	mov	rdi, qword ptr [rbp - 0x8]
+      f2: e8 00 00 00 00               	call	0xf7 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0xf7>
+      f7: 48 89 45 c0                  	mov	qword ptr [rbp - 0x40], rax
+      fb: 48 c7 45 b8 00 00 00 00      	mov	qword ptr [rbp - 0x48], 0x0
+     103: 48 8b 45 b8                  	mov	rax, qword ptr [rbp - 0x48]
+     107: 48 3b 45 d0                  	cmp	rax, qword ptr [rbp - 0x30]
+     10b: 0f 83 d8 00 00 00            	jae	0x1e9 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x1e9>
+     111: 48 c7 45 b0 00 00 00 00      	mov	qword ptr [rbp - 0x50], 0x0
+     119: 48 8b 45 b0                  	mov	rax, qword ptr [rbp - 0x50]
+     11d: 48 3b 45 c8                  	cmp	rax, qword ptr [rbp - 0x38]
+     121: 0f 83 af 00 00 00            	jae	0x1d6 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x1d6>
+     127: 0f 57 c0                     	xorps	xmm0, xmm0
+     12a: f3 0f 11 45 ac               	movss	dword ptr [rbp - 0x54], xmm0
+     12f: 48 c7 45 a0 00 00 00 00      	mov	qword ptr [rbp - 0x60], 0x0
+     137: 48 8b 45 a0                  	mov	rax, qword ptr [rbp - 0x60]
+     13b: 48 3b 45 c0                  	cmp	rax, qword ptr [rbp - 0x40]
+     13f: 73 5a                        	jae	0x19b <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x19b>
+     141: 48 8b 7d f8                  	mov	rdi, qword ptr [rbp - 0x8]
+     145: 48 8b 75 b8                  	mov	rsi, qword ptr [rbp - 0x48]
+     149: 48 8b 55 a0                  	mov	rdx, qword ptr [rbp - 0x60]
+     14d: e8 00 00 00 00               	call	0x152 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x152>
+     152: f3 0f 10 00                  	movss	xmm0, dword ptr [rax]
+     156: f3 0f 11 85 7c ff ff ff      	movss	dword ptr [rbp - 0x84], xmm0
+     15e: 48 8b 7d f0                  	mov	rdi, qword ptr [rbp - 0x10]
+     162: 48 8b 75 a0                  	mov	rsi, qword ptr [rbp - 0x60]
+     166: 48 8b 55 b0                  	mov	rdx, qword ptr [rbp - 0x50]
+     16a: e8 00 00 00 00               	call	0x16f <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x16f>
+     16f: f3 0f 10 85 7c ff ff ff      	movss	xmm0, dword ptr [rbp - 0x84]
+     177: f3 0f 10 10                  	movss	xmm2, dword ptr [rax]
+     17b: f3 0f 10 4d ac               	movss	xmm1, dword ptr [rbp - 0x54]
+     180: f3 0f 59 c2                  	mulss	xmm0, xmm2
+     184: f3 0f 58 c1                  	addss	xmm0, xmm1
+     188: f3 0f 11 45 ac               	movss	dword ptr [rbp - 0x54], xmm0
+     18d: 48 8b 45 a0                  	mov	rax, qword ptr [rbp - 0x60]
+     191: 48 83 c0 01                  	add	rax, 0x1
+     195: 48 89 45 a0                  	mov	qword ptr [rbp - 0x60], rax
+     199: eb 9c                        	jmp	0x137 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x137>
+     19b: f3 0f 10 45 ac               	movss	xmm0, dword ptr [rbp - 0x54]
+     1a0: f3 0f 11 85 78 ff ff ff      	movss	dword ptr [rbp - 0x88], xmm0
+     1a8: 48 8b 7d e8                  	mov	rdi, qword ptr [rbp - 0x18]
+     1ac: 48 8b 75 b8                  	mov	rsi, qword ptr [rbp - 0x48]
+     1b0: 48 8b 55 b0                  	mov	rdx, qword ptr [rbp - 0x50]
+     1b4: e8 00 00 00 00               	call	0x1b9 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x1b9>
+     1b9: f3 0f 10 85 78 ff ff ff      	movss	xmm0, dword ptr [rbp - 0x88]
+     1c1: f3 0f 11 00                  	movss	dword ptr [rax], xmm0
+     1c5: 48 8b 45 b0                  	mov	rax, qword ptr [rbp - 0x50]
+     1c9: 48 83 c0 01                  	add	rax, 0x1
+     1cd: 48 89 45 b0                  	mov	qword ptr [rbp - 0x50], rax
+     1d1: e9 43 ff ff ff               	jmp	0x119 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x119>
+     1d6: eb 00                        	jmp	0x1d8 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x1d8>
+     1d8: 48 8b 45 b8                  	mov	rax, qword ptr [rbp - 0x48]
+     1dc: 48 83 c0 01                  	add	rax, 0x1
+     1e0: 48 89 45 b8                  	mov	qword ptr [rbp - 0x48], rax
+     1e4: e9 1a ff ff ff               	jmp	0x103 <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x103>
+     1e9: 48 81 c4 90 00 00 00         	add	rsp, 0x90
+     1f0: 5d                           	pop	rbp
+     1f1: c3                           	ret
+     1f2: 48 8b 7d e0                  	mov	rdi, qword ptr [rbp - 0x20]
+     1f6: e8 00 00 00 00               	call	0x1fb <gemm::gemm_naive(gemm::Matrix const&, gemm::Matrix const&, gemm::Matrix&)+0x1fb>
+
+Disassembly of section .text._ZNK4gemm6Matrix4colsEv:
+
+0000000000000000 <gemm::Matrix::cols() const>:
+       0: 55                           	push	rbp
+       1: 48 89 e5                     	mov	rbp, rsp
+       4: 48 89 7d f8                  	mov	qword ptr [rbp - 0x8], rdi
+       8: 48 8b 45 f8                  	mov	rax, qword ptr [rbp - 0x8]
+       c: 48 8b 40 08                  	mov	rax, qword ptr [rax + 0x8]
+      10: 5d                           	pop	rbp
+      11: c3                           	ret
+
+Disassembly of section .text._ZNK4gemm6Matrix4rowsEv:
+
+0000000000000000 <gemm::Matrix::rows() const>:
+       0: 55                           	push	rbp
+       1: 48 89 e5                     	mov	rbp, rsp
+       4: 48 89 7d f8                  	mov	qword ptr [rbp - 0x8], rdi
+       8: 48 8b 45 f8                  	mov	rax, qword ptr [rbp - 0x8]
+       c: 48 8b 00                     	mov	rax, qword ptr [rax]
+       f: 5d                           	pop	rbp
+      10: c3                           	ret
+
+Disassembly of section .text._ZNK4gemm6MatrixclEmm:
+
+0000000000000000 <gemm::Matrix::operator()(unsigned long, unsigned long) const>:
+       0: 55                           	push	rbp
+       1: 48 89 e5                     	mov	rbp, rsp
+       4: 48 83 ec 20                  	sub	rsp, 0x20
+       8: 48 89 7d f8                  	mov	qword ptr [rbp - 0x8], rdi
+       c: 48 89 75 f0                  	mov	qword ptr [rbp - 0x10], rsi
+      10: 48 89 55 e8                  	mov	qword ptr [rbp - 0x18], rdx
+      14: 48 8b 45 f8                  	mov	rax, qword ptr [rbp - 0x8]
+      18: 48 89 c7                     	mov	rdi, rax
+      1b: 48 83 c7 10                  	add	rdi, 0x10
+      1f: 48 8b 75 f0                  	mov	rsi, qword ptr [rbp - 0x10]
+      23: 48 0f af 70 08               	imul	rsi, qword ptr [rax + 0x8]
+      28: 48 03 75 e8                  	add	rsi, qword ptr [rbp - 0x18]
+      2c: e8 00 00 00 00               	call	0x31 <gemm::Matrix::operator()(unsigned long, unsigned long) const+0x31>
+      31: 48 83 c4 20                  	add	rsp, 0x20
+      35: 5d                           	pop	rbp
+      36: c3                           	ret
+
+Disassembly of section .text._ZN4gemm6MatrixclEmm:
+
+0000000000000000 <gemm::Matrix::operator()(unsigned long, unsigned long)>:
+       0: 55                           	push	rbp
+       1: 48 89 e5                     	mov	rbp, rsp
+       4: 48 83 ec 20                  	sub	rsp, 0x20
+       8: 48 89 7d f8                  	mov	qword ptr [rbp - 0x8], rdi
+       c: 48 89 75 f0                  	mov	qword ptr [rbp - 0x10], rsi
+      10: 48 89 55 e8                  	mov	qword ptr [rbp - 0x18], rdx
+      14: 48 8b 45 f8                  	mov	rax, qword ptr [rbp - 0x8]
+      18: 48 89 c7                     	mov	rdi, rax
+      1b: 48 83 c7 10                  	add	rdi, 0x10
+      1f: 48 8b 75 f0                  	mov	rsi, qword ptr [rbp - 0x10]
+      23: 48 0f af 70 08               	imul	rsi, qword ptr [rax + 0x8]
+      28: 48 03 75 e8                  	add	rsi, qword ptr [rbp - 0x18]
+      2c: e8 00 00 00 00               	call	0x31 <gemm::Matrix::operator()(unsigned long, unsigned long)+0x31>
+      31: 48 83 c4 20                  	add	rsp, 0x20
+      35: 5d                           	pop	rbp
+      36: c3                           	ret
+
+Disassembly of section .text._ZNKSt6vectorIfSaIfEEixEm:
+
+0000000000000000 <std::vector<float, std::allocator<float>>::operator[](unsigned long) const>:
+       0: 55                           	push	rbp
+       1: 48 89 e5                     	mov	rbp, rsp
+       4: 48 83 ec 20                  	sub	rsp, 0x20
+       8: 48 89 7d f8                  	mov	qword ptr [rbp - 0x8], rdi
+       c: 48 89 75 f0                  	mov	qword ptr [rbp - 0x10], rsi
+      10: 48 8b 45 f8                  	mov	rax, qword ptr [rbp - 0x8]
+      14: 48 89 45 e8                  	mov	qword ptr [rbp - 0x18], rax
+      18: 48 8b 7d e8                  	mov	rdi, qword ptr [rbp - 0x18]
+      1c: 48 8b 45 f0                  	mov	rax, qword ptr [rbp - 0x10]
+      20: 48 89 45 e0                  	mov	qword ptr [rbp - 0x20], rax
+      24: e8 00 00 00 00               	call	0x29 <std::vector<float, std::allocator<float>>::operator[](unsigned long) const+0x29>
+      29: 48 89 c1                     	mov	rcx, rax
+      2c: 48 8b 45 e0                  	mov	rax, qword ptr [rbp - 0x20]
+      30: 48 39 c8                     	cmp	rax, rcx
+      33: 0f 92 c0                     	setb	al
+      36: 34 ff                        	xor	al, -0x1
+      38: a8 01                        	test	al, 0x1
+      3a: 75 02                        	jne	0x3e <std::vector<float, std::allocator<float>>::operator[](unsigned long) const+0x3e>
+      3c: eb 28                        	jmp	0x66 <std::vector<float, std::allocator<float>>::operator[](unsigned long) const+0x66>
+      3e: 48 bf 00 00 00 00 00 00 00 00	movabs	rdi, 0x0
+      48: be f8 04 00 00               	mov	esi, 0x4f8
+      4d: 48 ba 00 00 00 00 00 00 00 00	movabs	rdx, 0x0
+      57: 48 b9 00 00 00 00 00 00 00 00	movabs	rcx, 0x0
+      61: e8 00 00 00 00               	call	0x66 <std::vector<float, std::allocator<float>>::operator[](unsigned long) const+0x66>
+      66: eb 00                        	jmp	0x68 <std::vector<float, std::allocator<float>>::operator[](unsigned long) const+0x68>
+      68: eb 00                        	jmp	0x6a <std::vector<float, std::allocator<float>>::operator[](unsigned long) const+0x6a>
+      6a: 48 8b 45 e8                  	mov	rax, qword ptr [rbp - 0x18]
+      6e: 48 8b 00                     	mov	rax, qword ptr [rax]
+      71: 48 8b 4d f0                  	mov	rcx, qword ptr [rbp - 0x10]
+      75: 48 c1 e1 02                  	shl	rcx, 0x2
+      79: 48 01 c8                     	add	rax, rcx
+      7c: 48 83 c4 20                  	add	rsp, 0x20
+      80: 5d                           	pop	rbp
+      81: c3                           	ret
+
+Disassembly of section .text._ZNKSt6vectorIfSaIfEE4sizeEv:
+
+0000000000000000 <std::vector<float, std::allocator<float>>::size() const>:
+       0: 55                           	push	rbp
+       1: 48 89 e5                     	mov	rbp, rsp
+       4: 48 89 7d f8                  	mov	qword ptr [rbp - 0x8], rdi
+       8: 48 8b 4d f8                  	mov	rcx, qword ptr [rbp - 0x8]
+       c: 48 8b 41 08                  	mov	rax, qword ptr [rcx + 0x8]
+      10: 48 8b 09                     	mov	rcx, qword ptr [rcx]
+      13: 48 29 c8                     	sub	rax, rcx
+      16: 48 c1 f8 02                  	sar	rax, 0x2
+      1a: 48 89 45 f0                  	mov	qword ptr [rbp - 0x10], rax
+      1e: 48 83 7d f0 00               	cmp	qword ptr [rbp - 0x10], 0x0
+      23: 7d 00                        	jge	0x25 <std::vector<float, std::allocator<float>>::size() const+0x25>
+      25: 48 8b 45 f0                  	mov	rax, qword ptr [rbp - 0x10]
+      29: 5d                           	pop	rbp
+      2a: c3                           	ret
+
+Disassembly of section .text._ZNSt6vectorIfSaIfEEixEm:
+
+0000000000000000 <std::vector<float, std::allocator<float>>::operator[](unsigned long)>:
+       0: 55                           	push	rbp
+       1: 48 89 e5                     	mov	rbp, rsp
+       4: 48 83 ec 20                  	sub	rsp, 0x20
+       8: 48 89 7d f8                  	mov	qword ptr [rbp - 0x8], rdi
+       c: 48 89 75 f0                  	mov	qword ptr [rbp - 0x10], rsi
+      10: 48 8b 45 f8                  	mov	rax, qword ptr [rbp - 0x8]
+      14: 48 89 45 e8                  	mov	qword ptr [rbp - 0x18], rax
+      18: 48 8b 7d e8                  	mov	rdi, qword ptr [rbp - 0x18]
+      1c: 48 8b 45 f0                  	mov	rax, qword ptr [rbp - 0x10]
+      20: 48 89 45 e0                  	mov	qword ptr [rbp - 0x20], rax
+      24: e8 00 00 00 00               	call	0x29 <std::vector<float, std::allocator<float>>::operator[](unsigned long)+0x29>
+      29: 48 89 c1                     	mov	rcx, rax
+      2c: 48 8b 45 e0                  	mov	rax, qword ptr [rbp - 0x20]
+      30: 48 39 c8                     	cmp	rax, rcx
+      33: 0f 92 c0                     	setb	al
+      36: 34 ff                        	xor	al, -0x1
+      38: a8 01                        	test	al, 0x1
+      3a: 75 02                        	jne	0x3e <std::vector<float, std::allocator<float>>::operator[](unsigned long)+0x3e>
+      3c: eb 28                        	jmp	0x66 <std::vector<float, std::allocator<float>>::operator[](unsigned long)+0x66>
+      3e: 48 bf 00 00 00 00 00 00 00 00	movabs	rdi, 0x0
+      48: be e5 04 00 00               	mov	esi, 0x4e5
+      4d: 48 ba 00 00 00 00 00 00 00 00	movabs	rdx, 0x0
+      57: 48 b9 00 00 00 00 00 00 00 00	movabs	rcx, 0x0
+      61: e8 00 00 00 00               	call	0x66 <std::vector<float, std::allocator<float>>::operator[](unsigned long)+0x66>
+      66: eb 00                        	jmp	0x68 <std::vector<float, std::allocator<float>>::operator[](unsigned long)+0x68>
+      68: eb 00                        	jmp	0x6a <std::vector<float, std::allocator<float>>::operator[](unsigned long)+0x6a>
+      6a: 48 8b 45 e8                  	mov	rax, qword ptr [rbp - 0x18]
+      6e: 48 8b 00                     	mov	rax, qword ptr [rax]
+      71: 48 8b 4d f0                  	mov	rcx, qword ptr [rbp - 0x10]
+      75: 48 c1 e1 02                  	shl	rcx, 0x2
+      79: 48 01 c8                     	add	rax, rcx
+      7c: 48 83 c4 20                  	add	rsp, 0x20
+      80: 5d                           	pop	rbp
+      81: c3                           	ret

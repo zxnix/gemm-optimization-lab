@@ -1,0 +1,6 @@
+source=src/kernels/gemm_naive.cpp
+ir_command=clang++ -std=c++17 -Iinclude -DNDEBUG -fno-discard-value-names -g0 -O3 -S -emit-llvm src/kernels/gemm_naive.cpp
+verify_command=opt -passes=verify -disable-output artifacts/phase2/llvm-baseline/naive/O3/llvm-ir.ll
+assembly_command=llc -O3 --x86-asm-syntax=intel artifacts/phase2/llvm-baseline/naive/O3/llvm-ir.ll
+object_command=clang++ -std=c++17 -Iinclude -DNDEBUG -g0 -O3 -c src/kernels/gemm_naive.cpp
+disassembly_command=llvm-objdump --demangle --disassemble --x86-asm-syntax=intel build/phase2-llvm-baseline/gemm_naive_O3.o

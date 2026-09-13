@@ -1,0 +1,10 @@
+ir_lines=397
+alloca=26
+load=58
+store=31
+phi=0
+getelementptr=16
+fmul=0
+fadd=0
+fmuladd=1
+vector_float=0
