@@ -30,7 +30,7 @@ revision。
 | Phase 1.8.2 | 拆分 benchmark 组件 | 完成 |
 | Phase 1.8.3 | 重命名核心 CMake target | 完成 |
 | Phase 1.8.4 | 分离 portable 与 AVX2 源文件 | 完成 |
-| Phase 1.8.5 | 测试、格式与回归整理 | 待开始 |
+| Phase 1.8.5 | 测试、格式与回归整理 | 完成 |
 | Phase 1.8.6 | 最终检查并建立 phase1-complete tag | 待开始 |
 
 ## Phase 1.8.1：Kernel Registry
@@ -193,7 +193,40 @@ AVX2 函数的代码生成，但源文件边界仍无法直接表达哪些代码
 - `nm` 确认三个公共入口和内部 row-range 由预期对象定义；
 - Release、Address/Undefined Sanitizer 和 Thread Sanitizer 测试通过。
 
+## Phase 1.8.5：Automated Regression Guards
+
+### 问题
+
+Phase 1.8.1–1.8.4 的兼容性主要通过人工执行命令确认。虽然已有 correctness、
+registry 和 options tests，但 statistics、控制台格式、CSV schema、真实 benchmark
+入口和 ISA translation-unit 边界尚未形成持续回归保护。
+
+### 方案
+
+CTest 从三项扩展为六项：
+
+| Test | 保护内容 |
+|---|---|
+| `gemm_correctness` | 所有 kernel 的数值结果、边界和异常 |
+| `gemm_kernel_registry` | KernelKind、metadata 与 dispatch |
+| `gemm_benchmark_options` | CLI 默认值、解析与参数冲突 |
+| `gemm_benchmark_components` | median、GFLOP/s、控制台和 22 列 CSV |
+| `gemm_benchmark_smoke` | 真实 micro benchmark 的 packing、运行和验证 |
+| `gemm_isa_boundaries` | 对象文件中的 ISA、全局 flags 与 symbol 所属关系 |
+
+ISA 检查在非 x86 平台返回 CTest skip code 77；在当前 x86-64 环境中要求 portable
+和 parallel scheduler 对象不包含 AVX-family 指令，同时要求专用 AVX2 对象包含
+YMM 和 FMA。
+
+`.editorconfig` 记录 LF、末尾换行、空格缩进和 C++ 100 列规则。
+`check_style.sh` 使用 Git、AWK 和 Bash 检查尾随空白、Tab、行宽、文件末尾换行
+与所有 Shell 脚本语法。历史 `artifacts/` 和 `results/` 被明确排除，避免格式
+整理改写实验数据。
+
+GitHub Actions 在 Release job 中运行一次 source hygiene check，随后三种 preset
+都通过 CTest 执行六项回归检查。本阶段没有修改 kernel 或 benchmark 生产代码。
+
 ## 下一步
 
-Phase 1.8.5 将集中处理测试覆盖、源码格式和回归脚本，使 Phase 1.8 的结构不变量
-可以由自动化检查，而不只依赖人工审计。
+Phase 1.8.6 将执行 Phase 1 最终审计：核对文档、测试、源码树、历史结果与 Git
+状态，生成最终阶段总结，并仅在全部检查通过后创建 `phase1-complete` annotated tag。

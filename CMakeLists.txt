@@ -104,4 +104,44 @@ if(BUILD_TESTING)
     )
     add_test(
         NAME gemm_benchmark_options COMMAND gemm_benchmark_options_tests)
+
+    add_executable(
+        gemm_benchmark_component_tests
+        tests/test_benchmark_components.cpp
+    )
+    target_link_libraries(
+        gemm_benchmark_component_tests PRIVATE gemm_benchmark_support)
+    target_compile_options(gemm_benchmark_component_tests PRIVATE
+        $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic>
+    )
+    add_test(
+        NAME gemm_benchmark_components
+        COMMAND gemm_benchmark_component_tests
+                ${CMAKE_CURRENT_BINARY_DIR}/benchmark-components.csv
+    )
+
+    add_test(
+        NAME gemm_benchmark_smoke
+        COMMAND gemm_benchmark
+                --kernel micro
+                --block-size 8
+                --sizes 17
+                --repeats 1
+    )
+    set_tests_properties(gemm_benchmark_smoke PROPERTIES
+        PASS_REGULAR_EXPRESSION "verify: PASS"
+    )
+
+    if(UNIX AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        add_test(
+            NAME gemm_isa_boundaries
+            COMMAND bash
+                    ${PROJECT_SOURCE_DIR}/scripts/check_isa_boundaries.sh
+                    ${PROJECT_SOURCE_DIR}
+                    ${CMAKE_CURRENT_BINARY_DIR}
+        )
+        set_tests_properties(gemm_isa_boundaries PROPERTIES
+            SKIP_RETURN_CODE 77
+        )
+    endif()
 endif()

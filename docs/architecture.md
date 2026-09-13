@@ -72,6 +72,19 @@ gemm_benchmark
 `gemm_baseline` 这一旧名称，因为该 target 早已不只包含 naive baseline；
 同时它也不命名为 `gemm_kernels`，因为 verification 同样属于该构建单元。
 
+## 自动化保护
+
+- `gemm_correctness`：所有计算 kernel、边界形状与错误处理；
+- `gemm_kernel_registry`：CLI 名称、descriptor 和执行分派；
+- `gemm_benchmark_options`：参数默认值、组合与错误信息；
+- `gemm_benchmark_components`：统计公式、控制台格式和 22 列 CSV schema；
+- `gemm_benchmark_smoke`：通过真实可执行文件运行 packing、计算与验证；
+- `gemm_isa_boundaries`：审计 portable、AVX2 和 parallel scheduler 对象。
+
+`.editorconfig` 定义 LF、末尾换行、空格缩进和 C++ 100 列规则；
+`scripts/check_style.sh` 在 CI 中检查全部源码和文档，但有意排除不可变的历史
+`artifacts/` 与 `results/`。
+
 `PackedB` 不改变 B 的逻辑 K×N 形状，而是把数据保存为
 `[k_tile][n_tile][k_inner][n_inner]`，边界 tile 补零。packing API 与计算 API
 分离，因此调用者可以只使用一次 packed B，也可以像神经网络权重一样重复使用。
