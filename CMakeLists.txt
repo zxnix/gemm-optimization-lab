@@ -50,19 +50,33 @@ target_compile_options(gemm_baseline PRIVATE
     $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic>
 )
 
-add_executable(gemm_benchmark
-    src/benchmark/benchmark.cpp
+add_library(gemm_benchmark_support
+    src/benchmark/benchmark_options.cpp
+    src/benchmark/benchmark_output.cpp
+    src/benchmark/benchmark_runner.cpp
+    src/benchmark/benchmark_statistics.cpp
     src/benchmark/kernel_registry.cpp
 )
-target_link_libraries(gemm_benchmark PRIVATE gemm_baseline)
-target_compile_options(gemm_benchmark PRIVATE
+target_include_directories(gemm_benchmark_support PUBLIC
+    ${PROJECT_SOURCE_DIR}/src/benchmark
+)
+target_link_libraries(gemm_benchmark_support PUBLIC gemm_baseline)
+target_compile_options(gemm_benchmark_support PRIVATE
     $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic;-Wswitch-enum>
 )
-target_compile_definitions(gemm_benchmark PRIVATE
+target_compile_definitions(gemm_benchmark_support PRIVATE
     GEMM_BUILD_TYPE="${CMAKE_BUILD_TYPE}"
     GEMM_COMPILER_ID="${CMAKE_CXX_COMPILER_ID}"
     GEMM_COMPILER_VERSION="${CMAKE_CXX_COMPILER_VERSION}"
     GEMM_OPT_LEVEL="${GEMM_OPT_LEVEL}"
+)
+
+add_executable(gemm_benchmark
+    src/benchmark/benchmark_main.cpp
+)
+target_link_libraries(gemm_benchmark PRIVATE gemm_benchmark_support)
+target_compile_options(gemm_benchmark PRIVATE
+    $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic>
 )
 
 include(CTest)
@@ -71,16 +85,21 @@ if(BUILD_TESTING)
     target_link_libraries(gemm_tests PRIVATE gemm_baseline)
     add_test(NAME gemm_correctness COMMAND gemm_tests)
 
-    add_executable(gemm_kernel_registry_tests
-        tests/test_kernel_registry.cpp
-        src/benchmark/kernel_registry.cpp
-    )
-    target_include_directories(gemm_kernel_registry_tests PRIVATE
-        ${PROJECT_SOURCE_DIR}/src/benchmark
-    )
-    target_link_libraries(gemm_kernel_registry_tests PRIVATE gemm_baseline)
+    add_executable(gemm_kernel_registry_tests tests/test_kernel_registry.cpp)
+    target_link_libraries(
+        gemm_kernel_registry_tests PRIVATE gemm_benchmark_support)
     target_compile_options(gemm_kernel_registry_tests PRIVATE
         $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic;-Wswitch-enum>
     )
     add_test(NAME gemm_kernel_registry COMMAND gemm_kernel_registry_tests)
+
+    add_executable(
+        gemm_benchmark_options_tests tests/test_benchmark_options.cpp)
+    target_link_libraries(
+        gemm_benchmark_options_tests PRIVATE gemm_benchmark_support)
+    target_compile_options(gemm_benchmark_options_tests PRIVATE
+        $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra;-Wpedantic>
+    )
+    add_test(
+        NAME gemm_benchmark_options COMMAND gemm_benchmark_options_tests)
 endif()

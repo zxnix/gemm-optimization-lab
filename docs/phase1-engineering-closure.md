@@ -27,7 +27,7 @@ revision。
 | 子阶段 | 内容 | 状态 |
 |---|---|---|
 | Phase 1.8.1 | 集中管理 KernelKind、metadata 与执行分派 | 完成 |
-| Phase 1.8.2 | 拆分 benchmark 组件 | 待开始 |
+| Phase 1.8.2 | 拆分 benchmark 组件 | 完成 |
 | Phase 1.8.3 | 重命名核心 CMake target | 待开始 |
 | Phase 1.8.4 | 分离 portable 与 AVX2 源文件 | 待开始 |
 | Phase 1.8.5 | 测试、格式与回归整理 | 待开始 |
@@ -93,8 +93,40 @@ CLI 和实验元数据，不是 GEMM 计算库的公共 API。
 
 本阶段没有修改 src/kernels/，因此不重新运行或覆盖 Phase 1 performance results。
 
+## Phase 1.8.2：Benchmark Components
+
+### 问题
+
+此前 `benchmark.cpp` 同时定义 CLI 数据结构、参数解析、统计公式、实验执行、
+控制台格式、CSV schema 和 `main()`。这些职责共享匿名 namespace，导致参数规则和
+输出格式难以单独测试，后续加入 profiler 或新结果格式时也必须修改同一个大文件。
+
+### 方案
+
+本阶段建立六类内部组件：
+
+- `benchmark_types`：共享配置与结果；
+- `benchmark_options`：CLI 解析和约束；
+- `benchmark_statistics`：median 与 GFLOP/s；
+- `benchmark_runner`：warm-up、计时、packing 和 verification；
+- `benchmark_output`：控制台与 CSV；
+- `benchmark_main`：顶层组合。
+
+这些文件编译为内部 `gemm_benchmark_support` target，`gemm_benchmark` 可执行文件
+只包含入口。该 target 不安装、不导出，也不改变 `include/gemm/` 中的公共接口。
+
+### 协议保持
+
+拆分没有把多次 kernel 调用合并成一个连续测量循环。每次测量结束后仍立即输出结果，
+下一次测量才开始，因此 warm-up 次数、输出间隔、计时边界和验证位置与 Phase 1.8.1
+一致。CSV 字段顺序和 CLI 文本也保持不变。
+
+新增 `test_benchmark_options.cpp`，覆盖默认值、方阵列表、一般 M/N/K、help 文本、
+kernel/thread 约束以及 verification/CSV 冲突。兼容性回归使用 Phase 1.8.1 可执行文件
+逐项比较七种 kernel 的配置与验证摘要、错误文本和 CSV header。
+
 ## 下一步
 
-Phase 1.8.2 将按 options、registry、runner、CSV 和 main 的职责拆分
-src/benchmark/benchmark.cpp。拆分仍使用本阶段的 KernelKind，并继续保持以上
-兼容性不变量。
+Phase 1.8.3 将把仍带有历史阶段含义的 `gemm_baseline` CMake target 重命名为
+更符合当前职责的核心 kernel target。只调整构建图中的工程名称，不修改公共 API、
+kernel 源码或 benchmark 协议。

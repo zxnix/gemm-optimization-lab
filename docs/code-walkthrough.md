@@ -56,3 +56,20 @@ benchmark 在 CLI 边界通过 `parse_kernel_kind()` 把名称转换为强类型
 `KernelDescriptor` 集中保存 loop order、ISA、microkernel、packing、block size 与线程
 能力，控制台和 CSV 都读取同一份 metadata；`execute_kernel()` 使用显式 `switch`
 调用对应的 Phase 1 kernel。
+
+## Benchmark 组件
+
+`benchmark_main.cpp` 只保留顶层控制流：解析参数、打印实验配置、依次运行 shape、
+按需写 CSV，并根据所有验证结果返回成功或失败。其余职责拆分如下：
+
+- `benchmark_options` 把 CLI token 转换成 `Options`，并验证 sizes 与 M/N/K、
+  kernel 与 threads、skip-verification 与 CSV 之间的约束；
+- `benchmark_runner` 分配并初始化矩阵，准备 PackedB，执行一次 warm-up，再测量
+  指定次数的 kernel，最后在计时外调用 FP64 verification；
+- `benchmark_statistics` 集中实现 median 和 `2MNK / time`；
+- `benchmark_output` 统一控制台格式与 CSV schema；
+- `benchmark_types` 是这些组件之间传递配置和结果的数据契约。
+
+`ConsoleReporter` 仍在每次 kernel 测量之后立即输出该次结果。这一选择保留了
+Phase 1.1–1.7 的运行节奏；如果先连续测量七次、最后统一输出，虽然计时边界仍然正确，
+却可能因为 CPU frequency、cache 状态和调度间隔不同而形成新的 benchmark 协议。
