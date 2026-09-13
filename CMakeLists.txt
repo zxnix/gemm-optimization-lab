@@ -42,6 +42,8 @@ add_library(gemm_core
     src/kernels/gemm_blocked.cpp
     src/kernels/gemm_packed.cpp
     src/kernels/gemm_microkernel.cpp
+    src/kernels/gemm_avx2.cpp
+    src/kernels/gemm_avx2_parallel.cpp
     src/verification/verification.cpp
 )
 target_include_directories(gemm_core PUBLIC ${PROJECT_SOURCE_DIR}/include)

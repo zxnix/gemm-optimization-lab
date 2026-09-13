@@ -29,7 +29,7 @@ revision。
 | Phase 1.8.1 | 集中管理 KernelKind、metadata 与执行分派 | 完成 |
 | Phase 1.8.2 | 拆分 benchmark 组件 | 完成 |
 | Phase 1.8.3 | 重命名核心 CMake target | 完成 |
-| Phase 1.8.4 | 分离 portable 与 AVX2 源文件 | 待开始 |
+| Phase 1.8.4 | 分离 portable 与 AVX2 源文件 | 完成 |
 | Phase 1.8.5 | 测试、格式与回归整理 | 待开始 |
 | Phase 1.8.6 | 最终检查并建立 phase1-complete tag | 待开始 |
 
@@ -158,8 +158,42 @@ gemm_core → gemm_benchmark_support → gemm_benchmark
 - Phase 1.8.2 与 Phase 1.8.3 的 benchmark 输出兼容；
 - kernels、公共头文件、脚本与历史结果没有修改。
 
+## Phase 1.8.4：ISA Translation-Unit Boundaries
+
+### 问题
+
+`gemm_microkernel.cpp` 同时包含 portable microkernel、AVX2/FMA intrinsic、
+运行时 capability check 和 `std::thread` 调度。虽然 target attribute 已限制
+AVX2 函数的代码生成，但源文件边界仍无法直接表达哪些代码必须保持 generic ISA。
+
+### 方案
+
+按执行职责拆分为：
+
+- `gemm_microkernel.cpp`：portable 4×8 调度；
+- `gemm_avx2.cpp`：AVX2/FMA microtile、row-range 和单线程入口；
+- `gemm_avx2_parallel.cpp`：M 维静态分区与 worker 生命周期；
+- `microkernel_common.hpp`：私有的 shape validation、4×8 常量与边界路径；
+- `gemm_avx2_internal.hpp`：私有 row-range 声明。
+
+`immintrin.h` 现在只由 `gemm_avx2.cpp` 包含。多线程对象不执行 SIMD lowering，
+只调用带 target attribute 的 row-range symbol。公共 `include/gemm/gemm.hpp`
+及所有函数签名保持不变。
+
+`generate_codegen_reports.sh` 同步加入 avx2 和 avx2-parallel 输入，以便重新生成
+报告时分别观察 portable、ISA-specific 与调度 translation unit；现有
+`artifacts/phase1/` 和 `results/phase1/` 没有覆盖。
+
+### 验证
+
+- 17×17 非整块矩阵覆盖 M/N/K 边界，七种 benchmark kernel 均通过验证；
+- portable 与 parallel scheduler 对象不包含 YMM、ZMM、`vfmadd` 或 AVX move；
+- AVX2 对象包含 YMM 与 `vfmadd`；
+- compile commands 不包含全局 `-march`、`-mavx2` 或 `-mfma`；
+- `nm` 确认三个公共入口和内部 row-range 由预期对象定义；
+- Release、Address/Undefined Sanitizer 和 Thread Sanitizer 测试通过。
+
 ## 下一步
 
-Phase 1.8.4 将把当前混合在 `gemm_microkernel.cpp` 中的 portable microkernel、
-AVX2/FMA kernel 和多线程调度按实现边界拆分。公共 API 与算法循环保持不变，并通过
-对象级代码生成检查确认专用 ISA 没有扩散到 generic translation unit。
+Phase 1.8.5 将集中处理测试覆盖、源码格式和回归脚本，使 Phase 1.8 的结构不变量
+可以由自动化检查，而不只依赖人工审计。

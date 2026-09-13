@@ -23,7 +23,9 @@ for entry in \
     "ikj:src/kernels/gemm_ikj.cpp" \
     "blocked:src/kernels/gemm_blocked.cpp" \
     "packed:src/kernels/gemm_packed.cpp" \
-    "microkernel:src/kernels/gemm_microkernel.cpp"; do
+    "microkernel:src/kernels/gemm_microkernel.cpp" \
+    "avx2:src/kernels/gemm_avx2.cpp" \
+    "avx2-parallel:src/kernels/gemm_avx2_parallel.cpp"; do
     kernel=${entry%%:*}
     source=${entry#*:}
     kernel_dir="$artifact_root/$kernel"

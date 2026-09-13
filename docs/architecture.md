@@ -24,8 +24,15 @@ Matrix（逻辑 row-major 数据）
 - `src/kernels/gemm_ikj.cpp`：连续访问 B/C 的 `i-k-j` 实现。
 - `src/kernels/gemm_blocked.cpp`：三维 cache blocking 对照。
 - `src/kernels/gemm_packed.cpp`：B layout transformation 与 packed kernel。
-- `src/kernels/gemm_microkernel.cpp`：portable 4×8、AVX2/FMA 4×8 微内核与
-  沿 M 维静态分区的 C++17 worker thread 调度。
+- `src/kernels/gemm_microkernel.cpp`：portable C++ 4×8 microkernel。
+- `src/kernels/gemm_avx2.cpp`：CPU capability check、AVX2/FMA 4×8 microkernel
+  和仅处理指定 M 行区间的内部 kernel。
+- `src/kernels/gemm_avx2_parallel.cpp`：沿 M 维静态分区的 C++17 worker
+  thread 调度，不直接包含 SIMD intrinsic。
+- `src/kernels/microkernel_common.hpp`：仅供上述实现共享的 shape validation、
+  micro-tile 常量和 portable 边界路径。
+- `src/kernels/gemm_avx2_internal.hpp`：单线程与多线程入口之间的私有
+  row-range 接口。
 - `src/verification/verification.cpp`：FP64 reference 与误差报告。
 - `src/benchmark/kernel_registry.*`：强类型 kernel 标识、集中 metadata 与执行分派。
 - `src/benchmark/benchmark_types.hpp`：shape、options、单次运行与 case result。

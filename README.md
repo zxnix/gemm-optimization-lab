@@ -14,7 +14,7 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 
 ## Current Milestone
 
-**Phase 1.8 — Engineering Closure（1.8.3 已完成）**
+**Phase 1.8 — Engineering Closure（1.8.4 已完成）**
 
 项目当前包含单线程 FP32 GEMM baseline、GCC 优化级别实验、循环顺序、cache blocking、B matrix packing、portable 4×8 microkernel、显式 AVX2/FMA 4×8 microkernel，以及沿 M 维静态分区的 C++17 多线程 kernel，不依赖任何第三方矩阵库。
 
@@ -38,6 +38,7 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 - 使用强类型 `KernelKind` 和集中式 descriptor 管理 benchmark kernel
 - 将 benchmark 拆分为参数、运行、统计、输出和入口组件
 - 使用 `gemm_core` CMake target 表示可复用的 kernel 与验证核心
+- 将 portable、AVX2/FMA 和多线程调度隔离在不同 translation unit
 
 除专用 AVX2 kernel 外，其余实现使用普通 C++ 循环。AVX2/FMA 仅应用于带运行时能力检查的目标函数；项目仍不启用全局 `-march=native`、`-ffast-math` 或 OpenMP，也不使用 BLAS、MKL、Eigen 等外部矩阵库。
 
@@ -54,7 +55,7 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
   - [x] Phase 1.8.1：集中管理 KernelKind、metadata 与执行分派
   - [x] Phase 1.8.2：拆分 benchmark 组件
   - [x] Phase 1.8.3：重命名核心 CMake target
-  - [ ] Phase 1.8.4：分离 portable 与 AVX2 源文件
+  - [x] Phase 1.8.4：分离 portable 与 AVX2 源文件
   - [ ] Phase 1.8.5：测试、格式与回归整理
   - [ ] Phase 1.8.6：Phase 1 最终冻结
 - [ ] Phase 2：LLVM IR 与机器指令分析
@@ -173,7 +174,8 @@ ctest --preset debug-thread-sanitizer
 ./scripts/run_multithreading.sh
 ```
 
-生成 `i-k-j`、blocked、packed 与 microkernel 的 O3 Assembly 和向量化报告：
+生成 `i-k-j`、blocked、packed、portable microkernel、AVX2/FMA 和并行调度的
+O3 Assembly 与向量化报告：
 
 ```bash
 ./scripts/generate_codegen_reports.sh
@@ -220,7 +222,7 @@ Modern AI workloads rely heavily on matrix computation. This project studies how
 
 ## Current Milestone
 
-**Phase 1.8 — Engineering Closure (1.8.3 completed)**
+**Phase 1.8 — Engineering Closure (1.8.4 completed)**
 
 The project currently provides a single-threaded FP32 GEMM baseline, controlled GCC optimization-level and loop-order experiments, cache blocking, B matrix packing, portable and explicit AVX2/FMA 4×8 microkernels, and a C++17 multithreaded kernel that statically partitions the M dimension. No third-party matrix library is used.
 
@@ -244,6 +246,7 @@ The project currently provides a single-threaded FP32 GEMM baseline, controlled 
 - Strongly typed `KernelKind` and centralized benchmark-kernel descriptors
 - Benchmark components separated into options, runner, statistics, output, and entry point
 - A `gemm_core` CMake target for the reusable kernels and verification core
+- Portable, AVX2/FMA, and multithreaded scheduling code isolated by translation unit
 
 All implementations except the dedicated AVX2 kernel use ordinary C++ loops. AVX2/FMA is limited to a target-specific function guarded by a runtime capability check. The project still does not enable global `-march=native`, `-ffast-math`, or OpenMP, and does not use BLAS, MKL, Eigen, or other external matrix libraries.
 
@@ -260,7 +263,7 @@ All implementations except the dedicated AVX2 kernel use ordinary C++ loops. AVX
   - [x] Phase 1.8.1: Centralize KernelKind, metadata, and dispatch
   - [x] Phase 1.8.2: Split benchmark components
   - [x] Phase 1.8.3: Rename the core CMake target
-  - [ ] Phase 1.8.4: Separate portable and AVX2 source files
+  - [x] Phase 1.8.4: Separate portable and AVX2 source files
   - [ ] Phase 1.8.5: Test, formatting, and regression cleanup
   - [ ] Phase 1.8.6: Final Phase 1 freeze
 - [ ] Phase 2: LLVM IR and machine-instruction analysis
@@ -379,7 +382,8 @@ Run the reproducible experiments:
 ./scripts/run_multithreading.sh
 ```
 
-Generate O3 assembly and vectorization reports for the `i-k-j`, blocked, packed, and microkernel implementations:
+Generate O3 assembly and vectorization reports for the `i-k-j`, blocked, packed,
+portable microkernel, AVX2/FMA, and parallel scheduling implementations:
 
 ```bash
 ./scripts/generate_codegen_reports.sh
