@@ -31,7 +31,7 @@ revision。
 | Phase 1.8.3 | 重命名核心 CMake target | 完成 |
 | Phase 1.8.4 | 分离 portable 与 AVX2 源文件 | 完成 |
 | Phase 1.8.5 | 测试、格式与回归整理 | 完成 |
-| Phase 1.8.6 | 最终检查并建立 phase1-complete tag | 待开始 |
+| Phase 1.8.6 | 最终检查并建立 phase1-complete tag | 完成 |
 
 ## Phase 1.8.1：Kernel Registry
 
@@ -226,7 +226,32 @@ YMM 和 FMA。
 GitHub Actions 在 Release job 中运行一次 source hygiene check，随后三种 preset
 都通过 CTest 执行六项回归检查。本阶段没有修改 kernel 或 benchmark 生产代码。
 
+## Phase 1.8.6：Final Audit and Freeze
+
+### 审计范围
+
+最终审计没有修改 kernel、benchmark 协议或历史性能数据，只核对并固化：
+
+- source、public headers、tests、scripts 与文档结构；
+- `results/phase1/` 的原始 CSV、终端输出、系统信息和阶段总结；
+- `artifacts/phase1/` 的 Assembly、编译命令和向量化报告；
+- Release、Address/Undefined Sanitizer 与 Thread Sanitizer 三套 preset；
+- tracked files、忽略规则、本地分支、远端 CI 和 Git tag 状态。
+
+### 验收结果
+
+- source hygiene 检查通过；
+- 三套 preset 均构建成功，每套六项 CTest 均通过；
+- ISA boundary test 确认 portable、AVX2/FMA 与 parallel scheduler 仍保持独立边界；
+- Git 未跟踪 build directory、object、library 或 executable；
+- Phase 1.1–1.7 的结果目录与 code-generation artifacts 均存在；
+- 最终阶段结论已写入 `docs/phase1-summary.md`；
+- 使用 annotated tag `phase1-complete` 标记可复现冻结点。
+
+`phase1-complete` 是历史边界，不是禁止后续修复。Phase 2 可以继续增加 LLVM IR 与
+机器代码分析；如果未来需要修复 Phase 1 代码，应使用新提交并保留该标签指向的原始状态。
+
 ## 下一步
 
-Phase 1.8.6 将执行 Phase 1 最终审计：核对文档、测试、源码树、历史结果与 Git
-状态，生成最终阶段总结，并仅在全部检查通过后创建 `phase1-complete` annotated tag。
+进入 Phase 2，固定代表性 kernel，通过 Clang/LLVM 生成并比较未优化 IR、优化后 IR、
+optimization remarks 与 x86-64 Assembly，建立源码变换到机器指令的逐层证据链。

@@ -2,7 +2,7 @@
 
 [中文](#中文) | [English](#english)
 
-中文详解：[项目结构](docs/architecture.md) · [代码走读](docs/code-walkthrough.md) · [数值验证](docs/numerical-verification.md) · [Benchmark 方法](docs/benchmark-methodology.md) · [Phase 1 工程收尾](docs/phase1-engineering-closure.md) · [Baseline 实验](docs/experiments/phase1-baseline.md) · [编译器优化级别实验](docs/experiments/phase1-compiler-options.md) · [Cache Blocking 实验](docs/experiments/phase1-blocking.md) · [Matrix Packing 实验](docs/experiments/phase1-packing.md) · [SIMD 实验](docs/experiments/phase1-simd.md) · [多线程实验](docs/experiments/phase1-multithreading.md)
+中文详解：[项目结构](docs/architecture.md) · [代码走读](docs/code-walkthrough.md) · [数值验证](docs/numerical-verification.md) · [Benchmark 方法](docs/benchmark-methodology.md) · [Phase 1 总结](docs/phase1-summary.md) · [Phase 1 工程收尾](docs/phase1-engineering-closure.md) · [Baseline 实验](docs/experiments/phase1-baseline.md) · [编译器优化级别实验](docs/experiments/phase1-compiler-options.md) · [Cache Blocking 实验](docs/experiments/phase1-blocking.md) · [Matrix Packing 实验](docs/experiments/phase1-packing.md) · [SIMD 实验](docs/experiments/phase1-simd.md) · [多线程实验](docs/experiments/phase1-multithreading.md)
 
 ## 中文
 
@@ -14,7 +14,7 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 
 ## Current Milestone
 
-**Phase 1.8 — Engineering Closure（1.8.5 已完成）**
+**Phase 2 — LLVM IR and Machine-Instruction Analysis（准备开始）**
 
 项目当前包含单线程 FP32 GEMM baseline、GCC 优化级别实验、循环顺序、cache blocking、B matrix packing、portable 4×8 microkernel、显式 AVX2/FMA 4×8 microkernel，以及沿 M 维静态分区的 C++17 多线程 kernel，不依赖任何第三方矩阵库。
 
@@ -52,13 +52,13 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 - [x] Phase 1.5：Matrix packing
 - [x] Phase 1.6：SIMD/AVX 向量化
 - [x] Phase 1.7：多线程与硬件性能计数器
-- [ ] Phase 1.8：工程收尾与阶段冻结
+- [x] Phase 1.8：工程收尾与阶段冻结
   - [x] Phase 1.8.1：集中管理 KernelKind、metadata 与执行分派
   - [x] Phase 1.8.2：拆分 benchmark 组件
   - [x] Phase 1.8.3：重命名核心 CMake target
   - [x] Phase 1.8.4：分离 portable 与 AVX2 源文件
   - [x] Phase 1.8.5：测试、格式与回归整理
-  - [ ] Phase 1.8.6：Phase 1 最终冻结
+  - [x] Phase 1.8.6：Phase 1 最终冻结
 - [ ] Phase 2：LLVM IR 与机器指令分析
 - [ ] Phase 3：Tensor IR 与调度
 - [ ] Phase 4：CUDA/GPU 后端优化
@@ -204,7 +204,9 @@ GFLOP/s = FLOPs / time_seconds / 1e9
 
 ## Results
 
-Phase 1.1–1.7 的结果位于 [`results/phase1`](results/phase1)。Phase 1.7 的多线程
+Phase 1 已完成并由 annotated tag `phase1-complete` 冻结，阶段总结见
+[`docs/phase1-summary.md`](docs/phase1-summary.md)。Phase 1.1–1.7 的结果位于
+[`results/phase1`](results/phase1)。Phase 1.7 的多线程
 AVX2/FMA kernel 在 1024³ 上从 64.671 GFLOP/s（1 thread）提升到
 272.810 GFLOP/s（20 threads），speedup 为 4.218×。256³ 的最佳点则是 2 threads，
 说明线程创建与调度开销会限制小矩阵。完整数据见 [Phase 1.2](results/phase1/compiler-options/summary.md)、[Phase 1.3](results/phase1/loop-order/summary.md)、[Phase 1.4](results/phase1/blocking/summary.md)、[Phase 1.5](results/phase1/packing/summary.md)、[Phase 1.6](results/phase1/simd/summary.md) 和 [Phase 1.7](results/phase1/multithreading/summary.md)。
@@ -232,7 +234,7 @@ Modern AI workloads rely heavily on matrix computation. This project studies how
 
 ## Current Milestone
 
-**Phase 1.8 — Engineering Closure (1.8.5 completed)**
+**Phase 2 — LLVM IR and Machine-Instruction Analysis (ready to start)**
 
 The project currently provides a single-threaded FP32 GEMM baseline, controlled GCC optimization-level and loop-order experiments, cache blocking, B matrix packing, portable and explicit AVX2/FMA 4×8 microkernels, and a C++17 multithreaded kernel that statically partitions the M dimension. No third-party matrix library is used.
 
@@ -270,13 +272,13 @@ All implementations except the dedicated AVX2 kernel use ordinary C++ loops. AVX
 - [x] Phase 1.5: Matrix packing
 - [x] Phase 1.6: SIMD/AVX vectorization
 - [x] Phase 1.7: Multithreading and hardware performance counters
-- [ ] Phase 1.8: Engineering closure and phase freeze
+- [x] Phase 1.8: Engineering closure and phase freeze
   - [x] Phase 1.8.1: Centralize KernelKind, metadata, and dispatch
   - [x] Phase 1.8.2: Split benchmark components
   - [x] Phase 1.8.3: Rename the core CMake target
   - [x] Phase 1.8.4: Separate portable and AVX2 source files
   - [x] Phase 1.8.5: Test, formatting, and regression cleanup
-  - [ ] Phase 1.8.6: Final Phase 1 freeze
+  - [x] Phase 1.8.6: Final Phase 1 freeze
 - [ ] Phase 2: LLVM IR and machine-instruction analysis
 - [ ] Phase 3: Tensor IR and scheduling
 - [ ] Phase 4: CUDA/GPU backend optimization
@@ -422,7 +424,9 @@ All benchmark results should be reproducible under a fixed hardware and software
 
 ## Results
 
-Results for Phases 1.1–1.7 are available in [`results/phase1`](results/phase1). On 1024³,
+Phase 1 is complete and frozen by the annotated tag `phase1-complete`; see
+[`docs/phase1-summary.md`](docs/phase1-summary.md) for the phase summary. Results for
+Phases 1.1–1.7 are available in [`results/phase1`](results/phase1). On 1024³,
 the Phase 1.7 multithreaded AVX2/FMA kernel improves from 64.671 GFLOP/s with one thread to
 272.810 GFLOP/s with 20 threads, a 4.218× speedup. The best 256³ result uses only two threads,
 showing that thread lifecycle and scheduling overhead dominate small matrices. See the summaries for [Phase 1.2](results/phase1/compiler-options/summary.md), [Phase 1.3](results/phase1/loop-order/summary.md), [Phase 1.4](results/phase1/blocking/summary.md), [Phase 1.5](results/phase1/packing/summary.md), [Phase 1.6](results/phase1/simd/summary.md), and [Phase 1.7](results/phase1/multithreading/summary.md).
