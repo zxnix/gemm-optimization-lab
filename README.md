@@ -2,7 +2,7 @@
 
 [中文](#中文) | [English](#english)
 
-中文详解：[项目结构](docs/architecture.md) · [代码走读](docs/code-walkthrough.md) · [数值验证](docs/numerical-verification.md) · [Benchmark 方法](docs/benchmark-methodology.md) · [Phase 1 总结](docs/phase1-summary.md) · [Phase 1 工程收尾](docs/phase1-engineering-closure.md) · [Baseline 实验](docs/experiments/phase1-baseline.md) · [编译器优化级别实验](docs/experiments/phase1-compiler-options.md) · [Cache Blocking 实验](docs/experiments/phase1-blocking.md) · [Matrix Packing 实验](docs/experiments/phase1-packing.md) · [SIMD 实验](docs/experiments/phase1-simd.md) · [多线程实验](docs/experiments/phase1-multithreading.md)
+中文详解：[项目结构](docs/architecture.md) · [代码走读](docs/code-walkthrough.md) · [数值验证](docs/numerical-verification.md) · [Benchmark 方法](docs/benchmark-methodology.md) · [Phase 1 总结](docs/phase1-summary.md) · [Phase 1 工程收尾](docs/phase1-engineering-closure.md) · [Baseline 实验](docs/experiments/phase1-baseline.md) · [编译器优化级别实验](docs/experiments/phase1-compiler-options.md) · [Cache Blocking 实验](docs/experiments/phase1-blocking.md) · [Matrix Packing 实验](docs/experiments/phase1-packing.md) · [SIMD 实验](docs/experiments/phase1-simd.md) · [多线程实验](docs/experiments/phase1-multithreading.md) · [LLVM baseline](docs/experiments/phase2-llvm-baseline.md)
 
 ## 中文
 
@@ -14,7 +14,7 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 
 ## Current Milestone
 
-**Phase 2 — LLVM IR and Machine-Instruction Analysis（准备开始）**
+**Phase 2.1 — LLVM Toolchain and Naive IR Baseline（进行中）**
 
 项目当前包含单线程 FP32 GEMM baseline、GCC 优化级别实验、循环顺序、cache blocking、B matrix packing、portable 4×8 microkernel、显式 AVX2/FMA 4×8 microkernel，以及沿 M 维静态分区的 C++17 多线程 kernel，不依赖任何第三方矩阵库。
 
@@ -60,6 +60,13 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
   - [x] Phase 1.8.5：测试、格式与回归整理
   - [x] Phase 1.8.6：Phase 1 最终冻结
 - [ ] Phase 2：LLVM IR 与机器指令分析
+  - [ ] Phase 2.1：LLVM 工具链与 naive IR baseline
+  - [ ] Phase 2.2：未优化 IR 与 C++ 语义映射
+  - [ ] Phase 2.3：优化 pass 与 O0/O3 对比
+  - [ ] Phase 2.4：循环、内存访问与 alias analysis
+  - [ ] Phase 2.5：自动向量化诊断
+  - [ ] Phase 2.6：AVX2/FMA lowering
+  - [ ] Phase 2.7：机器指令分析与阶段总结
 - [ ] Phase 3：Tensor IR 与调度
 - [ ] Phase 4：CUDA/GPU 后端优化
 - [ ] Phase 5：硬件感知自动调优
@@ -68,37 +75,42 @@ GEMM Optimization Lab 是一个研究型系统项目，用于学习面向 AI 编
 
 ### Operating System
 
-- Fedora Linux 44 on WSL2，用于开发阶段实验
-- 后续使用原生 Linux 进行受控、论文级性能测量
+- Fedora Linux 44 on WSL2：开发、功能验证与编译器分析
+- 原生 Linux：后续受控、论文级性能测量
 
-### Toolchain
+### Build Toolchain
 
 - C++17
-- CMake 与 Ninja
+- CMake 3.20 或更高版本
+- Ninja
 - Git 与 GitHub Actions
 
-### Compiler Toolchain
+### Compiler Roles
 
-- GCC：baseline 与优化级别实验
-- Clang/LLVM：编译器分析阶段
+- GCC 16.1.1：Phase 1 baseline、优化实验和默认 `release` preset
+- Clang/LLVM 22.1.8：Phase 2 IR、optimization pass 与 machine-code 分析
+- `clang++`、`opt`、`llc`、`llvm-dis`、`llvm-diff`、`llvm-objdump` 和
+  `llvm-mca` 必须使用相同 major version
 
-### Target Hardware
+### Target Policy
 
-当前目标：
+当前分析目标为 `x86_64-redhat-linux-gnu`。普通 kernel 不全局启用
+`-march=native`、`-mavx2`、`-mfma` 或 `-ffast-math`；专用 AVX2/FMA 函数
+继续由 target attribute 和运行时 capability check 隔离。
 
-- x86-64 CPU
-
-未来目标：
-
-- 支持 CUDA 的 GPU
-- NPU 或其他 AI 加速器后端
-
-在 Fedora 中安装开发工具：
+### Installation
 
 ```bash
-sudo dnf install gcc-c++ cmake ninja-build git
-sudo dnf install clang llvm
-sudo dnf install perf libtsan
+sudo dnf install gcc-c++ clang llvm cmake ninja-build git perf libtsan
+```
+
+确认 Phase 2 工具版本：
+
+```bash
+clang++ --version
+opt --version
+llc --version
+llvm-objdump --version
 ```
 
 ## Project Structure
@@ -106,7 +118,9 @@ sudo dnf install perf libtsan
 ```text
 .
 ├── .github/workflows/       # 持续集成
-├── artifacts/phase1/        # 生成的汇编和编译器报告
+├── artifacts/
+│   ├── phase1/              # GCC 汇编和向量化报告
+│   └── phase2/              # LLVM IR、Assembly 与机器代码分析
 ├── docs/
 │   └── experiments/         # 实验设计与方法
 ├── include/gemm/            # Matrix、GEMM 和验证接口
@@ -128,13 +142,23 @@ sudo dnf install perf libtsan
 
 ## Build and Test
 
+默认 GCC Release 构建：
+
 ```bash
 cmake --preset release
 cmake --build --preset release
 ctest --preset release
 ```
 
-需要排查内存错误或未定义行为时，使用同一套 Debug Sanitizer 配置：
+Phase 2 使用 Clang 独立构建并执行同一组回归测试：
+
+```bash
+cmake --preset clang-release
+cmake --build --preset clang-release
+ctest --preset clang-release
+```
+
+需要排查内存错误或未定义行为时：
 
 ```bash
 cmake --preset debug-sanitizers
@@ -142,7 +166,7 @@ cmake --build --preset debug-sanitizers
 ctest --preset debug-sanitizers
 ```
 
-检查多线程数据竞争时使用独立的 ThreadSanitizer 配置：
+检查多线程数据竞争时：
 
 ```bash
 cmake --preset debug-thread-sanitizer
@@ -150,13 +174,22 @@ cmake --build --preset debug-thread-sanitizer
 ctest --preset debug-thread-sanitizer
 ```
 
-`CMakePresets.json` 是提交到仓库的共享配置，本地和 GitHub Actions 使用相同参数。个人机器专用配置可写入不提交的 `CMakeUserPresets.json`。
+`CMakePresets.json` 是本地和 GitHub Actions 共用的配置。机器专用设置可写入不提交的
+`CMakeUserPresets.json`。
 
 检查源码格式、文件换行与 Shell 语法：
 
 ```bash
 ./scripts/check_style.sh
 ```
+
+## Generate LLVM Baseline
+
+```bash
+./scripts/generate_llvm_baseline.sh
+```
+
+该脚本从 naive kernel 生成 `-O0/-O3` LLVM IR、Assembly 和 object disassembly。
 
 ## Run the Benchmark
 
@@ -234,7 +267,7 @@ Modern AI workloads rely heavily on matrix computation. This project studies how
 
 ## Current Milestone
 
-**Phase 2 — LLVM IR and Machine-Instruction Analysis (ready to start)**
+**Phase 2.1 — LLVM Toolchain and Naive IR Baseline (in progress)**
 
 The project currently provides a single-threaded FP32 GEMM baseline, controlled GCC optimization-level and loop-order experiments, cache blocking, B matrix packing, portable and explicit AVX2/FMA 4×8 microkernels, and a C++17 multithreaded kernel that statically partitions the M dimension. No third-party matrix library is used.
 
@@ -280,6 +313,13 @@ All implementations except the dedicated AVX2 kernel use ordinary C++ loops. AVX
   - [x] Phase 1.8.5: Test, formatting, and regression cleanup
   - [x] Phase 1.8.6: Final Phase 1 freeze
 - [ ] Phase 2: LLVM IR and machine-instruction analysis
+  - [ ] Phase 2.1: LLVM toolchain and naive IR baseline
+  - [ ] Phase 2.2: Unoptimized IR and C++ semantic mapping
+  - [ ] Phase 2.3: Optimization passes and O0/O3 comparison
+  - [ ] Phase 2.4: Loops, memory access, and alias analysis
+  - [ ] Phase 2.5: Auto-vectorization diagnostics
+  - [ ] Phase 2.6: AVX2/FMA lowering
+  - [ ] Phase 2.7: Machine-instruction analysis and phase summary
 - [ ] Phase 3: Tensor IR and scheduling
 - [ ] Phase 4: CUDA/GPU backend optimization
 - [ ] Phase 5: Hardware-aware automatic tuning
@@ -288,37 +328,42 @@ All implementations except the dedicated AVX2 kernel use ordinary C++ loops. AVX
 
 ### Operating System
 
-- Fedora Linux 44 on WSL2 for development experiments
-- Native Linux planned for controlled, publication-quality measurements
+- Fedora Linux 44 on WSL2 for development, functional validation, and compiler analysis
+- Native Linux for future controlled, publication-quality measurements
 
-### Toolchain
+### Build Toolchain
 
 - C++17
-- CMake and Ninja
+- CMake 3.20 or newer
+- Ninja
 - Git and GitHub Actions
 
-### Compiler Toolchain
+### Compiler Roles
 
-- GCC for baseline and optimization-level experiments
-- Clang/LLVM for the compiler-analysis phase
+- GCC 16.1.1 for the Phase 1 baseline, optimization experiments, and default `release` preset
+- Clang/LLVM 22.1.8 for Phase 2 IR, optimization-pass, and machine-code analysis
+- `clang++`, `opt`, `llc`, `llvm-dis`, `llvm-diff`, `llvm-objdump`, and
+  `llvm-mca` must use the same major version
 
-### Target Hardware
+### Target Policy
 
-Current target:
+The current analysis target is `x86_64-redhat-linux-gnu`. Portable kernels do not globally
+enable `-march=native`, `-mavx2`, `-mfma`, or `-ffast-math`; the dedicated AVX2/FMA
+function remains isolated by its target attribute and runtime capability check.
 
-- x86-64 CPU
-
-Future targets:
-
-- CUDA-capable GPU
-- NPU or other AI accelerator backend
-
-Install the development tools on Fedora:
+### Installation
 
 ```bash
-sudo dnf install gcc-c++ cmake ninja-build git
-sudo dnf install clang llvm
-sudo dnf install perf libtsan
+sudo dnf install gcc-c++ clang llvm cmake ninja-build git perf libtsan
+```
+
+Verify the Phase 2 tool versions:
+
+```bash
+clang++ --version
+opt --version
+llc --version
+llvm-objdump --version
 ```
 
 ## Project Structure
@@ -326,7 +371,9 @@ sudo dnf install perf libtsan
 ```text
 .
 ├── .github/workflows/       # Continuous integration
-├── artifacts/phase1/        # Generated assembly and compiler reports
+├── artifacts/
+│   ├── phase1/              # GCC assembly and vectorization reports
+│   └── phase2/              # LLVM IR, assembly, and machine-code analysis
 ├── docs/
 │   └── experiments/         # Experiment designs and methodology
 ├── include/gemm/            # Matrix, GEMM, and verification interfaces
@@ -348,13 +395,23 @@ sudo dnf install perf libtsan
 
 ## Build and Test
 
+Default GCC Release build:
+
 ```bash
 cmake --preset release
 cmake --build --preset release
 ctest --preset release
 ```
 
-Use the shared Debug Sanitizer configuration to diagnose memory errors and undefined behavior:
+Phase 2 uses a separate Clang build with the same regression tests:
+
+```bash
+cmake --preset clang-release
+cmake --build --preset clang-release
+ctest --preset clang-release
+```
+
+Use the Debug Sanitizer build to diagnose memory errors and undefined behavior:
 
 ```bash
 cmake --preset debug-sanitizers
@@ -362,7 +419,7 @@ cmake --build --preset debug-sanitizers
 ctest --preset debug-sanitizers
 ```
 
-Use the separate ThreadSanitizer configuration to check for data races:
+Use the ThreadSanitizer build to check for data races:
 
 ```bash
 cmake --preset debug-thread-sanitizer
@@ -370,13 +427,22 @@ cmake --build --preset debug-thread-sanitizer
 ctest --preset debug-thread-sanitizer
 ```
 
-`CMakePresets.json` is committed as the shared configuration used by local development and GitHub Actions. Machine-specific settings may be placed in the untracked `CMakeUserPresets.json`.
+`CMakePresets.json` is shared by local development and GitHub Actions. Machine-specific
+settings may be placed in the untracked `CMakeUserPresets.json`.
 
-Check source formatting, final newlines, and shell syntax:
+Check source formatting, final newlines, and Shell syntax:
 
 ```bash
 ./scripts/check_style.sh
 ```
+
+## Generate LLVM Baseline
+
+```bash
+./scripts/generate_llvm_baseline.sh
+```
+
+The script emits `-O0/-O3` LLVM IR, Assembly, and object disassembly for the naive kernel.
 
 ## Run the Benchmark
 

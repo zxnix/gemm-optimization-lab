@@ -24,6 +24,18 @@
       }
     },
     {
+      "name": "clang-release",
+      "displayName": "Clang Release analysis build",
+      "description": "Optimized Clang build used for LLVM analysis",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "GEMM_ENABLE_SANITIZERS": "OFF",
+        "GEMM_OPT_LEVEL": "O3"
+      }
+    },
+    {
       "name": "debug-sanitizers",
       "displayName": "Debug build with sanitizers",
       "description": "Debug build with AddressSanitizer and UndefinedBehaviorSanitizer",
@@ -53,6 +65,10 @@
       "configurePreset": "release"
     },
     {
+      "name": "clang-release",
+      "configurePreset": "clang-release"
+    },
+    {
       "name": "debug-sanitizers",
       "configurePreset": "debug-sanitizers"
     },
@@ -65,6 +81,13 @@
     {
       "name": "release",
       "configurePreset": "release",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "clang-release",
+      "configurePreset": "clang-release",
       "output": {
         "outputOnFailure": true
       }
